@@ -67,5 +67,22 @@ export function useQuadras() {
     }
   };
 
-  return { fetchQuadrasOrganizador, fetchQuadraPorId, cadastrarQuadra, loading, error };
+  const fetchQuadrasAprovadas = async () => {
+    setLoading(true);
+    try {
+      const response = await databases.listDocuments(
+        config.databaseId,
+        config.collections.quadras,
+        [Query.equal('status_aprovacao', 'APROVADO')]
+      );
+      return response.documents.map(mapQuadra);
+    } catch (e: any) {
+      setError(e.message);
+      return [];
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return { fetchQuadrasOrganizador, fetchQuadraPorId, fetchQuadrasAprovadas, cadastrarQuadra, loading, error };
 }

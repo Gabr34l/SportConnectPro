@@ -18,29 +18,30 @@ export default function Login() {
 
   // Watch auth context — navigate only when both session AND usuario are loaded
   useEffect(() => {
-    if (loginSuccess && session && usuario) {
+    if ((loginSuccess || session) && usuario) {
       router.replace('/');
     }
   }, [loginSuccess, session, usuario]);
 
   const showFeedback = (type: 'success' | 'error' | 'info', title: string, message: string) => {
-    if (Platform.OS === 'web') {
-      toast.show({ type, title, message });
-    } else {
-      const { Alert } = require('react-native');
-      Alert.alert(title, message);
-    }
+    toast.show({ type, title, message });
   };
 
   const handleLogin = async () => {
-    if (!email || !password) {
+    const limpoEmail = email.trim();
+    if (!limpoEmail || !password) {
       showFeedback('info', 'Aviso', 'Preencha e-mail e senha');
       return;
     }
     setLoading(true);
     try {
+      // Limpa possível sessão presa antes de criar uma nova
+      try {
+        await account.deleteSession('current');
+      } catch (_) {}
+
       // 1. Criar a sessão no Appwrite
-      const sessionData = await account.createEmailPasswordSession(email, password);
+      const sessionData = await account.createEmailPasswordSession(limpoEmail, password);
       
       if (sessionData) {
         showFeedback('success', 'Sucesso', 'Login realizado com sucesso!');
@@ -50,7 +51,12 @@ export default function Login() {
       }
     } catch (e: any) {
       console.error('Erro no login:', e);
-      showFeedback('error', 'Erro', e.message || 'E-mail ou senha incorretos');
+      let msg = 'E-mail ou senha incorretos';
+      if (e.message?.includes('Invalid credentials')) msg = 'E-mail ou senha incorretos';
+      else if (e.message?.includes('Network request failed')) msg = 'Sem conexão com o servidor';
+      else if (e.message) msg = e.message;
+      
+      showFeedback('error', 'Ops!', msg);
       setLoading(false);
     }
   };

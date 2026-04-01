@@ -52,12 +52,7 @@ export default function Cadastro() {
   const [loading, setLoading] = useState(false);
 
   const showFeedback = (type: 'success' | 'error' | 'info', title: string, message: string) => {
-    if (Platform.OS === 'web') {
-      toast.show({ type, title, message });
-    } else {
-      const { Alert } = require('react-native');
-      Alert.alert(title, message);
-    }
+    toast.show({ type, title, message });
   };
 
   const maskCNPJ = (val: string) => {
@@ -144,7 +139,7 @@ export default function Cadastro() {
           uri: Platform.OS === 'ios' ? uri.replace('file://', '') : uri,
           name: name,
           type: `image/${extension}`,
-        });
+        } as any);
 
         const url = storage.getFileView(config.storageId, fileId);
         urls.push(url.toString());
@@ -156,7 +151,8 @@ export default function Cadastro() {
   };
 
   const handleCadastrar = async () => {
-    if (!nome || !email || !senha) {
+    const limpoEmail = email.trim();
+    if (!nome || !limpoEmail || !senha) {
       showFeedback('info', 'Aviso', 'PREENCHA COM SEUS DADOS');
       return;
     }
@@ -172,18 +168,23 @@ export default function Cadastro() {
     setLoading(true);
     
     try {
-      // 1. Criar a conta no Appwrite
+      // 1. Limpar sessão se estiver "presa" do erro anterior
+      try {
+        await account.deleteSession('current');
+      } catch (_) {}
+
+      // 2. Criar a conta no Appwrite
       const newUser = await account.create(
         ID.unique(),
-        email,
+        limpoEmail,
         senha,
         nome
       );
 
       const userId = newUser.$id;
 
-      // 2. Criar uma sessão para poder escrever dados nas coleções
-      await account.createEmailPasswordSession(email, senha);
+      // 3. Criar uma sessão para poder escrever dados nas coleções
+      await account.createEmailPasswordSession(limpoEmail, senha);
 
       // 3. Criar o perfil extra na coleção 'usuarios'
       await databases.createDocument(

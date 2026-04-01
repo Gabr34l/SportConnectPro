@@ -45,6 +45,11 @@ export default function CriarEvento() {
   const [horaInicio, setHoraInicio] = useState(''); // HH:MM
   const [horaFim, setHoraFim] = useState(''); // HH:MM
   
+  // Pickers Native
+  const [showDatePicker, setShowDatePicker] = useState(false);
+  const [showTimePickerInicio, setShowTimePickerInicio] = useState(false);
+  const [showTimePickerFim, setShowTimePickerFim] = useState(false);
+  
   const [vagas, setVagas] = useState('12');
   const [preco, setPreco] = useState('0.00');
 
@@ -282,37 +287,65 @@ export default function CriarEvento() {
               
               <View className="flex-row items-center border border-gray-100 rounded-2xl px-4 py-3.5 mb-3 bg-gray-50">
                 <Calendar size={20} color="#9CA3AF" />
-                <TextInput 
-                  className="flex-1 ml-3 text-base text-gray-800"
-                  placeholder="YYYY-MM-DD (2024-12-25)" 
-                  value={dataEvento} 
-                  onChangeText={v => setDataEvento(handleMaskData(v))} 
-                  keyboardType="numeric" 
-                />
+                {Platform.OS === 'web' ? (
+                  React.createElement('input', {
+                    type: 'date',
+                    value: dataEvento,
+                    onChange: (e: any) => setDataEvento(e.target.value),
+                    style: { flex: 1, marginLeft: 12, border: 'none', background: 'transparent', outline: 'none', fontSize: 16, color: '#1F2937', fontFamily: 'inherit' }
+                  })
+                ) : (
+                  <TextInput 
+                    className="flex-1 ml-3 text-base text-gray-800"
+                    placeholder="YYYY-MM-DD (2024-12-25)" 
+                    value={dataEvento} 
+                    onChangeText={v => setDataEvento(handleMaskData(v))} 
+                    keyboardType="numeric" 
+                  />
+                )}
               </View>
 
-              <View className="flex-row gap-2">
+              <View className="flex-row gap-2 mb-3">
                 <View className="flex-1 flex-row items-center border border-gray-100 rounded-2xl px-4 py-3.5 bg-gray-50">
                   <Clock size={20} color="#9CA3AF" />
-                  <TextInput 
-                    className="flex-1 ml-3 text-base text-gray-800"
-                    placeholder="Início HH:MM" 
-                    value={horaInicio} 
-                    onChangeText={v => setHoraInicio(handleMaskHora(v))} 
-                    keyboardType="numeric" 
-                  />
+                  {Platform.OS === 'web' ? (
+                    React.createElement('input', {
+                      type: 'time',
+                      value: horaInicio,
+                      onChange: (e: any) => setHoraInicio(e.target.value),
+                      style: { flex: 1, marginLeft: 12, border: 'none', background: 'transparent', outline: 'none', fontSize: 16, color: '#1F2937', fontFamily: 'inherit' }
+                    })
+                  ) : (
+                    <TextInput 
+                      className="flex-1 ml-3 text-base text-gray-800"
+                      placeholder="Início HH:MM" 
+                      value={horaInicio} 
+                      onChangeText={v => setHoraInicio(handleMaskHora(v))} 
+                      keyboardType="numeric" 
+                    />
+                  )}
                 </View>
                 <View className="flex-1 flex-row items-center border border-gray-100 rounded-2xl px-4 py-3.5 bg-gray-50">
                   <Clock size={20} color="#9CA3AF" />
-                  <TextInput 
-                    className="flex-1 ml-3 text-base text-gray-800"
-                    placeholder="Fim HH:MM" 
-                    value={horaFim} 
-                    onChangeText={v => setHoraFim(handleMaskHora(v))} 
-                    keyboardType="numeric" 
-                  />
+                  {Platform.OS === 'web' ? (
+                    React.createElement('input', {
+                      type: 'time',
+                      value: horaFim,
+                      onChange: (e: any) => setHoraFim(e.target.value),
+                      style: { flex: 1, marginLeft: 12, border: 'none', background: 'transparent', outline: 'none', fontSize: 16, color: '#1F2937', fontFamily: 'inherit' }
+                    })
+                  ) : (
+                    <TextInput 
+                      className="flex-1 ml-3 text-base text-gray-800"
+                      placeholder="Fim HH:MM" 
+                      value={horaFim} 
+                      onChangeText={v => setHoraFim(handleMaskHora(v))} 
+                      keyboardType="numeric" 
+                    />
+                  )}
                 </View>
               </View>
+
             </View>
 
             <TouchableOpacity 
@@ -413,7 +446,9 @@ export default function CriarEvento() {
                   <Calendar size={24} color="#00C853" />
                   <View className="ml-4">
                     <Text className="text-xs text-gray-400 mb-1">DATA & HORÁRIO</Text>
-                    <Text className="text-base font-bold text-gray-800">{dataEvento} • {horaInicio} às {horaFim}</Text>
+                    <Text className="text-base font-bold text-gray-800">
+                      {dataEvento ? dataEvento.split('-').reverse().join('/') : ''} • {horaInicio} às {horaFim}
+                    </Text>
                   </View>
                 </View>
 

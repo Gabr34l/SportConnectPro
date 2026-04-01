@@ -8,6 +8,6 @@ export const SPORTS = [
   { id: 'outros',   label: 'Outros',   iconName: 'Activity', color: '#607D8B' },
 ];
 export const FORMATOS  = ['5v5', '6v6', '7v7', '8v8', '11v11'];
-export const AMBIENTES = ['Indoor', 'Outdoor'];
+export const AMBIENTES = ['Coberta', 'Descoberta'];
 export const NIVEIS    = ['INICIANTE', 'INTERMEDIARIO', 'AVANCADO'];
 

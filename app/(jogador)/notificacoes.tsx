@@ -12,48 +12,52 @@ export default function Notificacoes() {
   const { notificacoes, loading, marcarComoLida, marcarTodasComoLidas } = useNotificacoes(usuario?.id_usuario);
 
   return (
-    <View style={styles.container}>
-      <View style={styles.header}>
-        <Text style={styles.title}>Notificações</Text>
-        <TouchableOpacity onPress={marcarTodasComoLidas}>
-          <Text style={styles.markAll}>Marcar todas lidas</Text>
+    <View className="flex-1 bg-gray-50">
+      <View className="flex-row justify-between items-center px-6 pt-16 pb-6 bg-white border-b border-gray-100 shadow-sm shadow-black/5">
+        <Text className="text-2xl font-bold text-gray-800">Notificações</Text>
+        <TouchableOpacity 
+          className="bg-green-50 px-4 py-2 rounded-2xl"
+          onPress={marcarTodasComoLidas}
+        >
+          <Text className="text-[#00C853] font-bold text-sm">Limpar todas</Text>
         </TouchableOpacity>
       </View>
 
-      {loading ? (
-        <ActivityIndicator size="large" color={theme.colors.primary} style={{marginTop: 50}} />
-      ) : (
-        <FlatList
-          data={notificacoes}
-          keyExtractor={n => n.id_notificacao}
-          renderItem={({item}) => (
-            <NotificacaoItem 
-              item={item} 
-              onPress={() => {
-                marcarComoLida(item.id_notificacao);
-                if (item.id_referencia) {
-                  router.push(`/(jogador)/evento/${item.id_referencia}` as any);
-                }
-              }} 
-            />
-          )}
-          ListEmptyComponent={
-            <View style={styles.empty}>
-              <Text style={{fontSize: 48}}>📭</Text>
-              <Text style={styles.emptyText}>Nenhuma notificação por enquanto</Text>
-            </View>
-          }
-        />
-      )}
+      <View className="flex-1">
+        {loading ? (
+          <View className="mt-12">
+            <ActivityIndicator size="large" color="#00C853" />
+          </View>
+        ) : (
+          <FlatList
+            data={notificacoes}
+            keyExtractor={n => n.id_notificacao}
+            renderItem={({item}) => (
+              <NotificacaoItem 
+                item={item} 
+                onPress={() => {
+                  marcarComoLida(item.id_notificacao);
+                  if (item.id_referencia) {
+                    router.push(`/(jogador)/evento/${item.id_referencia}` as any);
+                  }
+                }} 
+              />
+            )}
+            contentContainerStyle={{ padding: 20 }}
+            ListEmptyComponent={
+              <View className="items-center mt-12 bg-white p-8 rounded-3xl border border-gray-100 shadow-sm shadow-black/5">
+                <Text style={{fontSize: 48}} className="mb-4">📭</Text>
+                <Text className="text-gray-400 font-bold text-center text-lg">
+                  Nada por aqui...
+                </Text>
+                <Text className="text-gray-400 text-center mt-2 leading-6">
+                  Você ainda não recebeu notificações. Avisaremos assim que algo acontecer!
+                </Text>
+              </View>
+            }
+          />
+        )}
+      </View>
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: theme.colors.background },
-  header: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', padding: 24, paddingTop: 48, backgroundColor: theme.colors.surface, borderBottomWidth: 1, borderColor: theme.colors.border },
-  title: { fontSize: 24, fontWeight: 'bold', color: theme.colors.textPrimary },
-  markAll: { fontSize: 14, color: theme.colors.primary, fontWeight: 'bold' },
-  empty: { alignItems: 'center', marginTop: 50 },
-  emptyText: { color: theme.colors.textSecondary, marginTop: 16, textAlign: 'center' }
-});

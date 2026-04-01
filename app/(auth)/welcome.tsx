@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import { View, Text, TouchableOpacity, Animated } from 'react-native';
 import { useRouter } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
+import { useAuthContext } from '../../contexts/AuthContext';
 
 const esportes = [
   { emoji: "⚽", nome: "Futebol", color: "#00952A" },
@@ -15,9 +16,17 @@ const esportes = [
 export default function Welcome() {
   const router = useRouter();
   const [currentIndex, setCurrentIndex] = useState(0);
+  const { session, usuario } = useAuthContext();
   
   const fadeAnim = useRef(new Animated.Value(1)).current;
   const scaleAnim = useRef(new Animated.Value(1)).current;
+
+  // Auto-redirect if already logged in
+  useEffect(() => {
+    if (session && usuario) {
+      router.replace('/');
+    }
+  }, [session, usuario]);
 
   useEffect(() => {
     const interval = setInterval(() => {

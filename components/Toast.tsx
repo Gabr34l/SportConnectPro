@@ -53,30 +53,37 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
         <Animated.View
           style={{
             position: 'absolute',
-            top: Platform.OS === 'web' ? 20 : 60,
-            left: 20,
-            right: 20,
+            top: Platform.OS === 'web' ? 40 : 70,
+            alignSelf: 'center',
+            minWidth: 300,
+            maxWidth: '90%',
             backgroundColor: bgColor,
-            borderRadius: 12,
-            padding: 16,
+            borderRadius: 20,
+            paddingVertical: 14,
+            paddingHorizontal: 24,
             zIndex: 9999,
             opacity,
             transform: [{ translateY }],
             shadowColor: '#000',
-            shadowOffset: { width: 0, height: 4 },
-            shadowOpacity: 0.3,
-            shadowRadius: 8,
-            elevation: 8,
+            shadowOffset: { width: 0, height: 10 },
+            shadowOpacity: 0.2,
+            shadowRadius: 20,
+            elevation: 10,
+            flexDirection: 'row',
+            alignItems: 'center',
+            justifyContent: 'center',
           }}
         >
-          {toast.title && (
-            <Text style={{ color: '#fff', fontWeight: 'bold', fontSize: 16, marginBottom: 4 }}>
-              {toast.title}
+          <View style={{ alignItems: 'center' }}>
+            {toast.title && (
+              <Text style={{ color: '#fff', fontWeight: '900', fontSize: 13, marginBottom: 2, textTransform: 'uppercase', letterSpacing: 1 }}>
+                {toast.title}
+              </Text>
+            )}
+            <Text style={{ color: '#fff', fontSize: 15, fontWeight: '600', textAlign: 'center' }}>
+              {toast.message}
             </Text>
-          )}
-          <Text style={{ color: '#fff', fontSize: 14 }}>
-            {toast.message}
-          </Text>
+          </View>
         </Animated.View>
       )}
     </ToastContext.Provider>

@@ -97,17 +97,52 @@ export default function CadastrarQuadra() {
         const extension = uri.split('.').pop() || 'jpg';
         const name = `quadra_${userId}_${Date.now()}.${extension}`;
         
-        await storage.createFile(config.storageId, fileId, {
-          uri: Platform.OS === 'ios' ? uri.replace('file://', '') : uri,
-          name: name,
-          type: `image/${extension}`,
-          size: 0,
-        });
+        let urlResult = '';
 
-        const url = storage.getFileView(config.storageId, fileId);
-        urls.push(url.toString());
+        if (Platform.OS === 'web') {
+          // O react-native-appwrite falha na web (expo-file-system error).
+          // Contornamos com um Fetch puro com Token JWT do próprio usuário!
+          const { account } = require('../../lib/appwrite'); // import lazy
+          const jwtResponse = await account.createJWT();
+          
+          const res = await fetch(uri);
+          const blob = await res.blob();
+          const fileToUpload = new File([blob], name, { type: blob.type || `image/${extension}` });
+          
+          const formData = new FormData();
+          formData.append('fileId', fileId);
+          formData.append('file', fileToUpload);
+
+          const uploadRes = await fetch(`${config.endpoint}/storage/buckets/${config.storageId}/files`, {
+            method: 'POST',
+            headers: {
+              'X-Appwrite-Project': config.projectId,
+              'X-Appwrite-JWT': jwtResponse.jwt,
+            },
+            body: formData,
+          });
+
+          if (!uploadRes.ok) {
+             const errorData = await uploadRes.json();
+             throw new Error(errorData.message || 'Falha no Rest Upload');
+          }
+
+          urlResult = storage.getFileView(config.storageId, fileId).toString();
+        } else {
+          // Native Mobile
+          const fileToUpload = {
+            uri: Platform.OS === 'ios' ? uri.replace('file://', '') : uri,
+            name: name,
+            type: `image/${extension}`,
+            size: 0,
+          };
+          await storage.createFile(config.storageId, fileId, fileToUpload as any);
+          urlResult = storage.getFileView(config.storageId, fileId).toString();
+        }
+
+        urls.push(urlResult);
       } catch (e) {
-        console.error('Erro no upload', e);
+        console.error('Erro no upload da foto', e);
       }
     }
     return urls;
@@ -144,7 +179,7 @@ export default function CadastrarQuadra() {
       );
 
       showFeedback('success', 'Sucesso!', 'Sua quadra foi cadastrada e está em análise.');
-      setTimeout(() => router.back(), 2000);
+      setTimeout(() => router.replace('/quadras'), 2000);
     } catch (e: any) {
       showFeedback('error', 'Erro', e.message);
     } finally {

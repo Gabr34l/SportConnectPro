@@ -4,7 +4,7 @@ import { useRouter } from 'expo-router';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { useToast } from '../../components/Toast';
 import * as ImagePicker from 'expo-image-picker';
-import { supabase } from '../../lib/supabase';
+import { databases, config, storage, ID } from '../../lib/appwrite';
 import { 
   Building2, 
   Mail, 
@@ -58,32 +58,34 @@ export default function Perfil() {
       setLoading(true);
       try {
         const uri = result.assets[0].uri;
-        let fileData: any;
-        let ext = uri.split('.').pop() || 'jpeg';
-
-        if (Platform.OS === 'web') {
-          const res = await fetch(uri);
-          fileData = await res.blob();
-          ext = fileData.type.split('/')[1] || 'jpeg';
-        } else {
-          fileData = new FormData();
-          fileData.append('file', { uri, name: `avatar.${ext}`, type: `image/${ext}` } as any);
-        }
-
-        const fileName = `${usuario.id_usuario}/avatar_${Date.now()}.${ext}`;
-
-        const { error } = await supabase.storage.from('avatares').upload(fileName, fileData, { 
-          upsert: true,
-          contentType: Platform.OS === 'web' ? (result.assets[0].mimeType || `image/${ext}`) : undefined
-        });
-        if (error) throw error;
-
-        const { data: publicData } = supabase.storage.from('avatares').getPublicUrl(fileName);
+        const fileId = ID.unique();
+        const extension = uri.split('.').pop() || 'jpg';
+        const name = `avatar_${usuario.id_usuario}_${Date.now()}.${extension}`;
         
-        await supabase.from('usuarios').update({ foto_perfil: publicData.publicUrl }).eq('id_usuario', usuario.id_usuario);
+        // 1. Upload para o Appwrite Storage
+        await storage.createFile(config.storageId, fileId, {
+          uri: Platform.OS === 'ios' ? uri.replace('file://', '') : uri,
+          name: name,
+          type: `image/${extension}`,
+          size: 0,
+        });
+
+        // 2. Pegar a URL de visualização
+        const url = storage.getFileView(config.storageId, fileId);
+        
+        // 3. Atualizar no Banco de Dados
+        await databases.updateDocument(
+          config.databaseId,
+          config.collections.usuarios,
+          usuario.id_usuario,
+          { foto_perfil: url.toString() }
+        );
+
+        // 4. Atualizar o contexto global
         await refreshUsuario(usuario.id_usuario);
         showFeedback('success', 'Sucesso', 'Foto atualizada!');
       } catch (err: any) {
+        console.error('Erro no upload de avatar (organizador):', err);
         showFeedback('error', 'Erro', 'Não foi possível atualizar a foto: ' + err.message);
       } finally {
         setLoading(false);

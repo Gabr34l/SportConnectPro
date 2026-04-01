@@ -29,7 +29,7 @@ export default function HomeJogador() {
   ];
   const ambienteOptions: FilterOption[] = [
     {label: 'Ambiente', value: 'todos', iconName: 'Leaf'}, 
-    ...AMBIENTES.map(a => ({label: a, value: a, iconName: a === 'Indoor' ? 'Home' : 'Sun'}))
+    ...AMBIENTES.map(a => ({label: a, value: a, iconName: a === 'Coberta' || a === 'Indoor' ? 'Home' : 'Sun'}))
   ];
   const nivelOptions: FilterOption[] = [
     {label: 'Nível', value: 'todos', iconName: 'Scaling'}, 

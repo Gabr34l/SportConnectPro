@@ -43,29 +43,28 @@ export default function Dashboard() {
         setEventos(eventosMapeados);
         setStats(prev => ({ ...prev, total_eventos: eventosMapeados.length }));
 
-        // Buscar Participações para calcular receita
-        // No Appwrite, para pegar a receita, buscamos os pagamentos aprovados vinculados aos eventos deste organizador
-        const partDocs = await databases.listDocuments(
-          config.databaseId,
-          config.collections.participacoes,
-          [
-            Query.equal('status_presenca', 'CONFIRMADO'),
-            // Como no Appwrite não temos Joins complexos via SDK facilmente,
-            // podemos filtrar participações que pertençam aos IDs dos eventos buscados
-            Query.equal('id_evento', eventosMapeados.map(e => e.$id))
-          ]
-        );
-
         let rec = 0;
-        // Se houver pagamentos vinculados (usando o Relationship do Appwrite), eles vêm no doc
-        partDocs.documents.forEach((p: any) => {
-          if (p.pagamentos && p.pagamentos.length > 0) {
-             const pg = p.pagamentos[0]; // assume o primeiro se for 1-1
-             if (pg.status === 'APROVADO') {
-               rec += pg.valor_pago || 0;
-             }
-          }
-        });
+        if (eventosMapeados.length > 0) {
+          // Buscar Participações para calcular receita
+          const partDocs = await databases.listDocuments(
+            config.databaseId,
+            config.collections.participacoes,
+            [
+              Query.equal('status_presenca', 'CONFIRMADO'),
+              Query.equal('id_evento', eventosMapeados.map(e => e.$id))
+            ]
+          );
+
+          // Se houver pagamentos vinculados (usando o Relationship do Appwrite), eles vêm no doc
+          partDocs.documents.forEach((p: any) => {
+            if (p.pagamentos && p.pagamentos.length > 0) {
+               const pg = p.pagamentos[0]; // assume o primeiro se for 1-1
+               if (pg.status === 'APROVADO') {
+                 rec += pg.valor_pago || 0;
+               }
+            }
+          });
+        }
         setStats(prev => ({ ...prev, receita: rec }));
 
       } catch (e) {

@@ -22,6 +22,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const refreshUsuario = async (userId: string) => {
     try {
+      // Garantir que a sessão está atualizada também
+      const user = await account.get();
+      setSession(user);
+
       const doc = await databases.getDocument(
         config.databaseId,
         config.collections.usuarios,
@@ -29,7 +33,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       );
       
       if (doc) {
-        // Mapear $id para id_usuario para manter compatibilidade com o app
         setUsuario({
           ...doc,
           id_usuario: doc.$id,

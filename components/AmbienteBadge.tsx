@@ -3,10 +3,10 @@ import { View, Text } from 'react-native';
 import { Leaf, Home } from 'lucide-react-native';
 
 export function AmbienteBadge({ tipo }: { tipo: string }) {
-  const isIndoor = tipo.toLowerCase() === 'indoor';
-  const Icon = isIndoor ? Home : Leaf;
-  const color = isIndoor ? '#1976D2' : '#F57C00';
-  const bgColor = isIndoor ? '#E3F2FD' : '#FFF3E0';
+  const isCoberta = tipo.toLowerCase() === 'coberta' || tipo.toLowerCase() === 'indoor';
+  const Icon = isCoberta ? Home : Leaf;
+  const color = isCoberta ? '#1976D2' : '#F57C00';
+  const bgColor = isCoberta ? '#E3F2FD' : '#FFF3E0';
 
   return (
     <View 
