@@ -65,20 +65,20 @@ export default function Welcome() {
           </View>
 
           <View className="items-center w-full self-center" style={{ maxWidth: 500 }}>
-            <Animated.View style={{ opacity: fadeAnim }} className="items-center">
-              <View className="w-24 h-24 items-center justify-center">
-                <Text className="text-6xl text-center" style={{ lineHeight: 80 }}>{esportes[currentIndex].emoji}</Text>
-              </View>
-              <Text className="text-white text-2xl font-black uppercase tracking-[5px] mt-4">
+            <Animated.View style={{ opacity: fadeAnim }} className="items-center justify-center">
+              <Text className="text-7xl text-center mb-6" style={{ textAlign: 'center' }}>
+                {esportes[currentIndex].emoji}
+              </Text>
+              <Text className="text-white text-3xl font-black uppercase tracking-[8px] text-center">
                 {esportes[currentIndex].nome}
               </Text>
             </Animated.View>
             
-            <View className="flex-row mt-8">
+            <View className="flex-row mt-12 items-center justify-center">
               {esportes.map((_, idx) => (
                 <View 
                   key={idx} 
-                  className={`h-1.5 rounded-full mx-1 ${idx === currentIndex ? 'bg-[#00C853] w-8' : 'bg-white/20 w-3'}`} 
+                  className={`h-1.5 rounded-full mx-1.5 ${idx === currentIndex ? 'bg-[#00C853] w-10' : 'bg-white/20 w-3'}`} 
                 />
               ))}
             </View>
