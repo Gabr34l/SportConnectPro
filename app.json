@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "_tmp_app",
-    "slug": "_tmp_app",
+    "name": "SportConnect Pro",
+    "slug": "sport-connect-pro",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
