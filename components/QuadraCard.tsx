@@ -21,7 +21,7 @@ export function QuadraCard({ quadra }: { quadra: Quadra }) {
     <Pressable 
       className="bg-white rounded-3xl overflow-hidden mb-5 shadow-sm shadow-black/5 flex-row"
       style={{ minHeight: 150, ...(Platform.OS === 'web' ? { width: '100%', maxWidth: 700, alignSelf: 'center' } : {}) }}
-      onPress={() => router.push(`/(organizador)/quadras/${quadra.id_quadra}` as any)}
+      onPress={() => router.push(`/(organizador)/quadra/${quadra.id_quadra}` as any)}
       onHoverIn={() => setIsHovered(true)}
       onHoverOut={() => setIsHovered(false)}
     >

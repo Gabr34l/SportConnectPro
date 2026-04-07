@@ -30,10 +30,12 @@ export default function OrganizadorLayout() {
       <Tabs.Screen 
         name="quadras" 
         options={{ 
-          title: 'Quadras', 
+          title: 'Minhas Quadras', 
           tabBarIcon: ({ color }) => <Map color={color} size={24} /> 
         }} 
       />
+      
+      <Tabs.Screen name="quadra/[id]" options={{ href: null }} />
       
       <Tabs.Screen name="cadastrar-quadra" options={{ href: null }} />
       
