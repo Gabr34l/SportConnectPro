@@ -96,128 +96,135 @@ export default function Cadastro() {
   };
 
   return (
-    <View className="flex-1 bg-black">
-      <ImageBackground 
-        source={require('../../assets/images/hero_background.png')}
-        className="flex-1"
+    <View style={{ flex: 1, backgroundColor: '#000' }}>
+      <ScrollView 
+        contentContainerStyle={{ flexGrow: 1 }}
+        bounces={false}
+        showsVerticalScrollIndicator={false}
       >
-        <LinearGradient
-          colors={['rgba(0,0,0,0.4)', 'rgba(0,0,0,0.9)', '#000000']}
-          className="flex-1 px-8 pt-20 pb-10"
+        <ImageBackground 
+          source={require('../../assets/images/hero_background.png')}
+          style={{ flex: 1, width: '100%' }}
+          resizeMode="cover"
         >
-          {step === 0 ? (
-            <View className="flex-1 justify-center">
-              <View className="items-center mb-10">
-                <View className="w-16 h-16 bg-[#00C853] rounded-2xl justify-center items-center shadow-lg shadow-green-500/30">
-                  <Trophy color="white" size={32} />
-                </View>
-                <Text className="text-4xl font-black text-white mt-6 text-center leading-10">
-                  Como quer{"\n"}usar o app?
-                </Text>
-              </View>
-
-              <TouchableOpacity
-                className={`border rounded-[32px] p-6 mb-4 flex-row items-center backdrop-blur-md ${perfil === 'JOGADOR' ? 'border-[#00C853] bg-white/10' : 'border-white/10 bg-white/5'}`}
-                onPress={() => setPerfil('JOGADOR')}
-              >
-                <View className={`w-12 h-12 rounded-xl justify-center items-center ${perfil === 'JOGADOR' ? 'bg-[#00C853]' : 'bg-white/10'}`}>
-                  <Gamepad2 color="white" size={24} />
-                </View>
-                <View className="ml-5 flex-1">
-                  <Text className="text-lg font-bold text-white uppercase tracking-tighter">Quero Jogar</Text>
-                  <Text className="text-xs text-gray-500 font-medium">Encontrar racha e garantir vaga</Text>
-                </View>
-              </TouchableOpacity>
-
-              <TouchableOpacity
-                className={`border rounded-[32px] p-6 mb-10 flex-row items-center backdrop-blur-md ${perfil === 'ORGANIZADOR' ? 'border-[#00952A] bg-white/10' : 'border-white/10 bg-white/5'}`}
-                onPress={() => setPerfil('ORGANIZADOR')}
-              >
-                <View className={`w-12 h-12 rounded-xl justify-center items-center ${perfil === 'ORGANIZADOR' ? 'bg-[#00952A]' : 'bg-white/10'}`}>
-                  <Building2 color="white" size={24} />
-                </View>
-                <View className="ml-5 flex-1">
-                  <Text className="text-lg font-bold text-white uppercase tracking-tighter">Quero Organizar</Text>
-                  <Text className="text-xs text-gray-500 font-medium">Gerenciar quadras e eventos</Text>
-                </View>
-              </TouchableOpacity>
-
-              <TouchableOpacity
-                className={`rounded-[24px] py-5 items-center ${!perfil ? 'bg-gray-800 opacity-50' : 'bg-[#00C853] shadow-lg shadow-green-500/40'}`}
-                onPress={() => setStep(1)}
-                disabled={!perfil}
-              >
-                <Text className="text-white font-black text-lg uppercase tracking-widest">Continuar</Text>
-              </TouchableOpacity>
-
-              <TouchableOpacity onPress={() => router.push('/(auth)/login')} className="mt-8 self-center">
-                <Text className="text-gray-500 font-bold uppercase tracking-widest text-xs">Já tenho uma conta</Text>
-              </TouchableOpacity>
-            </View>
-          ) : (
-            <View className="flex-1 justify-center">
-              <TouchableOpacity onPress={() => setStep(0)} className="flex-row items-center mb-8 bg-white/10 self-start px-4 py-2 rounded-full border border-white/10">
-                <ChevronLeft size={16} color="white" />
-                <Text className="text-white font-bold ml-1 uppercase text-[10px] tracking-widest">Alterar Perfil</Text>
-              </TouchableOpacity>
-
-              <Text className="text-4xl font-black text-white mb-2">Seus Dados.</Text>
-              <Text className="text-gray-400 mb-10 font-medium">Crie sua identidade no SportConnect Pro.</Text>
-
-              <View className="gap-4 mb-10">
-                <View className="bg-white/5 border border-white/10 rounded-[24px] flex-row items-center px-5 py-4 backdrop-blur-md">
-                  <User size={20} color="#6B7280" />
-                  <TextInput
-                    className="flex-1 ml-4 text-white text-base font-medium"
-                    placeholder="Nome Completo"
-                    placeholderTextColor="#6B7280"
-                    value={nome}
-                    onChangeText={setNome}
-                  />
-                </View>
-
-                <View className="bg-white/5 border border-white/10 rounded-[24px] flex-row items-center px-5 py-4 backdrop-blur-md">
-                  <Mail size={20} color="#6B7280" />
-                  <TextInput
-                    className="flex-1 ml-4 text-white text-base font-medium"
-                    placeholder="Seu melhor e-mail"
-                    placeholderTextColor="#6B7280"
-                    value={email}
-                    onChangeText={setEmail}
-                    autoCapitalize="none"
-                    keyboardType="email-address"
-                  />
-                </View>
-
-                <View className="bg-white/5 border border-white/10 rounded-[24px] flex-row items-center px-5 py-4 backdrop-blur-md">
-                  <Lock size={20} color="#6B7280" />
-                  <TextInput
-                    className="flex-1 ml-4 text-white text-base font-medium"
-                    placeholder="Crie uma senha forte"
-                    placeholderTextColor="#6B7280"
-                    value={senha}
-                    onChangeText={setSenha}
-                    secureTextEntry
-                  />
-                </View>
-              </View>
-
-              <TouchableOpacity
-                className={`rounded-[24px] py-5 items-center shadow-lg ${loading ? 'bg-gray-800' : 'bg-[#00C853] shadow-lg shadow-green-500/40'}`}
-                onPress={handleCadastrar}
-                disabled={loading}
-              >
-                {loading ? <ActivityIndicator color="#fff" /> : (
-                  <View className="flex-row items-center">
-                    <Text className="text-white font-black text-lg uppercase tracking-widest mr-2">Finalizar Cadastro</Text>
-                    <CheckCircle2 color="white" size={20} strokeWidth={3} />
+          <LinearGradient
+            colors={['rgba(0,0,0,0.4)', 'rgba(0,0,0,0.9)', '#000000']}
+            className="flex-1 px-8 pt-20 pb-16"
+          >
+            {step === 0 ? (
+              <View className="flex-1 justify-center">
+                <View className="items-center mb-10">
+                  <View className="w-16 h-16 bg-[#00C853] rounded-2xl justify-center items-center shadow-lg shadow-green-500/30">
+                    <Trophy color="white" size={32} />
                   </View>
-                )}
-              </TouchableOpacity>
-            </View>
-          )}
-        </LinearGradient>
-      </ImageBackground>
+                  <Text className="text-4xl font-black text-white mt-6 text-center leading-10">
+                    Como quer{"\n"}usar o app?
+                  </Text>
+                </View>
+
+                <TouchableOpacity
+                  className={`border rounded-[32px] p-6 mb-4 flex-row items-center backdrop-blur-md ${perfil === 'JOGADOR' ? 'border-[#00C853] bg-white/10' : 'border-white/10 bg-white/5'}`}
+                  onPress={() => setPerfil('JOGADOR')}
+                >
+                  <View className={`w-12 h-12 rounded-xl justify-center items-center ${perfil === 'JOGADOR' ? 'bg-[#00C853]' : 'bg-white/10'}`}>
+                    <Gamepad2 color="white" size={24} />
+                  </View>
+                  <View className="ml-5 flex-1">
+                    <Text className="text-lg font-bold text-white uppercase tracking-tighter">Quero Jogar</Text>
+                    <Text className="text-xs text-gray-500 font-medium">Encontrar racha e garantir vaga</Text>
+                  </View>
+                </TouchableOpacity>
+
+                <TouchableOpacity
+                  className={`border rounded-[32px] p-6 mb-10 flex-row items-center backdrop-blur-md ${perfil === 'ORGANIZADOR' ? 'border-[#00952A] bg-white/10' : 'border-white/10 bg-white/5'}`}
+                  onPress={() => setPerfil('ORGANIZADOR')}
+                >
+                  <View className={`w-12 h-12 rounded-xl justify-center items-center ${perfil === 'ORGANIZADOR' ? 'bg-[#00952A]' : 'bg-white/10'}`}>
+                    <Building2 color="white" size={24} />
+                  </View>
+                  <View className="ml-5 flex-1">
+                    <Text className="text-lg font-bold text-white uppercase tracking-tighter">Quero Organizar</Text>
+                    <Text className="text-xs text-gray-500 font-medium">Gerenciar quadras e eventos</Text>
+                  </View>
+                </TouchableOpacity>
+
+                <TouchableOpacity
+                  className={`rounded-[24px] py-5 items-center ${!perfil ? 'bg-gray-800 opacity-50' : 'bg-[#00C853] shadow-lg shadow-green-500/40'}`}
+                  onPress={() => setStep(1)}
+                  disabled={!perfil}
+                >
+                  <Text className="text-white font-black text-lg uppercase tracking-widest">Continuar</Text>
+                </TouchableOpacity>
+
+                <TouchableOpacity onPress={() => router.push('/(auth)/login')} className="mt-8 self-center">
+                  <Text className="text-gray-500 font-bold uppercase tracking-widest text-xs">Já tenho uma conta</Text>
+                </TouchableOpacity>
+              </View>
+            ) : (
+              <View className="flex-1 justify-center">
+                <TouchableOpacity onPress={() => setStep(0)} className="flex-row items-center mb-8 bg-white/10 self-start px-4 py-2 rounded-full border border-white/10">
+                  <ChevronLeft size={16} color="white" />
+                  <Text className="text-white font-bold ml-1 uppercase text-[10px] tracking-widest">Alterar Perfil</Text>
+                </TouchableOpacity>
+
+                <Text className="text-4xl font-black text-white mb-2">Seus Dados.</Text>
+                <Text className="text-gray-400 mb-10 font-medium">Crie sua identidade no SportConnect Pro.</Text>
+
+                <View className="gap-4 mb-10">
+                  <View className="bg-white/5 border border-white/10 rounded-[24px] flex-row items-center px-5 py-4 backdrop-blur-md">
+                    <User size={20} color="#6B7280" />
+                    <TextInput
+                      className="flex-1 ml-4 text-white text-base font-medium"
+                      placeholder="Nome Completo"
+                      placeholderTextColor="#6B7280"
+                      value={nome}
+                      onChangeText={setNome}
+                    />
+                  </View>
+
+                  <View className="bg-white/5 border border-white/10 rounded-[24px] flex-row items-center px-5 py-4 backdrop-blur-md">
+                    <Mail size={20} color="#6B7280" />
+                    <TextInput
+                      className="flex-1 ml-4 text-white text-base font-medium"
+                      placeholder="Seu melhor e-mail"
+                      placeholderTextColor="#6B7280"
+                      value={email}
+                      onChangeText={setEmail}
+                      autoCapitalize="none"
+                      keyboardType="email-address"
+                    />
+                  </View>
+
+                  <View className="bg-white/5 border border-white/10 rounded-[24px] flex-row items-center px-5 py-4 backdrop-blur-md">
+                    <Lock size={20} color="#6B7280" />
+                    <TextInput
+                      className="flex-1 ml-4 text-white text-base font-medium"
+                      placeholder="Crie uma senha forte"
+                      placeholderTextColor="#6B7280"
+                      value={senha}
+                      onChangeText={setSenha}
+                      secureTextEntry
+                    />
+                  </View>
+                </View>
+
+                <TouchableOpacity
+                  className={`rounded-[24px] py-5 items-center shadow-lg ${loading ? 'bg-gray-800' : 'bg-[#00C853] shadow-lg shadow-green-500/40'}`}
+                  onPress={handleCadastrar}
+                  disabled={loading}
+                >
+                  {loading ? <ActivityIndicator color="#fff" /> : (
+                    <View className="flex-row items-center">
+                      <Text className="text-white font-black text-lg uppercase tracking-widest mr-2">Finalizar Cadastro</Text>
+                      <CheckCircle2 color="white" size={20} strokeWidth={3} />
+                    </View>
+                  )}
+                </TouchableOpacity>
+              </View>
+            )}
+          </LinearGradient>
+        </ImageBackground>
+      </ScrollView>
     </View>
   );
 }

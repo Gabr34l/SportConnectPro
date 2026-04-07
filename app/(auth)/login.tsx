@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { View, Text, TextInput, TouchableOpacity, ActivityIndicator, Modal, Platform, ImageBackground } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, ActivityIndicator, Modal, Platform, ImageBackground, ScrollView } from 'react-native';
 import { useRouter, Link } from 'expo-router';
 import { account, config } from '../../lib/appwrite';
 import { useToast } from '../../components/Toast';
@@ -72,80 +72,87 @@ export default function Login() {
   };
 
   return (
-    <View className="flex-1 bg-black">
-      <ImageBackground 
-        source={require('../../assets/images/hero_background.png')}
-        className="flex-1"
+    <View style={{ flex: 1, backgroundColor: '#000' }}>
+      <ScrollView 
+        contentContainerStyle={{ flexGrow: 1 }}
+        bounces={false}
+        showsVerticalScrollIndicator={false}
       >
-        <LinearGradient
-          colors={['rgba(0,0,0,0.4)', 'rgba(0,0,0,0.9)', '#000000']}
-          className="flex-1 px-8 pt-20"
+        <ImageBackground 
+          source={require('../../assets/images/hero_background.png')}
+          style={{ flex: 1, width: '100%' }}
+          resizeMode="cover"
         >
-          <TouchableOpacity 
-            onPress={() => router.back()}
-            className="w-12 h-12 bg-white/10 rounded-2xl justify-center items-center border border-white/10 mb-8"
+          <LinearGradient
+            colors={['rgba(0,0,0,0.4)', 'rgba(0,0,0,0.9)', '#000000']}
+            className="flex-1 px-8 pt-20"
           >
-            <ChevronLeft color="white" size={24} />
-          </TouchableOpacity>
-
-          <View className="mb-10">
-            <Text className="text-4xl font-black text-white">Bem-vindo{"\n"}de volta.</Text>
-            <Text className="text-gray-400 text-base mt-2 font-medium">Sentimos sua falta no campo.</Text>
-          </View>
-
-          <View className="gap-4">
-            <View className="bg-white/5 border border-white/10 rounded-[24px] flex-row items-center px-5 py-4 backdrop-blur-md">
-              <Mail size={20} color="#6B7280" />
-              <TextInput
-                className="flex-1 ml-4 text-white text-base font-medium"
-                placeholder="Seu e-mail"
-                placeholderTextColor="#6B7280"
-                value={email}
-                onChangeText={setEmail}
-                autoCapitalize="none"
-                keyboardType="email-address"
-              />
-            </View>
-
-            <View className="bg-white/5 border border-white/10 rounded-[24px] flex-row items-center px-5 py-4 backdrop-blur-md">
-              <Lock size={20} color="#6B7280" />
-              <TextInput
-                className="flex-1 ml-4 text-white text-base font-medium"
-                placeholder="Sua senha"
-                placeholderTextColor="#6B7280"
-                value={password}
-                onChangeText={setPassword}
-                secureTextEntry
-              />
-            </View>
-
-            <TouchableOpacity onPress={() => setResetModalVisible(true)} className="items-end mt-1 px-2">
-              <Text className="text-gray-500 text-sm font-bold">Esqueceu a senha?</Text>
-            </TouchableOpacity>
-
             <TouchableOpacity 
-              className={`rounded-[24px] py-5 items-center mt-6 transition-all ${loading ? 'bg-gray-800' : 'bg-[#00C853] shadow-lg shadow-green-500/40'}`}
-              onPress={handleLogin} 
-              disabled={loading}
+              onPress={() => router.back()}
+              className="w-12 h-12 bg-white/10 rounded-2xl justify-center items-center border border-white/10 mb-8"
             >
-              {loading ? (
-                <ActivityIndicator color="#fff" />
-              ) : (
-                <Text className="text-white font-black text-lg uppercase tracking-widest">Entrar</Text>
-              )}
+              <ChevronLeft color="white" size={24} />
             </TouchableOpacity>
 
-            <View className="flex-row justify-center mt-6">
-              <Text className="text-gray-500 text-base">Novo por aqui? </Text>
-              <Link href="/(auth)/cadastro" asChild>
-                <TouchableOpacity>
-                  <Text className="text-[#00C853] text-base font-bold">Crie sua conta</Text>
-                </TouchableOpacity>
-              </Link>
+            <View className="mb-10">
+              <Text className="text-4xl font-black text-white">Bem-vindo{"\n"}de volta.</Text>
+              <Text className="text-gray-400 text-base mt-2 font-medium">Sentimos sua falta no campo.</Text>
             </View>
-          </View>
-        </LinearGradient>
-      </ImageBackground>
+
+            <View className="gap-4">
+              <View className="bg-white/5 border border-white/10 rounded-[24px] flex-row items-center px-5 py-4 backdrop-blur-md">
+                <Mail size={20} color="#6B7280" />
+                <TextInput
+                  className="flex-1 ml-4 text-white text-base font-medium"
+                  placeholder="Seu e-mail"
+                  placeholderTextColor="#6B7280"
+                  value={email}
+                  onChangeText={setEmail}
+                  autoCapitalize="none"
+                  keyboardType="email-address"
+                />
+              </View>
+
+              <View className="bg-white/5 border border-white/10 rounded-[24px] flex-row items-center px-5 py-4 backdrop-blur-md">
+                <Lock size={20} color="#6B7280" />
+                <TextInput
+                  className="flex-1 ml-4 text-white text-base font-medium"
+                  placeholder="Sua senha"
+                  placeholderTextColor="#6B7280"
+                  value={password}
+                  onChangeText={setPassword}
+                  secureTextEntry
+                />
+              </View>
+
+              <TouchableOpacity onPress={() => setResetModalVisible(true)} className="items-end mt-1 px-2">
+                <Text className="text-gray-500 text-sm font-bold">Esqueceu a senha?</Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity 
+                className={`rounded-[24px] py-5 items-center mt-6 transition-all ${loading ? 'bg-gray-800' : 'bg-[#00C853] shadow-lg shadow-green-500/40'}`}
+                onPress={handleLogin} 
+                disabled={loading}
+              >
+                {loading ? (
+                  <ActivityIndicator color="#fff" />
+                ) : (
+                  <Text className="text-white font-black text-lg uppercase tracking-widest">Entrar</Text>
+                )}
+              </TouchableOpacity>
+
+              <View className="flex-row justify-center mt-6 pb-10">
+                <Text className="text-gray-500 text-base">Novo por aqui? </Text>
+                <Link href="/(auth)/cadastro" asChild>
+                  <TouchableOpacity>
+                    <Text className="text-[#00C853] text-base font-bold">Crie sua conta</Text>
+                  </TouchableOpacity>
+                </Link>
+              </View>
+            </View>
+          </LinearGradient>
+        </ImageBackground>
+      </ScrollView>
 
       <Modal visible={resetModalVisible} transparent animationType="fade">
         <View className="flex-1 bg-black/80 justify-center px-8">
