@@ -63,10 +63,10 @@ export default function Login() {
       return;
     }
     try {
-      // URL dinâmica: se for web usa a URL do site atual, se for mobile usa o deep link
+      // URL dinâmica: se for web usa a URL do site atual + a rota de reset, se for mobile usa o deep link
       const redirectUrl = Platform.OS === 'web' 
-        ? window.location.origin 
-        : 'sportconnectpro://';
+        ? `${window.location.origin}/reset-password` 
+        : 'sportconnectpro://reset-password';
 
       await account.createRecovery(resetEmail, redirectUrl);
       showFeedback('success', 'Sucesso', 'E-mail enviado! Verifique sua caixa de entrada.');
