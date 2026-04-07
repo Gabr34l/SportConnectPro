@@ -63,11 +63,17 @@ export default function Login() {
       return;
     }
     try {
-      await account.createRecovery(resetEmail, 'sportconnectpro://');
+      // URL dinâmica: se for web usa a URL do site atual, se for mobile usa o deep link
+      const redirectUrl = Platform.OS === 'web' 
+        ? window.location.origin 
+        : 'sportconnectpro://';
+
+      await account.createRecovery(resetEmail, redirectUrl);
       showFeedback('success', 'Sucesso', 'E-mail enviado! Verifique sua caixa de entrada.');
       setResetModalVisible(false);
     } catch (e: any) {
-      showFeedback('error', 'Erro', e.message || 'Erro inesperado');
+      console.error('Erro recovery:', e);
+      showFeedback('error', 'Erro', 'Verifique se este e-mail está cadastrado ou tente novamente mais tarde.');
     }
   };
 
