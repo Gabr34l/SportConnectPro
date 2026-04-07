@@ -50,6 +50,39 @@ export default function CadastrarQuadra() {
       .substring(0, 15);
   };
 
+  const buscarCNPJ = async (cnpjBuscado: string) => {
+    const limpo = cnpjBuscado.replace(/\D/g, '');
+    if (limpo.length !== 14) return;
+    
+    setLoading(true);
+    try {
+      const resp = await fetch(`https://brasilapi.com.br/api/cnpj/v1/${limpo}`);
+      const data = await resp.json();
+      
+      if (resp.ok) {
+        setRazaoSocial(data.razao_social || '');
+        if (data.cep) {
+           const c = maskCEP(data.cep);
+           setCep(c);
+        }
+        if (data.logradouro) {
+           setEndereco(`${data.logradouro}, ${data.numero}${data.complemento ? ' - ' + data.complemento : ''}, ${data.bairro}, ${data.municipio} - ${data.uf}`);
+        }
+        if (data.ddd_telefone_1) {
+           setTelefone(maskPhone(data.ddd_telefone_1));
+        }
+        showFeedback('success', 'CNPJ Validado!', `Encontrado: ${data.razao_social}`);
+      } else {
+        showFeedback('error', 'CNPJ Inválido', 'Não encontramos dados para este CNPJ.');
+      }
+    } catch (e) {
+      console.error(e);
+      showFeedback('error', 'Erro de consulta', 'Não foi possível validar o CNPJ agora.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const buscarCEP = async (cepBuscado: string) => {
     const limpo = cepBuscado.replace(/\D/g, '');
     if (limpo.length !== 8) return;
@@ -216,7 +249,13 @@ export default function CadastrarQuadra() {
               className="flex-1 ml-3 text-base text-gray-800"
               placeholder="CNPJ" 
               value={cnpj} 
-              onChangeText={(v) => setCnpj(maskCNPJ(v))} 
+              onChangeText={(v) => {
+                const masked = maskCNPJ(v);
+                setCnpj(masked);
+                if (masked.replace(/\D/g, '').length === 14) {
+                   buscarCNPJ(masked);
+                }
+              }} 
               keyboardType="numeric" 
             />
           </View>

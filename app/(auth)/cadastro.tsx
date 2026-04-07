@@ -41,114 +41,12 @@ export default function Cadastro() {
   const [email, setEmail] = useState('');
   const [senha, setSenha] = useState('');
   
-  const [nomeLocal, setNomeLocal] = useState('');
-  const [cnpj, setCnpj] = useState('');
-  const [razaoSocial, setRazaoSocial] = useState('');
-  const [cep, setCep] = useState('');
-  const [endereco, setEndereco] = useState('');
-  const [telefone, setTelefone] = useState('');
-  const [fotos, setFotos] = useState<string[]>([]);
-  
   const [loading, setLoading] = useState(false);
 
   const showFeedback = (type: 'success' | 'error' | 'info', title: string, message: string) => {
     toast.show({ type, title, message });
   };
 
-  const maskCNPJ = (val: string) => {
-    return val.replace(/\D/g, '')
-      .replace(/^(\d{2})(\d)/, '$1.$2')
-      .replace(/^(\d{2})\.(\d{3})(\d)/, '$1.$2.$3')
-      .replace(/\.(\d{3})(\d)/, '.$1/$2')
-      .replace(/(\d{4})(\d)/, '$1-$2')
-      .substring(0, 18);
-  };
-
-  const maskCEP = (val: string) => {
-    return val.replace(/\D/g, '').replace(/^(\d{5})(\d)/, '$1-$2').substring(0, 9);
-  };
-
-  const maskPhone = (val: string) => {
-    return val.replace(/\D/g, '')
-      .replace(/^(\d{2})(\d)/g, '($1) $2')
-      .replace(/(\d)(\d{4})$/, '$1-$2')
-      .substring(0, 15);
-  };
-
-  const buscarCEP = async (cepBuscado: string) => {
-    const limpo = cepBuscado.replace(/\D/g, '');
-    if (limpo.length !== 8) return;
-    
-    setEndereco('Buscando endereço...');
-    
-    try {
-      const resp = await fetch(`https://viacep.com.br/ws/${limpo}/json/`);
-      const data = await resp.json();
-      if (!data.erro) {
-        setEndereco(`${data.logradouro}, ${data.bairro}, ${data.localidade} - ${data.uf}`);
-      } else {
-        setEndereco('');
-        showFeedback('info', 'CEP não encontrado', 'Verifique o número ou preencha o endereço manualmente.');
-      }
-    } catch (e) {
-      console.error(e);
-      setEndereco('');
-      showFeedback('error', 'Erro na Busca', 'Não foi possível buscar o CEP agora.');
-    }
-  };
-
-  const pickImages = async () => {
-    let result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ['images'],
-      allowsMultipleSelection: true,
-      selectionLimit: 8,
-      quality: 0.7,
-    });
-
-    if (!result.canceled) {
-      const novosUris = result.assets.map(a => a.uri);
-      const total = fotos.length + novosUris.length;
-      if (total > 8) {
-        showFeedback('info', 'Aviso', 'Máximo de 8 fotos permitidas');
-        return;
-      }
-      setFotos([...fotos, ...novosUris]);
-    }
-  };
-
-  const removeFoto = (index: number) => {
-    const novas = [...fotos];
-    novas.splice(index, 1);
-    setFotos(novas);
-  };
-
-  const uploadImages = async (userId: string) => {
-    const urls: string[] = [];
-    if (!config.storageId) {
-      console.error('Bucket de storage não configurado.');
-      return urls;
-    }
-
-    for (const uri of fotos) {
-      try {
-        const fileId = ID.unique();
-        const extension = uri.split('.').pop() || 'jpg';
-        const name = `quadra_${userId}_${Date.now()}.${extension}`;
-        
-        await storage.createFile(config.storageId, fileId, {
-          uri: Platform.OS === 'ios' ? uri.replace('file://', '') : uri,
-          name: name,
-          type: `image/${extension}`,
-        } as any);
-
-        const url = storage.getFileView(config.storageId, fileId);
-        urls.push(url.toString());
-      } catch (e) {
-        console.error('Erro no upload', e);
-      }
-    }
-    return urls;
-  };
 
   const handleCadastrar = async () => {
     const limpoEmail = email.trim();
@@ -157,14 +55,6 @@ export default function Cadastro() {
       return;
     }
     
-    if (perfil === 'ORGANIZADOR') {
-      if (!nomeLocal) return showFeedback('info', 'Aviso', 'Informe o Nome do Local');
-      if (!cnpj || cnpj.length < 14) return showFeedback('info', 'Aviso', 'Informe um CNPJ válido');
-      if (!cep || cep.length < 8) return showFeedback('info', 'Aviso', 'Informe um CEP válido');
-      if (!endereco) return showFeedback('info', 'Aviso', 'Informe o Endereço Completo');
-      if (fotos.length < 2) return showFeedback('info', 'Aviso', 'Adicione pelo menos 2 fotos da sua quadra');
-    }
-
     setLoading(true);
     
     try {
@@ -200,30 +90,7 @@ export default function Cadastro() {
         }
       );
 
-      if (perfil === 'ORGANIZADOR') {
-        const urlsFotos = await uploadImages(userId);
-        
-        await databases.createDocument(
-          config.databaseId,
-          config.collections.quadras,
-          ID.unique(),
-          {
-            id_organizador: userId,
-            nome_local: nomeLocal,
-            cnpj: cnpj.replace(/\D/g, ''),
-            razao_social: razaoSocial,
-            cep: cep.replace(/\D/g, ''),
-            endereco_completo: endereco,
-            telefone_comercial: telefone.replace(/\D/g, ''),
-            fotos: urlsFotos,
-            status_aprovacao: 'PENDENTE'
-          }
-        );
-
-        showFeedback('success', 'Cadastro enviado!', 'Sua conta foi criada e a quadra está em análise.');
-      } else {
-        showFeedback('success', 'Conta criada!', 'Bem-vindo ao SportConnect Pro!');
-      }
+      showFeedback('success', 'Conta criada!', 'Bem-vindo ao SportConnect Pro!');
 
       // Atualizar o contexto global após login automático
       await refreshUsuario(userId);
@@ -231,7 +98,17 @@ export default function Cadastro() {
       
     } catch (e: any) {
       console.error('Erro no cadastro:', e);
-      showFeedback('error', 'Ops!', e.message || 'Ocorreu um erro inesperado');
+      
+      let errorMessage = 'Ocorreu um erro inesperado';
+      
+      // Tratamento específico para e-mail já cadastrado
+      if (e.code === 409 || e.type === 'user_already_exists' || (e.message && e.message.includes('already exists'))) {
+        errorMessage = 'Já existe um usuário vinculado a este e-mail. Tente fazer login.';
+      } else if (e.message) {
+        errorMessage = e.message;
+      }
+
+      showFeedback('error', 'Ops!', errorMessage);
     } finally {
       setLoading(false);
     }
@@ -338,89 +215,6 @@ export default function Cadastro() {
             />
           </View>
           
-          {perfil === 'JOGADOR' ? (
-            <TouchableOpacity 
-              className={`rounded-[24px] py-4 items-center shadow-lg ${loading ? 'bg-gray-100' : 'bg-[#00C853] shadow-green-500/30'}`}
-              onPress={handleCadastrar} 
-              disabled={loading}
-            >
-              {loading ? <ActivityIndicator color="#00C853" /> : (
-                <View className="flex-row items-center">
-                  <Text className="text-white font-bold text-lg mr-2">Criar Conta</Text>
-                  <CheckCircle2 color="white" size={20} />
-                </View>
-              )}
-            </TouchableOpacity>
-          ) : (
-            <TouchableOpacity 
-              className="bg-[#00C853] rounded-[24px] py-4 items-center shadow-lg shadow-green-500/30" 
-              onPress={() => {
-                if (!nome || !email || !senha) {
-                  showFeedback('info', 'Aviso', 'PREENCHA COM SEUS DADOS');
-                  return;
-                }
-                setStep(2);
-              }}
-            >
-              <View className="flex-row items-center">
-                <Text className="text-white font-bold text-lg mr-2">Dados da Quadra</Text>
-                <ChevronRight color="white" size={20} />
-              </View>
-            </TouchableOpacity>
-          )}
-        </View>
-      )}
-
-      {step === 2 && perfil === 'ORGANIZADOR' && (
-        <View className="flex-1 justify-center">
-          <TouchableOpacity onPress={() => setStep(1)} className="flex-row items-center mb-6">
-            <ChevronLeft size={20} color="#9CA3AF" />
-            <Text className="text-gray-400 font-bold ml-1 uppercase text-xs tracking-widest">Meus Dados</Text>
-          </TouchableOpacity>
-
-          <Text className="text-3xl font-black text-gray-800 mb-2">Sua Quadra</Text>
-          <Text className="text-gray-400 mb-8">Quase lá! Agora os dados do local.</Text>
-
-          <View className="gap-3">
-             <View className="flex-row items-center bg-gray-50 border border-gray-100 rounded-2xl px-4 py-4 mb-1">
-                <Building2 size={20} color="#9CA3AF" />
-                <TextInput className="flex-1 ml-3 text-base" placeholder="Nome do Local" value={nomeLocal} onChangeText={setNomeLocal} />
-             </View>
-             <View className="flex-row items-center bg-gray-50 border border-gray-100 rounded-2xl px-4 py-4 mb-1">
-                <AlertCircle size={20} color="#9CA3AF" />
-                <TextInput className="flex-1 ml-3 text-base" placeholder="CNPJ" value={cnpj} onChangeText={(v) => setCnpj(maskCNPJ(v))} keyboardType="numeric" />
-             </View>
-             <View className="flex-row items-center bg-gray-50 border border-gray-100 rounded-2xl px-4 py-4 mb-1">
-                <MapPin size={20} color="#9CA3AF" />
-                <TextInput className="flex-1 ml-3 text-base" placeholder="CEP" value={cep} onChangeText={(v) => {
-                  const m = maskCEP(v);
-                  setCep(m);
-                  if (m.length === 9) buscarCEP(m);
-                }} keyboardType="numeric" />
-             </View>
-             <View className="flex-row items-center bg-gray-50 border border-gray-100 rounded-2xl px-4 py-4 mb-1">
-                <Phone size={20} color="#9CA3AF" />
-                <TextInput className="flex-1 ml-3 text-base" placeholder="Telefone Comercial" value={telefone} onChangeText={(v) => setTelefone(maskPhone(v))} keyboardType="phone-pad" />
-             </View>
-          </View>
-          
-          <Text className="text-sm font-bold text-gray-400 mt-6 mb-4 uppercase tracking-widest">Fotos (Mínimo 2): {fotos.length}/8</Text>
-          <ScrollView horizontal showsHorizontalScrollIndicator={false} className="flex-row mb-6">
-            {fotos.map((f, i) => (
-              <View key={i} className="mr-3 relative">
-                <Image source={{ uri: f }} className="w-20 h-20 rounded-2xl" />
-                <TouchableOpacity onPress={() => removeFoto(i)} className="absolute -top-1 -right-1 bg-red-500 w-6 h-6 rounded-full justify-center items-center border-2 border-white">
-                  <X size={12} color="white" strokeWidth={3} />
-                </TouchableOpacity>
-              </View>
-            ))}
-            {fotos.length < 8 && (
-              <TouchableOpacity className="w-20 h-20 rounded-2xl bg-gray-50 border-2 border-dashed border-gray-100 justify-center items-center" onPress={pickImages}>
-                <Camera size={24} color="#9CA3AF" />
-              </TouchableOpacity>
-            )}
-          </ScrollView>
-
           <TouchableOpacity 
             className={`rounded-[24px] py-4 items-center shadow-lg ${loading ? 'bg-gray-100' : 'bg-[#00C853] shadow-green-500/30'}`}
             onPress={handleCadastrar} 
@@ -428,7 +222,7 @@ export default function Cadastro() {
           >
             {loading ? <ActivityIndicator color="#00C853" /> : (
               <View className="flex-row items-center">
-                <Text className="text-white font-bold text-lg mr-2">Enviar para Análise</Text>
+                <Text className="text-white font-bold text-lg mr-2">Criar Conta</Text>
                 <CheckCircle2 color="white" size={20} />
               </View>
             )}

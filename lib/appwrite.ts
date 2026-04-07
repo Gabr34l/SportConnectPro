@@ -1,11 +1,15 @@
 import { Client, Account, Databases, Storage, Avatars } from 'react-native-appwrite';
+import { Platform } from 'react-native';
 
 const client = new Client();
 
 client
     .setEndpoint(process.env.EXPO_PUBLIC_APPWRITE_ENDPOINT!)
-    .setProject(process.env.EXPO_PUBLIC_APPWRITE_PROJECT_ID!)
-    .setPlatform('com.sportconnectpro.app'); // Precisamos configurar isso no console do Appwrite também!
+    .setProject(process.env.EXPO_PUBLIC_APPWRITE_PROJECT_ID!);
+
+if (Platform.OS !== 'web') {
+    client.setPlatform('com.sportconnectpro.app'); 
+}
 
 export const account = new Account(client);
 export const databases = new Databases(client);

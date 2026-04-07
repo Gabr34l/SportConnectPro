@@ -16,6 +16,7 @@ export default function Dashboard() {
   const [stats, setStats] = useState({ total_eventos: 0, receita: 0 });
   const [eventos, setEventos] = useState<any[]>([]);
   const [temQuadraAprovada, setTemQuadraAprovada] = useState(false);
+  const [temQualquerQuadra, setTemQualquerQuadra] = useState(false);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -25,6 +26,7 @@ export default function Dashboard() {
       setLoading(true);
       try {
         const quadras = await fetchQuadrasOrganizador(usuario.id_usuario);
+        setTemQualquerQuadra(quadras.length > 0);
         setTemQuadraAprovada(quadras.some(q => q.status_aprovacao === 'APROVADO'));
 
         // Buscar Eventos
@@ -84,10 +86,25 @@ export default function Dashboard() {
         <Text className="text-base text-gray-400 mt-1">{usuario?.nome_completo}</Text>
       </View>
 
-      {!temQuadraAprovada && !loading && (
+      {!loading && !temQualquerQuadra && (
+        <TouchableOpacity 
+          className="bg-[#00C853]/10 p-6 m-6 rounded-[32px] border-2 border-dashed border-[#00C853]/30 items-center"
+          onPress={() => router.push('/(organizador)/cadastrar-quadra')}
+        >
+          <View className="w-16 h-16 bg-[#00C853] rounded-3xl justify-center items-center mb-4 shadow-lg shadow-green-500/20">
+            <Plus color="white" size={32} strokeWidth={2.5} />
+          </View>
+          <Text className="text-xl font-black text-gray-800 text-center">Cadastre sua Quadra</Text>
+          <Text className="text-sm text-gray-400 text-center mt-2 px-4">
+            Você ainda não tem uma quadra cadastrada. Adicione os detalhes do seu local para começar a criar eventos.
+          </Text>
+        </TouchableOpacity>
+      )}
+
+      {!loading && temQualquerQuadra && !temQuadraAprovada && (
         <View className="bg-orange-50 p-4 m-6 rounded-2xl border border-orange-100">
           <Text className="text-orange-700 font-bold text-center">
-            Nenhuma quadra aprovada. Você não pode criar eventos ainda.
+            Sua quadra está em análise. Você poderá criar eventos assim que for aprovada por nossa equipe.
           </Text>
         </View>
       )}
