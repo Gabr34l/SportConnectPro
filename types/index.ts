@@ -16,6 +16,7 @@ export type Quadra = {
   latitude?: number; longitude?: number; telefone_comercial?: string;
   fotos?: string[]; status_aprovacao: StatusVerificacao; created_at: string;
   descricao?: string;
+  comodidades?: string[];
 };
 export type Evento = {
   id_evento: string; id_organizador: string; id_quadra: string;
