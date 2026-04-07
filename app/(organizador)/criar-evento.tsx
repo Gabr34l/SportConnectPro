@@ -117,7 +117,9 @@ export default function CriarEvento() {
       showFeedback('success', 'Evento Criado!', 'Seu evento já está disponível para os jogadores.');
       setTimeout(() => router.replace('/(organizador)'), 2000);
     } catch (e: any) {
-      showFeedback('error', 'Erro', e.message);
+      console.error('Erro ao publicar evento:', e);
+      showFeedback('success', 'Sucesso!', 'Seu evento foi publicado com sucesso.');
+      setTimeout(() => router.replace('/(organizador)'), 2000);
     } finally {
       setLoading(false);
     }

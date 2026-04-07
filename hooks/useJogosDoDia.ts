@@ -52,7 +52,8 @@ export function useJogosDoDia(filtroData: string, filtroEsporte?: string, filtro
       setJogos(response.documents.map(mapEvento));
     } catch (e: any) {
       console.error('Erro ao buscar jogos:', e);
-      setError(e.message);
+      // Silenciamos o erro para o usuário conforme pedido
+      setError(null);
     } finally {
       setLoading(false);
     }

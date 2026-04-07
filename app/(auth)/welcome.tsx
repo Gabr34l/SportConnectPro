@@ -1,16 +1,14 @@
 import { useState, useEffect, useRef } from 'react';
-import { View, Text, TouchableOpacity, Animated } from 'react-native';
+import { View, Text, TouchableOpacity, Animated, ImageBackground } from 'react-native';
 import { useRouter } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useAuthContext } from '../../contexts/AuthContext';
 
 const esportes = [
-  { emoji: "⚽", nome: "Futebol", color: "#00952A" },
-  { emoji: "🎾", nome: "Tênis", color: "#0F6E56" },
-  { emoji: "🏐", nome: "Vôlei", color: "#185FA5" },
-  { emoji: "🏀", nome: "Basquete", color: "#6B21A8" },
-  { emoji: "🏓", nome: "Tênis de Mesa", color: "#0369A1" },
-  { emoji: "🏊", nome: "Natação", color: "#10B981" },
+  { emoji: "⚽", nome: "Futebol", color: "#00C853" },
+  { emoji: "🎾", nome: "Tênis", color: "#00C853" },
+  { emoji: "🏀", nome: "Basquete", color: "#00C853" },
+  { emoji: "🏐", nome: "Vôlei", color: "#00C853" },
 ];
 
 export default function Welcome() {
@@ -19,7 +17,7 @@ export default function Welcome() {
   const { session, usuario } = useAuthContext();
   
   const fadeAnim = useRef(new Animated.Value(1)).current;
-  const scaleAnim = useRef(new Animated.Value(1)).current;
+  const slideAnim = useRef(new Animated.Value(0)).current;
 
   // Auto-redirect if already logged in
   useEffect(() => {
@@ -30,81 +28,84 @@ export default function Welcome() {
 
   useEffect(() => {
     const interval = setInterval(() => {
-      Animated.parallel([
-        Animated.timing(fadeAnim, { toValue: 0, duration: 300, useNativeDriver: true }),
-        Animated.timing(scaleAnim, { toValue: 0.7, duration: 300, useNativeDriver: true }),
-      ]).start(() => {
+      Animated.sequence([
+        Animated.timing(fadeAnim, { toValue: 0, duration: 400, useNativeDriver: true }),
+        Animated.timing(fadeAnim, { toValue: 1, duration: 400, useNativeDriver: true }),
+      ]).start();
+      
+      setTimeout(() => {
         setCurrentIndex((prev) => (prev + 1) % esportes.length);
-        
-        Animated.parallel([
-          Animated.timing(fadeAnim, { toValue: 1, duration: 300, useNativeDriver: true }),
-          Animated.timing(scaleAnim, { toValue: 1, duration: 300, useNativeDriver: true }),
-        ]).start();
-      });
-    }, 2000);
+      }, 400);
+      
+    }, 3000);
 
     return () => clearInterval(interval);
-  }, [fadeAnim, scaleAnim]);
+  }, []);
 
   return (
-    <LinearGradient
-      colors={['#00C853', '#00952A']}
-      style={{ flex: 1 }}
-      className="flex-1 justify-between pt-16"
-    >
-      <View className="items-center gap-4 px-6 pt-8">
-        <Text className="text-3xl font-bold text-white text-center">
-          SportConnect Pro
-        </Text>
-        <Text className="text-base text-white/70 text-center">
-          Sua próxima partida está aqui
-        </Text>
-      </View>
+    <View className="flex-1 bg-black">
+      <ImageBackground 
+        source={require('../../assets/images/hero_background.png')}
+        className="flex-1"
+        resizeMode="cover"
+      >
+        <LinearGradient
+          colors={['rgba(0,0,0,0.3)', 'rgba(0,0,0,0.8)', '#000000']}
+          className="flex-1 justify-between pt-20 px-8 pb-16"
+        >
+          <View className="items-center">
+            <View className="bg-white/10 px-4 py-2 rounded-full border border-white/20 mb-4">
+              <Text className="text-white text-[10px] font-black uppercase tracking-[3px]">SportConnect Pro</Text>
+            </View>
+            <Text className="text-5xl font-black text-white text-center leading-[50px]">
+              Onde o esporte{"\n"}
+              <Text className="text-[#00C853]">ganha vida.</Text>
+            </Text>
+          </View>
 
-      <View className="items-center justify-center my-6">
-        <Animated.View style={{ opacity: fadeAnim, transform: [{ scale: scaleAnim }], alignItems: 'center' }}>
-          <View className="items-center mb-6">
-            <Text className="text-7xl mb-6">{esportes[currentIndex].emoji}</Text>
-            <View 
-              style={{ backgroundColor: 'rgba(255, 255, 255, 0.15)' }} 
-              className="rounded-3xl border border-white/20 px-10 py-5 backdrop-blur-md"
-            >
-              <Text className="text-white text-3xl font-black tracking-[4px] uppercase">
+          <View className="items-center">
+            <Animated.View style={{ opacity: fadeAnim }} className="items-center">
+              <Text className="text-6xl mb-4">{esportes[currentIndex].emoji}</Text>
+              <Text className="text-white text-2xl font-black uppercase tracking-[5px]">
                 {esportes[currentIndex].nome}
               </Text>
+            </Animated.View>
+            
+            <View className="flex-row mt-8">
+              {esportes.map((_, idx) => (
+                <View 
+                  key={idx} 
+                  className={`h-1 rounded-full mx-1 ${idx === currentIndex ? 'bg-[#00C853] w-6' : 'bg-white/20 w-2'}`} 
+                />
+              ))}
             </View>
           </View>
-        </Animated.View>
-        
-        <View className="flex-row mt-6">
-          {esportes.map((_, idx) => (
-            <View 
-              key={idx} 
-              className={`h-1.5 rounded-full mx-1 ${idx === currentIndex ? 'bg-white w-3' : 'bg-white/40 w-1.5'}`} 
-            />
-          ))}
-        </View>
-      </View>
 
-      <View className="gap-3 px-6 pb-12">
-        <TouchableOpacity
-          className="bg-white rounded-2xl py-4 w-full"
-          onPress={() => router.push('/(auth)/cadastro')}
-        >
-          <Text className="text-[#00C853] font-bold text-lg text-center">
-            Criar Conta
-          </Text>
-        </TouchableOpacity>
+          <View className="gap-4">
+            <Text className="text-gray-400 text-center text-sm mb-4 px-4 font-medium">
+              Conecte-se com jogadores, reserve quadras e organize suas partidas em segundos.
+            </Text>
 
-        <TouchableOpacity
-          className="border border-white rounded-2xl py-4 w-full"
-          onPress={() => router.push('/(auth)/login')}
-        >
-          <Text className="text-white font-bold text-lg text-center">
-            Já tenho conta
-          </Text>
-        </TouchableOpacity>
-      </View>
-    </LinearGradient>
+            <TouchableOpacity
+              className="bg-[#00C853] rounded-3xl py-5 shadow-xl shadow-green-500/40"
+              onPress={() => router.push('/(auth)/cadastro')}
+            >
+              <Text className="text-white font-black text-lg text-center uppercase tracking-widest">
+                Começar Agora
+              </Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              className="bg-white/5 border border-white/10 rounded-3xl py-5"
+              onPress={() => router.push('/(auth)/login')}
+            >
+              <Text className="text-white font-bold text-lg text-center">
+                Entrar na minha conta
+              </Text>
+            </TouchableOpacity>
+          </View>
+        </LinearGradient>
+      </ImageBackground>
+    </View>
   );
 }

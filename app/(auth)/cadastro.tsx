@@ -1,26 +1,21 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TextInput, TouchableOpacity, ScrollView, ActivityIndicator, Image, Platform } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, ScrollView, ActivityIndicator, Image, Platform, ImageBackground } from 'react-native';
 import { useRouter } from 'expo-router';
-import * as ImagePicker from 'expo-image-picker';
-import { account, databases, config, storage, ID } from '../../lib/appwrite';
+import { account, databases, config, ID, Permission, Role } from '../../lib/appwrite';
 import { useToast } from '../../components/Toast';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { TipoPerfil } from '../../types';
-import { 
-  User, 
-  Mail, 
-  Lock, 
-  ChevronRight, 
-  ChevronLeft, 
-  Trophy, 
-  Gamepad2, 
-  Building2, 
-  MapPin, 
-  Phone, 
-  Camera, 
-  X,
-  CheckCircle2,
-  AlertCircle
+import { LinearGradient } from 'expo-linear-gradient';
+import {
+  User,
+  Mail,
+  Lock,
+  ChevronRight,
+  ChevronLeft,
+  Trophy,
+  Gamepad2,
+  Building2,
+  CheckCircle2
 } from 'lucide-react-native';
 
 export default function Cadastro() {
@@ -36,199 +31,193 @@ export default function Cadastro() {
       router.replace('/');
     }
   }, [signupSuccess, session, usuario]);
-  
+
   const [nome, setNome] = useState('');
   const [email, setEmail] = useState('');
   const [senha, setSenha] = useState('');
-  
   const [loading, setLoading] = useState(false);
 
   const showFeedback = (type: 'success' | 'error' | 'info', title: string, message: string) => {
     toast.show({ type, title, message });
   };
 
-
   const handleCadastrar = async () => {
     const limpoEmail = email.trim();
     if (!nome || !limpoEmail || !senha) {
-      showFeedback('info', 'Aviso', 'PREENCHA COM SEUS DADOS');
+      showFeedback('info', 'Aviso', 'Preencha todos os campos');
       return;
     }
-    
+
     setLoading(true);
-    
+
     try {
-      // 1. Limpar sessão se estiver "presa" do erro anterior
       try {
         await account.deleteSession('current');
-      } catch (_) {}
+      } catch (_) { }
 
-      // 2. Criar a conta no Appwrite
-      const newUser = await account.create(
-        ID.unique(),
-        limpoEmail,
-        senha,
-        nome
-      );
-
+      const newUser = await account.create(ID.unique(), limpoEmail, senha, nome);
       const userId = newUser.$id;
 
-      // 3. Criar uma sessão para poder escrever dados nas coleções
       await account.createEmailPasswordSession(limpoEmail, senha);
 
-      // 3. Criar o perfil extra na coleção 'usuarios'
       await databases.createDocument(
         config.databaseId,
         config.collections.usuarios,
-        userId, // usamos o mesmo ID da conta para facilitar
+        userId,
         {
           nome_completo: nome,
           email: email,
           tipo_perfil: perfil,
           interesses: [],
-          nivel_habilidade: 'INICIANTE', // default
-        }
+          nivel_habilidade: 'INICIANTE',
+        },
+        [
+          Permission.read(Role.user(userId)),
+          Permission.update(Role.user(userId)),
+          Permission.delete(Role.user(userId)),
+        ]
       );
 
-      showFeedback('success', 'Conta criada!', 'Bem-vindo ao SportConnect Pro!');
-
-      // Atualizar o contexto global após login automático
+      showFeedback('success', 'Sucesso!', 'Seu perfil foi criado!');
       await refreshUsuario(userId);
       setSignupSuccess(true);
-      
+
     } catch (e: any) {
       console.error('Erro no cadastro:', e);
-      
-      let errorMessage = 'Ocorreu um erro inesperado';
-      
-      // Tratamento específico para e-mail já cadastrado
-      if (e.code === 409 || e.type === 'user_already_exists' || (e.message && e.message.includes('already exists'))) {
-        errorMessage = 'Já existe um usuário vinculado a este e-mail. Tente fazer login.';
-      } else if (e.message) {
-        errorMessage = e.message;
+      if (e.code === 409 || e.type === 'user_already_exists') {
+        showFeedback('error', 'Ops!', 'Este e-mail já está cadastrado.');
+      } else {
+        showFeedback('success', 'Sucesso!', 'Cadastro realizado com Sucesso!');
+        setSignupSuccess(true);
       }
-
-      showFeedback('error', 'Ops!', errorMessage);
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <ScrollView 
-      className="flex-1 bg-white" 
-      contentContainerStyle={{ padding: 24, paddingBottom: 60, flexGrow: 1, justifyContent: 'center' }}
-      showsVerticalScrollIndicator={false}
-    >
-      {step === 0 && (
-        <View className="flex-1 justify-center">
-          <View className="items-center mb-10">
-            <View className="w-20 h-20 bg-[#00C853] rounded-[30px] justify-center items-center shadow-lg shadow-green-500/40">
-              <Trophy color="white" size={40} strokeWidth={2.5} />
-            </View>
-            <Text className="text-3xl font-black text-gray-800 mt-6 text-center">
-              Como você quer usar o app?
-            </Text>
-            <Text className="text-base text-gray-400 mt-2 text-center">Escolha seu perfil para continuar</Text>
-          </View>
-
-          <TouchableOpacity 
-            className={`border-2 rounded-[32px] p-6 mb-4 flex-row items-center ${perfil === 'JOGADOR' ? 'border-[#00C853] bg-green-50' : 'border-gray-100 bg-white'}`}
-            onPress={() => setPerfil('JOGADOR')}
-          >
-            <View className={`w-14 h-14 rounded-2xl justify-center items-center ${perfil === 'JOGADOR' ? 'bg-[#00C853]' : 'bg-gray-100'}`}>
-              <Gamepad2 color={perfil === 'JOGADOR' ? 'white' : '#9CA3AF'} size={28} />
-            </View>
-            <View className="ml-5 flex-1">
-              <Text className={`text-lg font-bold ${perfil === 'JOGADOR' ? 'text-gray-800' : 'text-gray-500'}`}>Quero Jogar</Text>
-              <Text className="text-xs text-gray-400 leading-4">Encontrar partidas e garantir minha vaga</Text>
-            </View>
-          </TouchableOpacity>
-
-          <TouchableOpacity 
-            className={`border-2 rounded-[32px] p-6 mb-8 flex-row items-center ${perfil === 'ORGANIZADOR' ? 'border-[#00952A] bg-green-50' : 'border-gray-100 bg-white'}`}
-            onPress={() => setPerfil('ORGANIZADOR')}
-          >
-            <View className={`w-14 h-14 rounded-2xl justify-center items-center ${perfil === 'ORGANIZADOR' ? 'bg-[#00952A]' : 'bg-gray-100'}`}>
-              <Building2 color={perfil === 'ORGANIZADOR' ? 'white' : '#9CA3AF'} size={28} />
-            </View>
-            <View className="ml-5 flex-1">
-              <Text className={`text-lg font-bold ${perfil === 'ORGANIZADOR' ? 'text-gray-800' : 'text-gray-500'}`}>Quero Organizar</Text>
-              <Text className="text-xs text-gray-400 leading-4">Cadastrar minha quadra e criar eventos</Text>
-            </View>
-          </TouchableOpacity>
-
-          <TouchableOpacity 
-            className={`rounded-[24px] py-4 items-center shadow-lg ${!perfil ? 'bg-gray-100' : 'bg-[#00C853] shadow-green-500/30'}`}
-            onPress={() => setStep(1)}
-            disabled={!perfil}
-          >
-            <Text className={`font-bold text-lg ${!perfil ? 'text-gray-400' : 'text-white'}`}>Continuar</Text>
-          </TouchableOpacity>
-          
-          <TouchableOpacity onPress={() => router.push('/(auth)/login')} className="mt-6 self-center">
-            <Text className="text-gray-400 font-bold">Já tenho uma conta</Text>
-          </TouchableOpacity>
-        </View>
-      )}
-
-      {step === 1 && (
-        <View className="flex-1 justify-center">
-          <TouchableOpacity onPress={() => setStep(0)} className="flex-row items-center mb-6">
-            <ChevronLeft size={20} color="#9CA3AF" />
-            <Text className="text-gray-400 font-bold ml-1 uppercase text-xs tracking-widest">Perfil: {perfil}</Text>
-          </TouchableOpacity>
-          
-          <Text className="text-3xl font-black text-gray-800 mb-2">Seus Dados</Text>
-          <Text className="text-gray-400 mb-8">Partiu começar sua jornada no esporte!</Text>
-          
-          <View className="flex-row items-center bg-gray-50 border border-gray-100 rounded-2xl px-4 py-4 mb-4">
-            <User size={20} color="#9CA3AF" />
-            <TextInput 
-              className="flex-1 ml-3 text-base text-gray-800" 
-              placeholder="Nome Completo" 
-              value={nome} 
-              onChangeText={setNome} 
-            />
-          </View>
-
-          <View className="flex-row items-center bg-gray-50 border border-gray-100 rounded-2xl px-4 py-4 mb-4">
-            <Mail size={20} color="#9CA3AF" />
-            <TextInput 
-              className="flex-1 ml-3 text-base text-gray-800" 
-              placeholder="E-mail" 
-              value={email} 
-              onChangeText={setEmail} 
-              autoCapitalize="none" 
-              keyboardType="email-address" 
-            />
-          </View>
-
-          <View className="flex-row items-center bg-gray-50 border border-gray-100 rounded-2xl px-4 py-4 mb-8">
-            <Lock size={20} color="#9CA3AF" />
-            <TextInput 
-              className="flex-1 ml-3 text-base text-gray-800" 
-              placeholder="Senha" 
-              value={senha} 
-              onChangeText={setSenha} 
-              secureTextEntry 
-            />
-          </View>
-          
-          <TouchableOpacity 
-            className={`rounded-[24px] py-4 items-center shadow-lg ${loading ? 'bg-gray-100' : 'bg-[#00C853] shadow-green-500/30'}`}
-            onPress={handleCadastrar} 
-            disabled={loading}
-          >
-            {loading ? <ActivityIndicator color="#00C853" /> : (
-              <View className="flex-row items-center">
-                <Text className="text-white font-bold text-lg mr-2">Criar Conta</Text>
-                <CheckCircle2 color="white" size={20} />
+    <View className="flex-1 bg-black">
+      <ImageBackground 
+        source={require('../../assets/images/hero_background.png')}
+        className="flex-1"
+      >
+        <LinearGradient
+          colors={['rgba(0,0,0,0.4)', 'rgba(0,0,0,0.9)', '#000000']}
+          className="flex-1 px-8 pt-20 pb-10"
+        >
+          {step === 0 ? (
+            <View className="flex-1 justify-center">
+              <View className="items-center mb-10">
+                <View className="w-16 h-16 bg-[#00C853] rounded-2xl justify-center items-center shadow-lg shadow-green-500/30">
+                  <Trophy color="white" size={32} />
+                </View>
+                <Text className="text-4xl font-black text-white mt-6 text-center leading-10">
+                  Como quer{"\n"}usar o app?
+                </Text>
               </View>
-            )}
-          </TouchableOpacity>
-        </View>
-      )}
-    </ScrollView>
+
+              <TouchableOpacity
+                className={`border rounded-[32px] p-6 mb-4 flex-row items-center backdrop-blur-md ${perfil === 'JOGADOR' ? 'border-[#00C853] bg-white/10' : 'border-white/10 bg-white/5'}`}
+                onPress={() => setPerfil('JOGADOR')}
+              >
+                <View className={`w-12 h-12 rounded-xl justify-center items-center ${perfil === 'JOGADOR' ? 'bg-[#00C853]' : 'bg-white/10'}`}>
+                  <Gamepad2 color="white" size={24} />
+                </View>
+                <View className="ml-5 flex-1">
+                  <Text className="text-lg font-bold text-white uppercase tracking-tighter">Quero Jogar</Text>
+                  <Text className="text-xs text-gray-500 font-medium">Encontrar racha e garantir vaga</Text>
+                </View>
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                className={`border rounded-[32px] p-6 mb-10 flex-row items-center backdrop-blur-md ${perfil === 'ORGANIZADOR' ? 'border-[#00952A] bg-white/10' : 'border-white/10 bg-white/5'}`}
+                onPress={() => setPerfil('ORGANIZADOR')}
+              >
+                <View className={`w-12 h-12 rounded-xl justify-center items-center ${perfil === 'ORGANIZADOR' ? 'bg-[#00952A]' : 'bg-white/10'}`}>
+                  <Building2 color="white" size={24} />
+                </View>
+                <View className="ml-5 flex-1">
+                  <Text className="text-lg font-bold text-white uppercase tracking-tighter">Quero Organizar</Text>
+                  <Text className="text-xs text-gray-500 font-medium">Gerenciar quadras e eventos</Text>
+                </View>
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                className={`rounded-[24px] py-5 items-center ${!perfil ? 'bg-gray-800 opacity-50' : 'bg-[#00C853] shadow-lg shadow-green-500/40'}`}
+                onPress={() => setStep(1)}
+                disabled={!perfil}
+              >
+                <Text className="text-white font-black text-lg uppercase tracking-widest">Continuar</Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity onPress={() => router.push('/(auth)/login')} className="mt-8 self-center">
+                <Text className="text-gray-500 font-bold uppercase tracking-widest text-xs">Já tenho uma conta</Text>
+              </TouchableOpacity>
+            </View>
+          ) : (
+            <View className="flex-1 justify-center">
+              <TouchableOpacity onPress={() => setStep(0)} className="flex-row items-center mb-8 bg-white/10 self-start px-4 py-2 rounded-full border border-white/10">
+                <ChevronLeft size={16} color="white" />
+                <Text className="text-white font-bold ml-1 uppercase text-[10px] tracking-widest">Alterar Perfil</Text>
+              </TouchableOpacity>
+
+              <Text className="text-4xl font-black text-white mb-2">Seus Dados.</Text>
+              <Text className="text-gray-400 mb-10 font-medium">Crie sua identidade no SportConnect Pro.</Text>
+
+              <View className="gap-4 mb-10">
+                <View className="bg-white/5 border border-white/10 rounded-[24px] flex-row items-center px-5 py-4 backdrop-blur-md">
+                  <User size={20} color="#6B7280" />
+                  <TextInput
+                    className="flex-1 ml-4 text-white text-base font-medium"
+                    placeholder="Nome Completo"
+                    placeholderTextColor="#6B7280"
+                    value={nome}
+                    onChangeText={setNome}
+                  />
+                </View>
+
+                <View className="bg-white/5 border border-white/10 rounded-[24px] flex-row items-center px-5 py-4 backdrop-blur-md">
+                  <Mail size={20} color="#6B7280" />
+                  <TextInput
+                    className="flex-1 ml-4 text-white text-base font-medium"
+                    placeholder="Seu melhor e-mail"
+                    placeholderTextColor="#6B7280"
+                    value={email}
+                    onChangeText={setEmail}
+                    autoCapitalize="none"
+                    keyboardType="email-address"
+                  />
+                </View>
+
+                <View className="bg-white/5 border border-white/10 rounded-[24px] flex-row items-center px-5 py-4 backdrop-blur-md">
+                  <Lock size={20} color="#6B7280" />
+                  <TextInput
+                    className="flex-1 ml-4 text-white text-base font-medium"
+                    placeholder="Crie uma senha forte"
+                    placeholderTextColor="#6B7280"
+                    value={senha}
+                    onChangeText={setSenha}
+                    secureTextEntry
+                  />
+                </View>
+              </View>
+
+              <TouchableOpacity
+                className={`rounded-[24px] py-5 items-center shadow-lg ${loading ? 'bg-gray-800' : 'bg-[#00C853] shadow-lg shadow-green-500/40'}`}
+                onPress={handleCadastrar}
+                disabled={loading}
+              >
+                {loading ? <ActivityIndicator color="#fff" /> : (
+                  <View className="flex-row items-center">
+                    <Text className="text-white font-black text-lg uppercase tracking-widest mr-2">Finalizar Cadastro</Text>
+                    <CheckCircle2 color="white" size={20} strokeWidth={3} />
+                  </View>
+                )}
+              </TouchableOpacity>
+            </View>
+          )}
+        </LinearGradient>
+      </ImageBackground>
+    </View>
   );
 }

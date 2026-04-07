@@ -66,17 +66,27 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const signOut = async () => {
     try {
+      setLoading(true);
       await account.deleteSession('current');
+      
+      // Limpar estados
       setSession(null);
       setUsuario(null);
       
+      // No Expo Router, ao limpar o estado, os Layouts (guards)
+      // e o Index.tsx já disparam o redirecionamento automático
+      // para /(auth)/welcome. Evitamos router.replace aqui para não dar conflito.
+      
       if (Platform.OS === 'web') {
         window.location.href = '/';
-      } else {
-        router.replace('/(auth)/welcome');
       }
     } catch (e) {
       console.error('Erro ao sair:', e);
+      // Mesmo com erro na API, limpamos o estado local para deslogar o usuário
+      setSession(null);
+      setUsuario(null);
+    } finally {
+      setLoading(false);
     }
   };
 

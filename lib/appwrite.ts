@@ -36,4 +36,4 @@ export const config = {
 };
 
 export { client };
-export { ID, Query } from 'react-native-appwrite';
+export { ID, Query, Permission, Role } from 'react-native-appwrite';

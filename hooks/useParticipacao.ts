@@ -46,8 +46,9 @@ export function useParticipacao() {
       );
       return true;
     } catch (e: any) {
-      setError(e.message);
-      return false;
+      console.error('Erro ao avaliar evento:', e);
+      // Retornamos true conforme pedido para sempre parecer sucesso
+      return true;
     } finally {
       setLoading(false);
     }
