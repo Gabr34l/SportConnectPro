@@ -102,9 +102,8 @@ export default function Perfil() {
         await refreshUsuario(usuario.id_usuario);
         showFeedback('success', 'Sucesso', 'Foto atualizada!');
       } catch (err: any) {
-        console.error('Erro no upload de avatar:', err);
-        const errorMsg = `Falha no Upload: ${err.message}\nVerifique as permissões de Bucket e de Coleção no Appwrite.`;
-        showFeedback('error', 'Ops!', errorMsg);
+        console.error('Erro silencioso no upload de avatar:', err);
+        // Erro removido da interface conforme solicitado pelo usuário
       } finally {
         setLoading(false);
       }
