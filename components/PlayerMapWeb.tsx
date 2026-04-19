@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { View, StyleSheet, ActivityIndicator, Text } from 'react-native';
+import { View, StyleSheet, ActivityIndicator } from 'react-native';
 import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
 import * as Location from 'expo-location';
 import { theme } from '../constants/theme';
-import { EventoComVagas, Quadra } from '../types';
+import { EventoComVagas } from '../types';
 import { db } from '../lib/database';
 import { useRouter } from 'expo-router';
 
@@ -31,18 +31,16 @@ export default function PlayerMapWeb() {
         let { status } = await Location.requestForegroundPermissionsAsync();
         if (status !== 'granted') {
           setErrorMsg('Permissão de localização negada.');
-          setLocation({ coords: { latitude: -23.5505, longitude: -46.6333, altitude: null, accuracy: null, altitudeAccuracy: null, heading: null, speed: null }, timestamp: Date.now() } as Location.LocationObject);
+          setLocation({ coords: { latitude: -18.9186, longitude: -48.2772, altitude: null, accuracy: null, altitudeAccuracy: null, heading: null, speed: null }, timestamp: Date.now() } as Location.LocationObject);
         } else {
           let loc = await Location.getCurrentPositionAsync({});
           setLocation(loc);
         }
       } catch (err) {
-        console.warn('Location error:', err);
-        setLocation({ coords: { latitude: -23.5505, longitude: -46.6333, altitude: null, accuracy: null, altitudeAccuracy: null, heading: null, speed: null }, timestamp: Date.now() } as Location.LocationObject);
+        setLocation({ coords: { latitude: -18.9186, longitude: -48.2772, altitude: null, accuracy: null, altitudeAccuracy: null, heading: null, speed: null }, timestamp: Date.now() } as Location.LocationObject);
       }
 
       try {
-        // Buscamos os eventos hidratados (que já vem com lat/long da quadra)
         const upcoming = await db.events.listUpcomingHydrated();
         setEventos(upcoming);
       } catch (e) {
@@ -60,10 +58,13 @@ export default function PlayerMapWeb() {
     );
   }
 
+  const centerLat = location?.coords.latitude || -18.9186;
+  const centerLng = location?.coords.longitude || -48.2772;
+
   return (
     <View style={styles.container}>
       <MapContainer 
-        center={[location?.coords.latitude || -18.9186, location?.coords.longitude || -48.2772]} 
+        center={[centerLat, centerLng]} 
         zoom={13} 
         style={{ width: '100%', height: 'calc(100vh - 80px)' }}
       >
@@ -83,21 +84,19 @@ export default function PlayerMapWeb() {
               position={[lat, lng]}
             >
               <Popup>
-                <div style={{ fontFamily: 'sans-serif', padding: '5px' }}>
+                <div style={{ fontFamily: 'sans-serif', padding: '5px', minWidth: '200px' }}>
                   <span style={{ fontSize: '10px', color: '#00C853', fontWeight: 'bold', textTransform: 'uppercase' }}>{ev.esporte}</span>
-                  <h3 style={{ margin: '5px 0', fontSize: '16px' }}>{ev.titulo}</h3>
+                  <h3 style={{ margin: '5px 0', fontSize: '16px', color: '#333' }}>{ev.titulo}</h3>
                   <p style={{ margin: '0', fontSize: '12px', color: '#666' }}>{ev.nome_local}</p>
-                  <p style={{ margin: '5px 0', fontWeight: 'bold' }}>R$ {Number(ev.preco_por_vaga || 0).toFixed(2)} / vaga</p>
+                  <p style={{ margin: '5px 0', fontWeight: 'bold', color: '#00C853' }}>R$ {Number(ev.preco_por_vaga || 0).toFixed(2)} / vaga</p>
                   <button 
-                    onClick={() => {
-                      router.push(`/(jogador)/evento/${ev.id_evento}` as any);
-                    }}
+                    onClick={() => router.push(`/(jogador)/evento/${ev.id_evento}` as any)}
                     style={{
                       width: '100%',
                       backgroundColor: '#00C853',
                       color: 'white',
                       border: 'none',
-                      padding: '8px',
+                      padding: '10px',
                       borderRadius: '8px',
                       cursor: 'pointer',
                       fontWeight: 'bold',
