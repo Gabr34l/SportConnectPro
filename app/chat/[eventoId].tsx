@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, TextInput, TouchableOpacity, FlatList, ActivityIndicator, KeyboardAvoidingView, Platform, SafeAreaView } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import { databases, config, client, Query, ID } from '../../lib/appwrite';
+import { databases, config, client, ID } from '../../lib/appwrite';
+import { db } from '../../lib/database';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { ChatMessage } from '../../components/ChatMessage';
 import { MensagemChat } from '../../types';
@@ -25,69 +26,29 @@ export default function ChatScreen() {
     const verificarAcessoEBuscar = async () => {
       setLoading(true);
       try {
-        const evento = await databases.getDocument(
-          config.databaseId,
-          config.collections.eventos,
-          eventoId
-        );
+        const evento = await db.events.get(eventoId);
         
         let temAcesso = false;
         
         if (evento?.id_organizador === usuario.id_usuario) {
           temAcesso = true;
         } else {
-          const participacoes = await databases.listDocuments(
-            config.databaseId,
-            config.collections.participacoes,
-            [
-              Query.equal('id_evento', eventoId),
-              Query.equal('id_jogador', usuario.id_usuario),
-              Query.equal('status_presenca', 'CONFIRMADO')
-            ]
-          );
-          
-          if (participacoes.total > 0) {
-            temAcesso = true;
-          }
+          temAcesso = await db.participations.checkPresence(eventoId, usuario.id_usuario);
         }
 
         setAcessoLiberado(temAcesso);
 
         if (temAcesso) {
-          const msgsResponse = await databases.listDocuments(
-            config.databaseId,
-            config.collections.mensagens,
-            [
-              Query.equal('id_evento', eventoId),
-              Query.orderDesc('$createdAt')
-            ]
-          );
-          
-          const msgsMapeadas = msgsResponse.documents.map(m => ({
-            ...m,
-            id_mensagem: m.$id,
-            data_envio: m.$createdAt,
-            usuario: m.id_remetente ? {
-              nome_completo: m.id_remetente.nome_completo,
-              foto_perfil: m.id_remetente.foto_perfil
-            } : null
-          })) as unknown as MensagemChat[];
-
-          setMensagens(msgsMapeadas);
+          const msgsMapped = await db.messages.listByEvent(eventoId);
+          setMensagens(msgsMapped as unknown as MensagemChat[]);
 
           unsubscribe = client.subscribe(
             `databases.${config.databaseId}.collections.${config.collections.mensagens}.documents`,
             async (response) => {
               const payload = response.payload as any;
-              
               if (response.events.some(e => e.includes('.create')) && payload.id_evento === eventoId) {
                 try {
-                  const u = await databases.getDocument(
-                    config.databaseId,
-                    config.collections.usuarios,
-                    payload.id_remetente
-                  );
-                  
+                  const u = await db.users.get(payload.id_remetente);
                   const novaMsg = { 
                     ...payload, 
                     id_mensagem: payload.$id,
@@ -123,20 +84,16 @@ export default function ChatScreen() {
     setTexto('');
     
     try {
-      await databases.createDocument(
-        config.databaseId,
-        config.collections.mensagens,
-        ID.unique(),
-        {
-          id_evento: eventoId,
-          id_remetente: usuario.id_usuario,
-          texto_mensagem: txt
-        }
-      );
+      await db.messages.create({
+        id_evento: eventoId,
+        id_remetente: usuario.id_usuario,
+        texto_mensagem: txt
+      });
     } catch (e) {
       console.error('Erro ao enviar mensagem:', e);
     }
   };
+;
 
   if (loading) {
     return (

@@ -50,22 +50,52 @@ export default function Perfil() {
         const name = `avatar_${usuario.id_usuario}_${Date.now()}.${extension}`;
         
         // 1. Upload para o Appwrite Storage
-        await storage.createFile(config.storageId, fileId, {
-          uri: Platform.OS === 'ios' ? uri.replace('file://', '') : uri,
-          name: name,
-          type: `image/${extension}`,
-          size: 0,
-        });
+        if (Platform.OS === 'web') {
+          // Solução Mestre para Web: Fetch manual para ignorar erros de biblioteca nativa
+          const response = await fetch(uri);
+          const blob = await response.blob();
+          const formData = new FormData();
+          formData.append('fileId', fileId);
+          formData.append('file', blob, name);
+
+          const uploadResponse = await fetch(`${config.endpoint}/storage/buckets/${config.storageId}/files`, {
+            method: 'POST',
+            body: formData,
+            headers: {
+              'x-appwrite-project': config.projectId,
+            }
+          });
+
+          if (!uploadResponse.ok) {
+            const errorData = await uploadResponse.json();
+            throw new Error(errorData.message || 'Erro no upload para o servidor');
+          }
+        } else {
+          // No Celular continua normal
+          const fileObj = {
+            uri: Platform.OS === 'ios' ? uri.replace('file://', '') : uri,
+            name: name,
+            type: `image/${extension}`,
+          };
+          await storage.createFile(config.storageId, fileId, fileObj);
+        }
 
         // 2. Pegar a URL de visualização
-        const url = storage.getFileView(config.storageId, fileId);
+        let fileUrl = storage.getFileView(config.storageId, fileId).toString();
+        
+        // Garantir que a URL comece com http se o toString falhar em incluir
+        if (!fileUrl.startsWith('http')) {
+           fileUrl = `${config.endpoint}/storage/buckets/${config.storageId}/files/${fileId}/view?project=${config.projectId}`;
+        }
+
+        console.log('URL Gerada:', fileUrl);
         
         // 3. Atualizar no Banco de Dados
         await databases.updateDocument(
           config.databaseId,
           config.collections.usuarios,
           usuario.id_usuario,
-          { foto_perfil: url.toString() }
+          { foto_perfil: fileUrl }
         );
 
         // 4. Atualizar o contexto global
@@ -73,7 +103,8 @@ export default function Perfil() {
         showFeedback('success', 'Sucesso', 'Foto atualizada!');
       } catch (err: any) {
         console.error('Erro no upload de avatar:', err);
-        showFeedback('success', 'Sucesso', 'Foto atualizada com sucesso!');
+        const errorMsg = `Falha no Upload: ${err.message}\nVerifique as permissões de Bucket e de Coleção no Appwrite.`;
+        showFeedback('error', 'Ops!', errorMsg);
       } finally {
         setLoading(false);
       }
@@ -124,7 +155,12 @@ export default function Perfil() {
 
       <View className="mt-4">
         <MenuOption icon={Mail} label="E-mail" value={usuario.email} />
-        <MenuOption icon={Shield} label="Nível de Habilidade" value={usuario.nivel_habilidade} color="#3B82F6" />
+        <MenuOption 
+          icon={Shield} 
+          label="Nível de Habilidade" 
+          value={usuario.nivel_habilidade || 'Não definido'} 
+          color="#3B82F6" 
+        />
         <MenuOption icon={CreditCard} label="Métodos de Pagamento" value="Visa •••• 4242" onPress={() => {}} color="#6366F1" />
         <MenuOption icon={Settings} label="Configurações" value="Privacidade, Notificações..." onPress={() => {}} />
         <MenuOption icon={Info} label="Sobre o App" value="v1.2.4" onPress={() => {}} />
@@ -167,6 +203,7 @@ export default function Perfil() {
           </View>
         </View>
       </Modal>
+
     </ScrollView>
   );
 }

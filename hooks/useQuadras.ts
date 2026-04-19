@@ -1,26 +1,16 @@
 import { useState } from 'react';
-import { databases, config, Query, ID } from '../lib/appwrite';
+import { databases, config, Query } from '../lib/appwrite';
+import { db } from '../lib/database';
 import { Quadra } from '../types';
 
 export function useQuadras() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const mapQuadra = (doc: any): Quadra => ({
-    ...doc,
-    id_quadra: doc.$id,
-    created_at: doc.$createdAt
-  });
-
   const fetchQuadrasOrganizador = async (idOrganizador: string) => {
     setLoading(true);
     try {
-      const response = await databases.listDocuments(
-        config.databaseId,
-        config.collections.quadras,
-        [Query.equal('id_organizador', idOrganizador)]
-      );
-      return response.documents.map(mapQuadra);
+      return await db.courts.listByOrganizer(idOrganizador);
     } catch (e: any) {
       console.error('Erro ao buscar quadras:', e);
       return [];
@@ -32,12 +22,7 @@ export function useQuadras() {
   const fetchQuadraPorId = async (id: string) => {
     setLoading(true);
     try {
-      const doc = await databases.getDocument(
-        config.databaseId,
-        config.collections.quadras,
-        id
-      );
-      return mapQuadra(doc);
+      return await db.courts.get(id);
     } catch (e: any) {
       console.error('Erro ao buscar quadra por ID:', e);
       return null;
@@ -49,19 +34,14 @@ export function useQuadras() {
   const cadastrarQuadra = async (dados: Omit<Quadra, 'id_quadra' | 'created_at' | 'status_aprovacao'>) => {
     setLoading(true);
     try {
-      await databases.createDocument(
-        config.databaseId,
-        config.collections.quadras,
-        ID.unique(),
-        {
-          ...dados,
-          status_aprovacao: 'PENDENTE'
-        }
-      );
+      await db.courts.create({
+        ...dados,
+        status_aprovacao: 'PENDENTE'
+      });
       return true;
     } catch (e: any) {
       console.error('Erro ao cadastrar quadra:', e);
-      return true; // Forçamos sucesso visual
+      return false;
     } finally {
       setLoading(false);
     }
@@ -75,7 +55,7 @@ export function useQuadras() {
         config.collections.quadras,
         [Query.equal('status_aprovacao', 'APROVADO')]
       );
-      return response.documents.map(mapQuadra);
+      return response.documents as any as Quadra[];
     } catch (e: any) {
       console.error('Erro ao buscar quadras aprovadas:', e);
       return [];
@@ -83,6 +63,7 @@ export function useQuadras() {
       setLoading(false);
     }
   };
+
 
   return { fetchQuadrasOrganizador, fetchQuadraPorId, fetchQuadrasAprovadas, cadastrarQuadra, loading, error };
 }

@@ -24,6 +24,7 @@ export default function Cadastro() {
   const { session, usuario, refreshUsuario } = useAuthContext();
   const [step, setStep] = useState(0);
   const [perfil, setPerfil] = useState<TipoPerfil | null>(null);
+  const [nivel, setNivel] = useState<string | null>(null);
   const [signupSuccess, setSignupSuccess] = useState(false);
 
   useEffect(() => {
@@ -69,7 +70,7 @@ export default function Cadastro() {
           email: email,
           tipo_perfil: perfil,
           interesses: [],
-          nivel_habilidade: 'INICIANTE',
+          nivel_habilidade: nivel || 'INICIANTE',
         },
         [
           Permission.read(Role.user(userId)),
@@ -160,11 +161,48 @@ export default function Cadastro() {
                   <Text className="text-gray-500 font-bold uppercase tracking-widest text-xs">Já tenho uma conta</Text>
                 </TouchableOpacity>
               </View>
+            ) : step === 1 ? (
+              <View className="flex-1 justify-center">
+                 <TouchableOpacity onPress={() => setStep(0)} className="flex-row items-center mb-8 bg-white/10 self-start px-4 py-2 rounded-full border border-white/10">
+                  <ChevronLeft size={16} color="white" />
+                  <Text className="text-white font-bold ml-1 uppercase text-[10px] tracking-widest">Voltar</Text>
+                </TouchableOpacity>
+                <Text className="text-4xl font-black text-white mt-6 text-center leading-10 mb-10">
+                  Qual seu nível{"\n"}técnico?
+                </Text>
+
+                {[
+                  { label: 'Iniciante', value: 'INICIANTE', desc: 'Estou começando agora' },
+                  { label: 'Intermediário', value: 'INTERMEDIARIO', desc: 'Já jogo faz um tempo' },
+                  { label: 'Avançado', value: 'AVANCADO', desc: 'Jogo muito bem' },
+                  { label: 'Profissional', value: 'PROFISSIONAL', desc: 'Nível competitivo' }
+                ].map((item) => (
+                  <TouchableOpacity
+                    key={item.value}
+                    className={`border rounded-[24px] p-5 mb-3 flex-row items-center backdrop-blur-md ${nivel === item.value ? 'border-[#00C853] bg-white/10' : 'border-white/10 bg-white/5'}`}
+                    onPress={() => setNivel(item.value)}
+                  >
+                    <View className="flex-1">
+                      <Text className="text-lg font-bold text-white uppercase tracking-tighter">{item.label}</Text>
+                      <Text className="text-xs text-gray-400">{item.desc}</Text>
+                    </View>
+                    {nivel === item.value && <CheckCircle2 color="#00C853" size={24} />}
+                  </TouchableOpacity>
+                ))}
+
+                <TouchableOpacity
+                  className={`rounded-[24px] py-5 items-center mt-6 ${!nivel ? 'bg-gray-800 opacity-50' : 'bg-[#00C853] shadow-lg shadow-green-500/40'}`}
+                  onPress={() => setStep(2)}
+                  disabled={!nivel}
+                >
+                  <Text className="text-white font-black text-lg uppercase tracking-widest">Próximo</Text>
+                </TouchableOpacity>
+              </View>
             ) : (
               <View className="flex-1 justify-center">
-                <TouchableOpacity onPress={() => setStep(0)} className="flex-row items-center mb-8 bg-white/10 self-start px-4 py-2 rounded-full border border-white/10">
+                <TouchableOpacity onPress={() => setStep(1)} className="flex-row items-center mb-8 bg-white/10 self-start px-4 py-2 rounded-full border border-white/10">
                   <ChevronLeft size={16} color="white" />
-                  <Text className="text-white font-bold ml-1 uppercase text-[10px] tracking-widest">Alterar Perfil</Text>
+                  <Text className="text-white font-bold ml-1 uppercase text-[10px] tracking-widest">Voltar</Text>
                 </TouchableOpacity>
 
                 <Text className="text-4xl font-black text-white mb-2">Seus Dados.</Text>

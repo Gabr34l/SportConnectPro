@@ -1,7 +1,8 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { Platform } from 'react-native';
 import { router } from 'expo-router';
-import { account, databases, config, ID } from '../lib/appwrite';
+import { account, config } from '../lib/appwrite';
+import { db } from '../lib/database';
 import { Usuario } from '../types';
 import { Models } from 'react-native-appwrite';
 
@@ -22,23 +23,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const refreshUsuario = async (userId: string) => {
     try {
-      // Garantir que a sessão está atualizada também
       const user = await account.get();
       setSession(user);
 
-      const doc = await databases.getDocument(
-        config.databaseId,
-        config.collections.usuarios,
-        userId
-      );
-      
-      if (doc) {
-        setUsuario({
-          ...doc,
-          id_usuario: doc.$id,
-          created_at: doc.$createdAt
-        } as unknown as Usuario);
-      }
+      const userProfile = await db.users.get(userId);
+      setUsuario(userProfile);
     } catch (e) {
       console.error('Erro ao buscar perfil do usuário:', e);
       setUsuario(null);

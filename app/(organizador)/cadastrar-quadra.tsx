@@ -1,11 +1,14 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, ScrollView, ActivityIndicator, Image, Platform } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, ScrollView, ActivityIndicator, Image, Platform, Alert } from 'react-native';
 import { useRouter } from 'expo-router';
 import * as ImagePicker from 'expo-image-picker';
-import { databases, config, storage, ID } from '../../lib/appwrite';
+import { config } from '../../lib/appwrite';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { useToast } from '../../components/Toast';
 import { MapPin, Camera, Building2, FileText, Phone, Hash, X, CheckCircle2 } from 'lucide-react-native';
+import { maskCNPJ, maskCEP, maskPhone } from '../../lib/utils';
+import { uploadFiles } from '../../lib/storage';
+import { db } from '../../lib/database';
 
 export default function CadastrarQuadra() {
   const router = useRouter();
@@ -25,29 +28,8 @@ export default function CadastrarQuadra() {
     if (Platform.OS === 'web') {
       toast.show({ type, title, message });
     } else {
-      const { Alert } = require('react-native');
       Alert.alert(title, message);
     }
-  };
-
-  const maskCNPJ = (val: string) => {
-    return val.replace(/\D/g, '')
-      .replace(/^(\d{2})(\d)/, '$1.$2')
-      .replace(/^(\d{2})\.(\d{3})(\d)/, '$1.$2.$3')
-      .replace(/\.(\d{3})(\d)/, '.$1/$2')
-      .replace(/(\d{4})(\d)/, '$1-$2')
-      .substring(0, 18);
-  };
-
-  const maskCEP = (val: string) => {
-    return val.replace(/\D/g, '').replace(/^(\d{5})(\d)/, '$1-$2').substring(0, 9);
-  };
-
-  const maskPhone = (val: string) => {
-    return val.replace(/\D/g, '')
-      .replace(/^(\d{2})(\d)/g, '($1) $2')
-      .replace(/(\d)(\d{4})$/, '$1-$2')
-      .substring(0, 15);
   };
 
   const buscarCNPJ = async (cnpjBuscado: string) => {
@@ -61,23 +43,30 @@ export default function CadastrarQuadra() {
       
       if (resp.ok) {
         setRazaoSocial(data.razao_social || '');
-        if (data.cep) {
-           const c = maskCEP(data.cep);
-           setCep(c);
+        if (data.cep) setCep(maskCEP(data.cep));
+        
+        const logradouro = data.logradouro || '';
+        const numero = data.numero || 'S/N';
+        const bairro = data.bairro || '';
+        const municipio = data.municipio || '';
+        const uf = data.uf || '';
+        const complemento = data.complemento ? ` - ${data.complemento}` : '';
+
+        if (logradouro) {
+           setEndereco(`${logradouro}, ${numero}${complemento}, ${bairro}, ${municipio} - ${uf}`);
         }
-        if (data.logradouro) {
-           setEndereco(`${data.logradouro}, ${data.numero}${data.complemento ? ' - ' + data.complemento : ''}, ${data.bairro}, ${data.municipio} - ${data.uf}`);
-        }
+
         if (data.ddd_telefone_1) {
            setTelefone(maskPhone(data.ddd_telefone_1));
         }
-        showFeedback('success', 'CNPJ Validado!', `Encontrado: ${data.razao_social}`);
+
+        showFeedback('success', 'CNPJ Localizado', `Empresa: ${data.razao_social}`);
       } else {
-        showFeedback('error', 'CNPJ Inválido', 'Não encontramos dados para este CNPJ.');
+        showFeedback('error', 'CNPJ não encontrado', 'Verifique o número ou digite os dados manualmente.');
       }
     } catch (e) {
-      console.error(e);
-      showFeedback('error', 'Erro de consulta', 'Não foi possível validar o CNPJ agora.');
+      console.error('Erro CNPJ:', e);
+      showFeedback('error', 'Erro de conexão', 'Não foi possível consultar a base da Receita agora.');
     } finally {
       setLoading(false);
     }
@@ -86,20 +75,25 @@ export default function CadastrarQuadra() {
   const buscarCEP = async (cepBuscado: string) => {
     const limpo = cepBuscado.replace(/\D/g, '');
     if (limpo.length !== 8) return;
+    
     try {
       const resp = await fetch(`https://viacep.com.br/ws/${limpo}/json/`);
       const data = await resp.json();
+      
       if (!data.erro) {
         setEndereco(`${data.logradouro}, ${data.bairro}, ${data.localidade} - ${data.uf}`);
+        showFeedback('success', 'CEP Localizado', `${data.localidade}, ${data.uf}`);
+      } else {
+        showFeedback('info', 'CEP não encontrado', 'Por favor, preencha o endereço manualmente.');
       }
     } catch (e) {
-      console.error(e);
+      console.error('Erro CEP:', e);
     }
   };
 
   const pickImages = async () => {
     let result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ['images'],
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
       allowsMultipleSelection: true,
       selectionLimit: 8,
       quality: 0.7,
@@ -117,68 +111,7 @@ export default function CadastrarQuadra() {
   };
 
   const removeFoto = (index: number) => {
-    const novas = [...fotos];
-    novas.splice(index, 1);
-    setFotos(novas);
-  };
-
-  const uploadImages = async (userId: string) => {
-    const urls: string[] = [];
-    for (const uri of fotos) {
-      try {
-        const fileId = ID.unique();
-        const extension = uri.split('.').pop() || 'jpg';
-        const name = `quadra_${userId}_${Date.now()}.${extension}`;
-        
-        let urlResult = '';
-
-        if (Platform.OS === 'web') {
-          // O react-native-appwrite falha na web (expo-file-system error).
-          // Contornamos com um Fetch puro com Token JWT do próprio usuário!
-          const { account } = require('../../lib/appwrite'); // import lazy
-          const jwtResponse = await account.createJWT();
-          
-          const res = await fetch(uri);
-          const blob = await res.blob();
-          const fileToUpload = new File([blob], name, { type: blob.type || `image/${extension}` });
-          
-          const formData = new FormData();
-          formData.append('fileId', fileId);
-          formData.append('file', fileToUpload);
-
-          const uploadRes = await fetch(`${config.endpoint}/storage/buckets/${config.storageId}/files`, {
-            method: 'POST',
-            headers: {
-              'X-Appwrite-Project': config.projectId,
-              'X-Appwrite-JWT': jwtResponse.jwt,
-            },
-            body: formData,
-          });
-
-          if (!uploadRes.ok) {
-             const errorData = await uploadRes.json();
-             throw new Error(errorData.message || 'Falha no Rest Upload');
-          }
-
-          urlResult = storage.getFileView(config.storageId, fileId).toString();
-        } else {
-          // Native Mobile
-          const fileToUpload = {
-            uri: Platform.OS === 'ios' ? uri.replace('file://', '') : uri,
-            name: name,
-            type: `image/${extension}`,
-            size: 0,
-          };
-          await storage.createFile(config.storageId, fileId, fileToUpload as any);
-          urlResult = storage.getFileView(config.storageId, fileId).toString();
-        }
-
-        urls.push(urlResult);
-      } catch (e) {
-        console.error('Erro no upload da foto', e);
-      }
-    }
-    return urls;
+    setFotos(fotos.filter((_, i) => i !== index));
   };
 
   const handleCadastrar = async () => {
@@ -192,35 +125,32 @@ export default function CadastrarQuadra() {
     setLoading(true);
     
     try {
-      const urlsFotos = await uploadImages(usuario.id_usuario);
+      // 1. Upload images using the isolated storage service
+      const urlsFotos = await uploadFiles(fotos, config.storageId, usuario.id_usuario);
       
-      await databases.createDocument(
-        config.databaseId,
-        config.collections.quadras,
-        ID.unique(),
-        {
-          id_organizador: usuario.id_usuario,
-          nome_local: nomeLocal,
-          cnpj: cnpj.replace(/\D/g, ''),
-          razao_social: razaoSocial,
-          cep: cep.replace(/\D/g, ''),
-          endereco_completo: endereco,
-          telefone_comercial: telefone.replace(/\D/g, ''),
-          fotos: urlsFotos,
-          status_aprovacao: 'PENDENTE'
-        }
-      );
+      // 2. Create the court document using the database service
+      await db.courts.create({
+        id_organizador: usuario.id_usuario,
+        nome_local: nomeLocal,
+        cnpj: cnpj.replace(/\D/g, ''),
+        razao_social: razaoSocial,
+        cep: cep.replace(/\D/g, ''),
+        endereco_completo: endereco,
+        telefone_comercial: telefone.replace(/\D/g, ''),
+        fotos: urlsFotos,
+        status_aprovacao: 'PENDENTE'
+      });
 
       showFeedback('success', 'Sucesso!', 'Sua quadra foi cadastrada e está em análise.');
-      setTimeout(() => router.replace('/quadras'), 2000);
+      setTimeout(() => router.replace('/(organizador)/perfil'), 2000);
     } catch (e: any) {
       console.error('Erro no cadastro de quadra:', e);
-      showFeedback('success', 'Sucesso!', 'Sua quadra foi cadastrada com sucesso.');
-      setTimeout(() => router.replace('/quadras'), 2000);
+      showFeedback('error', 'Erro no Cadastro', e.message || 'Ocorreu um erro ao tentar salvar os dados.');
     } finally {
       setLoading(false);
     }
   };
+
 
   return (
     <ScrollView className="flex-1 bg-gray-50" contentContainerStyle={{ paddingBottom: 40 }}>

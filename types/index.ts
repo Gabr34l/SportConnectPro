@@ -1,5 +1,5 @@
 export type TipoPerfil       = 'JOGADOR' | 'ORGANIZADOR';
-export type NivelHabilidade  = 'INICIANTE' | 'INTERMEDIARIO' | 'AVANCADO';
+export type NivelHabilidade  = 'INICIANTE' | 'INTERMEDIARIO' | 'AVANCADO' | 'PROFISSIONAL';
 export type StatusEvento     = 'ABERTO' | 'LOTADO' | 'CONCLUIDO' | 'CANCELADO';
 export type StatusPresenca   = 'AGUARDANDO_PAGAMENTO' | 'CONFIRMADO' | 'CANCELADO';
 export type StatusVerificacao = 'PENDENTE' | 'APROVADO' | 'REJEITADO';

@@ -1,0 +1,58 @@
+import { Platform } from 'react-native';
+import { storage, config, ID, account } from './appwrite';
+
+/**
+ * Service for handling file uploads to Appwrite Storage
+ */
+export const uploadFile = async (uri: string, bucketId: string, userId: string): Promise<string> => {
+  const fileId = ID.unique();
+  const extension = uri.split('.').pop() || 'jpg';
+  const name = `file_${userId}_${Date.now()}.${extension}`;
+  
+  if (Platform.OS === 'web') {
+    // Web requires JWT for fetch-based upload to bypass react-native-appwrite limitations on web
+    const jwtResponse = await account.createJWT();
+    
+    const res = await fetch(uri);
+    const blob = await res.blob();
+    const fileToUpload = new File([blob], name, { type: blob.type || `image/${extension}` });
+    
+    const formData = new FormData();
+    formData.append('fileId', fileId);
+    formData.append('file', fileToUpload);
+
+    const uploadRes = await fetch(`${config.endpoint}/storage/buckets/${bucketId}/files`, {
+      method: 'POST',
+      headers: {
+        'X-Appwrite-Project': config.projectId,
+        'X-Appwrite-JWT': jwtResponse.jwt,
+      },
+      body: formData,
+    });
+
+    if (!uploadRes.ok) {
+      const errorData = await uploadRes.json();
+      throw new Error(errorData.message || 'Failed to upload file to storage');
+    }
+
+    return storage.getFileView(bucketId, fileId).toString();
+  } else {
+    // Native Mobile handle
+    const fileToUpload = {
+      uri: Platform.OS === 'ios' ? uri.replace('file://', '') : uri,
+      name: name,
+      type: `image/${extension}`,
+    };
+    
+    await storage.createFile(bucketId, fileId, fileToUpload as any);
+    return storage.getFileView(bucketId, fileId).toString();
+  }
+};
+
+/**
+ * Upload multiple files
+ */
+export const uploadFiles = async (uris: string[], bucketId: string, userId: string): Promise<string[]> => {
+  const uploadPromises = uris.map(uri => uploadFile(uri, bucketId, userId));
+  return Promise.all(uploadPromises);
+};
