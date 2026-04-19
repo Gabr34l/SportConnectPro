@@ -32,10 +32,13 @@ export const uploadFile = async (uri: string, bucketId: string, userId: string):
 
     if (!uploadRes.ok) {
       const errorData = await uploadRes.json();
+      console.error('Appwrite Storage Upload Error:', errorData);
       throw new Error(errorData.message || 'Failed to upload file to storage');
     }
 
-    return storage.getFileView(bucketId, fileId).toString();
+    // Appwrite SDK getFileView on Web sometimes returns an incomplete URL without project param
+    const viewUrl = storage.getFileView(bucketId, fileId).toString();
+    return viewUrl.includes('project=') ? viewUrl : `${viewUrl}&project=${config.projectId}`;
   } else {
     // Native Mobile handle
     const fileToUpload = {
@@ -45,7 +48,8 @@ export const uploadFile = async (uri: string, bucketId: string, userId: string):
     };
     
     await storage.createFile(bucketId, fileId, fileToUpload as any);
-    return storage.getFileView(bucketId, fileId).toString();
+    const viewUrl = storage.getFileView(bucketId, fileId).toString();
+    return viewUrl.includes('project=') ? viewUrl : `${viewUrl}&project=${config.projectId}`;
   }
 };
 
