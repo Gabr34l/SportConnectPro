@@ -5,8 +5,9 @@ import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
 import * as Location from 'expo-location';
 import { theme } from '../constants/theme';
-import { Quadra } from '../types';
+import { EventoComVagas, Quadra } from '../types';
 import { db } from '../lib/database';
+import { useRouter } from 'expo-router';
 
 // Fix for Leaflet default markers in bundlers like Expo Web
 if (typeof window !== 'undefined') {
@@ -21,7 +22,8 @@ if (typeof window !== 'undefined') {
 export default function PlayerMapWeb() {
   const [location, setLocation] = useState<Location.LocationObject | null>(null);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
-  const [quadras, setQuadras] = useState<Quadra[]>([]);
+  const [eventos, setEventos] = useState<EventoComVagas[]>([]);
+  const router = useRouter();
 
   useEffect(() => {
     const initMap = async () => {
@@ -29,7 +31,6 @@ export default function PlayerMapWeb() {
         let { status } = await Location.requestForegroundPermissionsAsync();
         if (status !== 'granted') {
           setErrorMsg('Permissão de localização negada.');
-          // Fallback SP
           setLocation({ coords: { latitude: -23.5505, longitude: -46.6333, altitude: null, accuracy: null, altitudeAccuracy: null, heading: null, speed: null }, timestamp: Date.now() } as Location.LocationObject);
         } else {
           let loc = await Location.getCurrentPositionAsync({});
@@ -41,10 +42,11 @@ export default function PlayerMapWeb() {
       }
 
       try {
-        const approved = await db.courts.listApproved();
-        setQuadras(approved);
+        // Buscamos os eventos hidratados (que já vem com lat/long da quadra)
+        const upcoming = await db.events.listUpcomingHydrated();
+        setEventos(upcoming);
       } catch (e) {
-        console.error('Erro ao buscar quadras:', e);
+        console.error('Erro ao buscar eventos para o mapa:', e);
       }
     };
     initMap();
@@ -61,23 +63,45 @@ export default function PlayerMapWeb() {
   return (
     <View style={styles.container}>
       <MapContainer 
-        center={[location?.coords.latitude || -23.5505, location?.coords.longitude || -46.6333]} 
+        center={[location?.coords.latitude || -18.9186, location?.coords.longitude || -48.2772]} // Centralizado em Uberlândia por padrão
         zoom={13} 
-        style={{ width: '100%', height: 'calc(100vh - 80px)' }} // Adjusted height to prevent web overflow
+        style={{ width: '100%', height: 'calc(100vh - 80px)' }}
       >
         <TileLayer
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
         />
-        {quadras.map(q => (
-          q.latitude && q.longitude ? (
+        {eventos.map(ev => (
+          ev.latitude && ev.longitude && ev.latitude !== 0 ? (
             <Marker 
-              key={q.id_quadra}
-              position={[q.latitude, q.longitude]}
+              key={ev.id_evento}
+              position={[ev.latitude, ev.longitude]}
             >
               <Popup>
-                <strong>{q.nome_local}</strong><br/>
-                {q.endereco_completo}
+                <div style={{ fontFamily: 'sans-serif', padding: '5px' }}>
+                  <span style={{ fontSize: '10px', color: '#00C853', fontWeight: 'bold', textTransform: 'uppercase' }}>{ev.esporte}</span>
+                  <h3 style={{ margin: '5px 0', fontSize: '16px' }}>{ev.titulo}</h3>
+                  <p style={{ margin: '0', fontSize: '12px', color: '#666' }}>{ev.nome_local}</p>
+                  <p style={{ margin: '5px 0', fontWeight: 'bold' }}>R$ {ev.preco_por_vaga?.toFixed(2)} / vaga</p>
+                  <button 
+                    onClick={() => {
+                      router.push(`/(jogador)/evento/${ev.id_evento}` as any);
+                    }}
+                    style={{
+                      width: '100%',
+                      backgroundColor: '#00C853',
+                      color: 'white',
+                      border: 'none',
+                      padding: '8px',
+                      borderRadius: '8px',
+                      cursor: 'pointer',
+                      fontWeight: 'bold',
+                      marginTop: '10px'
+                    }}
+                  >
+                    Ver Detalhes
+                  </button>
+                </div>
               </Popup>
             </Marker>
           ) : null

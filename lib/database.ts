@@ -94,6 +94,37 @@ export const db = {
       );
       return response.documents as any as Evento[];
     },
+    listUpcomingHydrated: async (): Promise<EventoComVagas[]> => {
+      const response = await databases.listDocuments(
+        config.databaseId,
+        config.collections.eventos,
+        [
+          Query.greaterThan('data_evento', new Date().toISOString().split('T')[0]),
+          Query.equal('status', 'ABERTO'),
+          Query.limit(50)
+        ]
+      );
+      
+      const hydrated = await Promise.all(response.documents.map(async (doc) => {
+        let quadra = doc.quadra || doc.quadras || doc.id_quadra || {};
+        if (typeof quadra === 'string') {
+          try {
+            quadra = await databases.getDocument(config.databaseId, config.collections.quadras, quadra);
+          } catch { quadra = {}; }
+        }
+        return {
+          ...doc,
+          id_evento: doc.$id,
+          nome_local: quadra.nome_local || quadra.razao_social || 'Local não informado',
+          endereco_completo: quadra.endereco_completo || '',
+          latitude: quadra.latitude || 0,
+          longitude: quadra.longitude || 0,
+          foto_quadra: quadra.fotos?.[0] || null,
+        } as any as EventoComVagas;
+      }));
+      
+      return hydrated;
+    },
     getHydrated: async (eventId: string): Promise<EventoComVagas> => {
       const doc = await databases.getDocument(config.databaseId, config.collections.eventos, eventId);
       
