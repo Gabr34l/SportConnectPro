@@ -96,7 +96,10 @@ export const db = {
     },
     getHydrated: async (eventId: string): Promise<EventoComVagas> => {
       const doc = await databases.getDocument(config.databaseId, config.collections.eventos, eventId);
-      const quadra = doc.quadras || {};
+      
+      // Tenta encontrar a quadra nos nomes comuns de relacionamento do Appwrite
+      const quadra = doc.quadra || doc.quadras || doc.id_quadra || {};
+      
       const participacoes = doc.participacoes || [];
       const totalConfirmados = participacoes.filter((p: any) => p.status_presenca === 'CONFIRMADO').length;
       const limite = doc.limite_participantes || 0;
@@ -106,10 +109,10 @@ export const db = {
         id_evento: doc.$id,
         created_at: doc.$createdAt,
         nome_local: quadra.nome_local || 'Local não informado',
-        endereco_completo: quadra.endereco_completo || '',
+        endereco_completo: quadra.endereco_completo || 'Endereço não disponível',
         latitude: quadra.latitude || 0,
         longitude: quadra.longitude || 0,
-        foto_quadra: quadra.fotos?.[0] || null,
+        foto_quadra: (quadra.fotos && quadra.fotos.length > 0) ? quadra.fotos[0] : null,
         total_confirmados: totalConfirmados,
         vagas_restantes: limite - totalConfirmados,
         percentual_ocupacao: limite > 0 ? (totalConfirmados / limite) * 100 : 0,
