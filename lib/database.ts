@@ -97,8 +97,18 @@ export const db = {
     getHydrated: async (eventId: string): Promise<EventoComVagas> => {
       const doc = await databases.getDocument(config.databaseId, config.collections.eventos, eventId);
       
-      // Tenta encontrar a quadra nos nomes comuns de relacionamento do Appwrite
-      const quadra = doc.quadra || doc.quadras || doc.id_quadra || {};
+      // Tenta encontrar a quadra nos campos de relacionamento
+      let quadra = doc.quadra || doc.quadras || doc.id_quadra || {};
+      
+      // SE vier apenas o ID da quadra (string) em vez do objeto, buscamos manualmente
+      if (typeof quadra === 'string' && quadra.length > 5) {
+        try {
+          const courtDoc = await databases.getDocument(config.databaseId, config.collections.quadras, quadra);
+          quadra = { ...courtDoc, id_quadra: courtDoc.$id };
+        } catch (e) {
+          console.error('Erro ao buscar quadra vinculada:', e);
+        }
+      }
       
       const participacoes = doc.participacoes || [];
       const totalConfirmados = participacoes.filter((p: any) => p.status_presenca === 'CONFIRMADO').length;
