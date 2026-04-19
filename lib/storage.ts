@@ -54,9 +54,15 @@ export const uploadFile = async (uri: string, bucketId: string, userId: string):
 };
 
 /**
- * Upload multiple files
+ * Upload multiple files and return array of URLs
  */
 export const uploadFiles = async (uris: string[], bucketId: string, userId: string): Promise<string[]> => {
-  const uploadPromises = uris.map(uri => uploadFile(uri, bucketId, userId));
-  return Promise.all(uploadPromises);
+  if (!uris || uris.length === 0) return [];
+  
+  // Executa todos os uploads em paralelo e aguarda a resolução de todos
+  const urls = await Promise.all(
+    uris.map(uri => uploadFile(uri, bucketId, userId))
+  );
+  
+  return urls;
 };
