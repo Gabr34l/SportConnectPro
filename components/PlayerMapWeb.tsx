@@ -63,7 +63,7 @@ export default function PlayerMapWeb() {
   return (
     <View style={styles.container}>
       <MapContainer 
-        center={[location?.coords.latitude || -18.9186, location?.coords.longitude || -48.2772]} // Centralizado em Uberlândia por padrão
+        center={[location?.coords.latitude || -18.9186, location?.coords.longitude || -48.2772]} 
         zoom={13} 
         style={{ width: '100%', height: 'calc(100vh - 80px)' }}
       >
@@ -71,11 +71,13 @@ export default function PlayerMapWeb() {
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
         />
-        {eventos.map(ev => {
+        {eventos.map((ev) => {
           const lat = Number(ev.latitude);
           const lng = Number(ev.longitude);
           
-          return lat && lng && lat !== 0 ? (
+          if (!lat || !lng || lat === 0) return null;
+
+          return (
             <Marker 
               key={ev.id_evento}
               position={[lat, lng]}
@@ -107,7 +109,7 @@ export default function PlayerMapWeb() {
                 </div>
               </Popup>
             </Marker>
-          ) : null
+          );
         })}
       </MapContainer>
     </View>
