@@ -48,29 +48,29 @@ export function useEventoDetalhe(idEvento: string, idUsuario?: string) {
     if (!idEvento) return;
     setLoading(true);
     try {
-      // 1. Buscar Evento (Com dados da Quadra e Participações via Two-way mapping)
-      const evDoc = await databases.getDocument(
-        config.databaseId,
-        config.collections.eventos,
-        idEvento
-      );
-
-      const eventoMapeado = mapEvento(evDoc);
+      // 1. Buscar Evento usando o serviço unificado que já tem o fallback de quadra
+      const { db } = require('../lib/database');
+      const eventoMapeado = await db.events.getHydrated(idEvento);
       setEvento(eventoMapeado);
 
       // 2. Buscar Participantes detalhadamente
-      const partDocs = await databases.listDocuments(
-        config.databaseId,
-        config.collections.participacoes,
-        [Query.equal('id_evento', idEvento)]
-      );
+      try {
+        const partDocs = await databases.listDocuments(
+          config.databaseId,
+          config.collections.participacoes,
+          [Query.equal('id_evento', idEvento)]
+        );
+        const participantesMapeados = partDocs.documents.map(mapParticipante);
+        setParticipantes(participantesMapeados);
 
-      const participantesMapeados = partDocs.documents.map(mapParticipante);
-      setParticipantes(participantesMapeados);
-
-      if (idUsuario) {
-        const my = participantesMapeados.find(p => p.id_jogador === idUsuario);
-        setMinhaParticipacao(my || null);
+        if (idUsuario) {
+          const my = participantesMapeados.find(p => p.id_jogador === idUsuario);
+          setMinhaParticipacao(my || null);
+        }
+      } catch (errPart: any) {
+        if (errPart.code !== 401 && errPart.code !== 403) {
+          console.error('Erro ao buscar participantes:', errPart);
+        }
       }
 
       // 3. Buscar avaliações da quadra (Pode ser aproximado pegando avaliações de todos os eventos desta quadra)

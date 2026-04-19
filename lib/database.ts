@@ -105,8 +105,9 @@ export const db = {
         try {
           const courtDoc = await databases.getDocument(config.databaseId, config.collections.quadras, quadra);
           quadra = { ...courtDoc, id_quadra: courtDoc.$id };
-        } catch (e) {
-          console.error('Erro no fallback da quadra:', e);
+        } catch (e: any) {
+          // Se der erro de autorização, logamos mas não travamos o app
+          if (e.code !== 401) console.error('Erro no fallback da quadra:', e);
         }
       }
       

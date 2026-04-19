@@ -25,8 +25,10 @@ export function useNotificacoes(idUsuario?: string) {
         ]
       );
       setNotificacoes(response.documents.map(mapNotificacao));
-    } catch (e) {
-      console.error('Erro ao buscar notificações:', e);
+    } catch (e: any) {
+      if (e.code !== 401 && e.code !== 403) {
+        console.error('Erro ao buscar notificações:', e);
+      }
     } finally {
       setLoading(false);
     }
