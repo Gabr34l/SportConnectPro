@@ -234,7 +234,14 @@ export default function CriarEvento() {
                     className={`px-4 py-2.5 rounded-2xl border ${
                       formato === f ? 'bg-green-50 border-[#00C853]' : 'bg-gray-50 border-gray-100'
                     }`}
-                    onPress={() => setFormato(f)}
+                    onPress={() => {
+                      setFormato(f);
+                      // Auto-calcula vagas: extrai o primeiro número e multiplica por 2
+                      const numPorTime = parseInt(f.split('v')[0]);
+                      if (!isNaN(numPorTime)) {
+                        setVagas((numPorTime * 2).toString());
+                      }
+                    }}
                   >
                     <Text className={`text-sm font-bold ${formato === f ? 'text-[#00C853]' : 'text-gray-500'}`}>{f}</Text>
                   </TouchableOpacity>
