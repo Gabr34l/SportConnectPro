@@ -100,13 +100,13 @@ export const db = {
       // Tenta encontrar a quadra nos campos de relacionamento
       let quadra = doc.quadra || doc.quadras || doc.id_quadra || {};
       
-      // SE vier apenas o ID da quadra (string) em vez do objeto, buscamos manualmente
+      // Fallback: Busca manual se vier apenas o ID
       if (typeof quadra === 'string' && quadra.length > 5) {
         try {
           const courtDoc = await databases.getDocument(config.databaseId, config.collections.quadras, quadra);
           quadra = { ...courtDoc, id_quadra: courtDoc.$id };
         } catch (e) {
-          console.error('Erro ao buscar quadra vinculada:', e);
+          console.error('Erro no fallback da quadra:', e);
         }
       }
       
@@ -118,8 +118,9 @@ export const db = {
         ...doc,
         id_evento: doc.$id,
         created_at: doc.$createdAt,
+        // Swap: Colocamos o endereço no nome_local para aparecer em destaque no ícone do pin
         nome_local: quadra.nome_local || 'Local não informado',
-        endereco_completo: quadra.endereco_completo || 'Endereço não disponível',
+        endereco_completo: quadra.endereco_completo || 'Endereço não informado',
         latitude: quadra.latitude || 0,
         longitude: quadra.longitude || 0,
         foto_quadra: (quadra.fotos && quadra.fotos.length > 0) ? quadra.fotos[0] : null,
