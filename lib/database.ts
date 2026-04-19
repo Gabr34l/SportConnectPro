@@ -118,8 +118,8 @@ export const db = {
         ...doc,
         id_evento: doc.$id,
         created_at: doc.$createdAt,
-        // Swap: Colocamos o endereço no nome_local para aparecer em destaque no ícone do pin
-        nome_local: quadra.nome_local || 'Local não informado',
+        // Usamos razao_social como fallback caso nome_local não exista
+        nome_local: quadra.nome_local || quadra.razao_social || 'Local não informado',
         endereco_completo: quadra.endereco_completo || 'Endereço não informado',
         latitude: quadra.latitude || 0,
         longitude: quadra.longitude || 0,
