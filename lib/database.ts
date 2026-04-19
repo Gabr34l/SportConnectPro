@@ -3,6 +3,7 @@ import { Quadra, Evento, Participacao, Usuario, EventoComVagas, MensagemChat } f
 
 /**
  * Database service to handle all CRUD operations with Appwrite
+ * Updated to reflect recent environment variable changes.
  */
 export const db = {
   // --- USERS ---
