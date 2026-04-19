@@ -51,7 +51,39 @@ export function useJogosDoDia(filtroData: string, filtroEsporte?: string, filtro
         queries
       );
 
-      setJogos(response.documents.map(mapEvento));
+      // Hydration extra para os jogos da lista
+      const jogosMapeados = await Promise.all(response.documents.map(async (doc) => {
+        let quadra = doc.quadra || doc.quadras || doc.id_quadra || {};
+        
+        // Se vier apenas o ID, tentamos buscar a quadra para pegar o nome/endereço
+        if (typeof quadra === 'string' && quadra.length > 5) {
+          try {
+            quadra = await databases.getDocument(config.databaseId, config.collections.quadras, quadra);
+          } catch (e) {
+            quadra = {};
+          }
+        }
+
+        const participacoes = doc.participacoes || [];
+        const totalConfirmados = participacoes.filter((p: any) => p.status_presenca === 'CONFIRMADO').length;
+        const limite = doc.limite_participantes || 0;
+
+        return {
+          ...doc,
+          id_evento: doc.$id,
+          created_at: doc.$createdAt,
+          nome_local: quadra.nome_local || quadra.razao_social || 'Local não informado',
+          endereco_completo: quadra.endereco_completo || 'Endereço não informado',
+          latitude: quadra.latitude || 0,
+          longitude: quadra.longitude || 0,
+          foto_quadra: (quadra.fotos && quadra.fotos.length > 0) ? quadra.fotos[0] : null,
+          total_confirmados: totalConfirmados,
+          vagas_restantes: limite - totalConfirmados,
+          percentual_ocupacao: limite > 0 ? (totalConfirmados / limite) * 100 : 0
+        } as any as EventoComVagas;
+      }));
+
+      setJogos(jogosMapeados);
     } catch (e: any) {
       console.error('Erro ao buscar jogos:', e);
       // Silenciamos o erro para o usuário conforme pedido
