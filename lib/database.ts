@@ -37,6 +37,14 @@ export const db = {
     get: async (courtId: string): Promise<Quadra> => {
       const doc = await databases.getDocument(config.databaseId, config.collections.quadras, courtId);
       return doc as any as Quadra;
+    },
+    listApproved: async (): Promise<Quadra[]> => {
+      const response = await databases.listDocuments(
+        config.databaseId,
+        config.collections.quadras,
+        [Query.equal('status_aprovacao', 'APROVADO')]
+      );
+      return response.documents as any as Quadra[];
     }
   },
 

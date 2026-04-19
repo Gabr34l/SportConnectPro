@@ -6,15 +6,17 @@ import L from 'leaflet';
 import * as Location from 'expo-location';
 import { theme } from '../constants/theme';
 import { Quadra } from '../types';
-import { databases, config, Query } from '../lib/appwrite';
+import { db } from '../lib/database';
 
-// Fix form Leaflet default markers in bundlers like Expo Web
-delete (L.Icon.Default.prototype as any)._getIconUrl;
-L.Icon.Default.mergeOptions({
-  iconRetinaUrl: require('leaflet/dist/images/marker-icon-2x.png'),
-  iconUrl: require('leaflet/dist/images/marker-icon.png'),
-  shadowUrl: require('leaflet/dist/images/marker-shadow.png'),
-});
+// Fix for Leaflet default markers in bundlers like Expo Web
+if (typeof window !== 'undefined') {
+  delete (L.Icon.Default.prototype as any)._getIconUrl;
+  L.Icon.Default.mergeOptions({
+    iconRetinaUrl: require('leaflet/dist/images/marker-icon-2x.png'),
+    iconUrl: require('leaflet/dist/images/marker-icon.png'),
+    shadowUrl: require('leaflet/dist/images/marker-shadow.png'),
+  });
+}
 
 export default function PlayerMapWeb() {
   const [location, setLocation] = useState<Location.LocationObject | null>(null);
@@ -22,41 +24,30 @@ export default function PlayerMapWeb() {
   const [quadras, setQuadras] = useState<Quadra[]>([]);
 
   useEffect(() => {
-    (async () => {
+    const initMap = async () => {
       try {
         let { status } = await Location.requestForegroundPermissionsAsync();
         if (status !== 'granted') {
-          setErrorMsg('Permissão de acesso à localização negada na Web.');
-          // Fallback to a default location (e.g. São Paulo) if denied
+          setErrorMsg('Permissão de localização negada.');
+          // Fallback SP
           setLocation({ coords: { latitude: -23.5505, longitude: -46.6333, altitude: null, accuracy: null, altitudeAccuracy: null, heading: null, speed: null }, timestamp: Date.now() } as Location.LocationObject);
         } else {
           let loc = await Location.getCurrentPositionAsync({});
           setLocation(loc);
         }
       } catch (err) {
-        console.warn(err);
-        setErrorMsg('Erro ao obter localização. Exibindo local padrão.');
+        console.warn('Location error:', err);
         setLocation({ coords: { latitude: -23.5505, longitude: -46.6333, altitude: null, accuracy: null, altitudeAccuracy: null, heading: null, speed: null }, timestamp: Date.now() } as Location.LocationObject);
       }
 
       try {
-        const response = await databases.listDocuments(
-          config.databaseId,
-          config.collections.quadras,
-          [Query.equal('status_aprovacao', 'APROVADO')]
-        );
-        
-        const quadrasMapeadas = response.documents.map(d => ({
-          ...d,
-          id_quadra: d.$id,
-          created_at: d.$createdAt
-        })) as unknown as Quadra[];
-        
-        setQuadras(quadrasMapeadas);
+        const approved = await db.courts.listApproved();
+        setQuadras(approved);
       } catch (e) {
-        console.error('Erro ao buscar quadras para o mapa Web:', e);
+        console.error('Erro ao buscar quadras:', e);
       }
-    })();
+    };
+    initMap();
   }, []);
 
   if (!location && !errorMsg) {
