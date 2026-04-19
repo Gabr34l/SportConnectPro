@@ -10,7 +10,11 @@ export const db = {
   users: {
     get: async (userId: string): Promise<Usuario> => {
       const doc = await databases.getDocument(config.databaseId, config.collections.usuarios, userId);
-      return doc as any as Usuario;
+      return {
+        ...doc,
+        id_usuario: doc.$id,
+        created_at: doc.$createdAt
+      } as any as Usuario;
     },
     update: async (userId: string, data: Partial<Usuario>) => {
       return await databases.updateDocument(config.databaseId, config.collections.usuarios, userId, data);
@@ -31,13 +35,24 @@ export const db = {
       const response = await databases.listDocuments(
         config.databaseId,
         config.collections.quadras,
-        [Query.equal('id_organizador', organizerId), Query.orderDesc('created_at')]
+        [
+          Query.equal('id_organizador', organizerId), 
+          Query.orderDesc('$createdAt')
+        ]
       );
-      return response.documents as any as Quadra[];
+      return response.documents.map(d => ({
+        ...d,
+        id_quadra: d.$id,
+        created_at: d.$createdAt
+      })) as any as Quadra[];
     },
     get: async (courtId: string): Promise<Quadra> => {
       const doc = await databases.getDocument(config.databaseId, config.collections.quadras, courtId);
-      return doc as any as Quadra;
+      return {
+        ...doc,
+        id_quadra: doc.$id,
+        created_at: doc.$createdAt
+      } as any as Quadra;
     },
     listApproved: async (): Promise<Quadra[]> => {
       const response = await databases.listDocuments(
@@ -45,7 +60,11 @@ export const db = {
         config.collections.quadras,
         [Query.equal('status_aprovacao', 'APROVADO')]
       );
-      return response.documents as any as Quadra[];
+      return response.documents.map(d => ({
+        ...d,
+        id_quadra: d.$id,
+        created_at: d.$createdAt
+      })) as any as Quadra[];
     }
   },
 
@@ -98,7 +117,11 @@ export const db = {
     },
     get: async (eventId: string): Promise<Evento> => {
       const doc = await databases.getDocument(config.databaseId, config.collections.eventos, eventId);
-      return doc as any as Evento;
+      return {
+        ...doc,
+        id_evento: doc.$id,
+        created_at: doc.$createdAt
+      } as any as Evento;
     }
   },
 

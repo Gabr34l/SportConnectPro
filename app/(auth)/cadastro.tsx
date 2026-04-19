@@ -151,7 +151,7 @@ export default function Cadastro() {
 
                 <TouchableOpacity
                   className={`rounded-[24px] py-5 items-center ${!perfil ? 'bg-gray-800 opacity-50' : 'bg-[#00C853] shadow-lg shadow-green-500/40'}`}
-                  onPress={() => setStep(1)}
+                  onPress={() => setStep(perfil === 'ORGANIZADOR' ? 2 : 1)}
                   disabled={!perfil}
                 >
                   <Text className="text-white font-black text-lg uppercase tracking-widest">Continuar</Text>
@@ -200,7 +200,7 @@ export default function Cadastro() {
               </View>
             ) : (
               <View className="flex-1 justify-center">
-                <TouchableOpacity onPress={() => setStep(1)} className="flex-row items-center mb-8 bg-white/10 self-start px-4 py-2 rounded-full border border-white/10">
+                <TouchableOpacity onPress={() => setStep(perfil === 'ORGANIZADOR' ? 0 : 1)} className="flex-row items-center mb-8 bg-white/10 self-start px-4 py-2 rounded-full border border-white/10">
                   <ChevronLeft size={16} color="white" />
                   <Text className="text-white font-bold ml-1 uppercase text-[10px] tracking-widest">Voltar</Text>
                 </TouchableOpacity>
