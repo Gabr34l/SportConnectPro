@@ -29,6 +29,8 @@ export type EventoComVagas = Evento & {
   nome_local: string; endereco_completo: string;
   latitude: number; longitude: number; foto_quadra?: string;
   total_confirmados: number; vagas_restantes: number; percentual_ocupacao: number;
+  descricao_quadra?: string;
+  comodidades_quadra?: string[];
 };
 export type Participacao = {
   id_participacao: string; id_evento: string; id_jogador: string;

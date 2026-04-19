@@ -112,7 +112,9 @@ export const db = {
         foto_quadra: quadra.fotos?.[0] || null,
         total_confirmados: totalConfirmados,
         vagas_restantes: limite - totalConfirmados,
-        percentual_ocupacao: limite > 0 ? (totalConfirmados / limite) * 100 : 0
+        percentual_ocupacao: limite > 0 ? (totalConfirmados / limite) * 100 : 0,
+        descricao_quadra: quadra.descricao || '',
+        comodidades_quadra: quadra.comodidades || []
       } as any as EventoComVagas;
     },
     get: async (eventId: string): Promise<Evento> => {

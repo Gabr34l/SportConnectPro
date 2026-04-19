@@ -240,6 +240,23 @@ export default function EventoDetalhe() {
             )}
           </View>
           
+          <View className="bg-white p-6 rounded-3xl border border-gray-100 mt-4 shadow-sm shadow-black/5">
+            <Text className="text-sm font-bold text-gray-400 uppercase tracking-widest mb-4">Sobre o Local</Text>
+            <Text className="text-base text-gray-700 leading-6 mb-6">
+              {evento.descricao_quadra || 'Nenhuma descrição disponível para este local.'}
+            </Text>
+            
+            {evento.comodidades_quadra && evento.comodidades_quadra.length > 0 && (
+              <View className="flex-row flex-wrap gap-2">
+                {evento.comodidades_quadra.map(c => (
+                  <View key={c} className="bg-gray-50 border border-gray-100 px-3 py-1.5 rounded-lg">
+                    <Text className="text-xs font-bold text-gray-500">{c}</Text>
+                  </View>
+                ))}
+              </View>
+            )}
+          </View>
+          
           <View className="bg-white p-6 rounded-3xl border border-gray-100 mt-4 shadow-sm shadow-black/5 mb-24">
             <Text className="text-sm font-bold text-gray-400 uppercase tracking-widest mb-4">Avaliação da Quadra</Text>
             <View className="flex-row items-center bg-gray-50 p-4 rounded-2xl">
