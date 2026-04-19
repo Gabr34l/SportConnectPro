@@ -73,20 +73,23 @@ export function useNotificacoes(idUsuario?: string) {
   useEffect(() => {
     fetchNotificacoes();
 
-    if (idUsuario) {
-      // Realtime do Appwrite para novas notificações
-      const unsub = client.subscribe(
+    // Realtime do Appwrite para novas notificações com tratamento de erro
+    let unsub: () => void = () => {};
+    try {
+      unsub = client.subscribe(
         `databases.${config.databaseId}.collections.${config.collections.notificacoes}.documents`,
         (response: any) => {
-          // Filtrando para garantir que a notificação é para este usuário e é nova
           if (response.events.some((e: string) => e.endsWith('.create')) && 
               response.payload.id_usuario === idUsuario) {
             setNotificacoes(prev => [mapNotificacao(response.payload), ...prev]);
           }
         }
       );
-      return () => { unsub(); };
+    } catch (realtimeErr) {
+      console.warn('Realtime (Notificações) temporariamente indisponível. O app continuará funcionando via polling.');
     }
+
+    return () => { if (unsub) unsub(); };
   }, [idUsuario]);
 
   return { notificacoes, unreadCount: notificacoes.filter(n => !n.lida).length, marcarComoLida, marcarTodasComoLidas, loading, refetch: fetchNotificacoes };
