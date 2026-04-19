@@ -21,8 +21,14 @@ export default function CadastrarQuadra() {
   const [cep, setCep] = useState('');
   const [endereco, setEndereco] = useState('');
   const [telefone, setTelefone] = useState('');
+  const [descricao, setDescricao] = useState('');
+  const [comodidades, setComodidades] = useState<string[]>([]);
   const [fotos, setFotos] = useState<string[]>([]);
   const [loading, setLoading] = useState(false);
+
+  const OPCOES_COMODIDADES = [
+    'Vestiário', 'Estacionamento', 'Bar/Cantina', 'Wi-Fi', 'Iluminação', 'Bolas/Coletes', 'Churrasqueira'
+  ];
 
   const showFeedback = (type: 'success' | 'error' | 'info', title: string, message: string) => {
     if (Platform.OS === 'web') {
@@ -110,6 +116,14 @@ export default function CadastrarQuadra() {
     }
   };
 
+  const toggleComodidade = (item: string) => {
+    if (comodidades.includes(item)) {
+      setComodidades(comodidades.filter(c => c !== item));
+    } else {
+      setComodidades([...comodidades, item]);
+    }
+  };
+
   const removeFoto = (index: number) => {
     setFotos(fotos.filter((_, i) => i !== index));
   };
@@ -120,6 +134,8 @@ export default function CadastrarQuadra() {
     if (!cnpj || cnpj.length < 14) return showFeedback('info', 'Aviso', 'Informe um CNPJ válido');
     if (!cep || cep.length < 8) return showFeedback('info', 'Aviso', 'Informe um CEP válido');
     if (!endereco) return showFeedback('info', 'Aviso', 'Informe o Endereço Completo');
+    if (!descricao || descricao.length < 20) return showFeedback('info', 'Aviso', 'A descrição deve ter pelo menos 20 caracteres');
+    if (comodidades.length < 1) return showFeedback('info', 'Aviso', 'Selecione pelo menos 1 comodidade');
     if (fotos.length < 1) return showFeedback('info', 'Aviso', 'Adicione pelo menos 1 foto da sua quadra');
 
     setLoading(true);
@@ -138,6 +154,8 @@ export default function CadastrarQuadra() {
         endereco_completo: endereco,
         telefone_comercial: telefone.replace(/\D/g, ''),
         fotos: urlsFotos,
+        descricao,
+        comodidades,
         status_aprovacao: 'PENDENTE'
       });
 
@@ -242,6 +260,35 @@ export default function CadastrarQuadra() {
               onChangeText={(v) => setTelefone(maskPhone(v))} 
               keyboardType="phone-pad" 
             />
+          </View>
+        </View>
+
+        {/* Details Section */}
+        <View className="bg-white p-5 rounded-3xl border border-gray-100 mb-4 shadow-sm shadow-black/5">
+          <Text className="text-sm font-bold text-gray-400 uppercase tracking-wider mb-4">Sobre o Espaço</Text>
+          
+          <View className="border border-gray-100 rounded-2xl px-4 py-3.5 mb-5 bg-gray-50 min-h-[120px]">
+            <TextInput 
+              className="text-base text-gray-800"
+              placeholder="Descreva seu espaço, diferenciais, regras..." 
+              value={descricao} 
+              onChangeText={setDescricao}
+              multiline
+              textAlignVertical="top"
+            />
+          </View>
+
+          <Text className="text-[10px] font-black text-gray-400 uppercase tracking-[2px] mb-3">Comodidades (Selecione)</Text>
+          <View className="flex-row flex-wrap gap-2">
+            {OPCOES_COMODIDADES.map(item => (
+              <TouchableOpacity
+                key={item}
+                onPress={() => toggleComodidade(item)}
+                className={`px-4 py-2.5 rounded-full border ${comodidades.includes(item) ? 'bg-[#00C853] border-[#00C853]' : 'bg-gray-50 border-gray-100'}`}
+              >
+                <Text className={`text-xs font-bold ${comodidades.includes(item) ? 'text-white' : 'text-gray-400'}`}>{item}</Text>
+              </TouchableOpacity>
+            ))}
           </View>
         </View>
 
