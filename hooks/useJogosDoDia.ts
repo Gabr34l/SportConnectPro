@@ -8,9 +8,8 @@ export function useJogosDoDia(filtroData: string, filtroEsporte?: string, filtro
   const [error, setError] = useState<string | null>(null);
 
   const mapEvento = (doc: any): EventoComVagas => {
-    // No Appwrite, as relações vêm dentro do objeto se foram consultadas ou povoadas.
-    // Mapeamos os dados da quadra e calculamos as vagas para compatibilidade.
-    const quadra = doc.quadras || {};
+    // Tenta encontrar a quadra em diferentes campos de relacionamento
+    const quadra = doc.quadra || doc.quadras || doc.id_quadra || {};
     const participacoes = doc.participacoes || [];
     const totalConfirmados = participacoes.filter((p: any) => p.status_presenca === 'CONFIRMADO').length;
     const limite = doc.limite_participantes || 0;
@@ -19,14 +18,17 @@ export function useJogosDoDia(filtroData: string, filtroEsporte?: string, filtro
       ...doc,
       id_evento: doc.$id,
       created_at: doc.$createdAt,
+      // Usamos o endereço como local principal conforme solicitado
       nome_local: quadra.nome_local || 'Local não informado',
-      endereco_completo: quadra.endereco_completo || '',
+      endereco_completo: quadra.endereco_completo || 'Endereço não informado',
       latitude: quadra.latitude || 0,
       longitude: quadra.longitude || 0,
-      foto_quadra: quadra.fotos?.[0] || null,
+      foto_quadra: (quadra.fotos && quadra.fotos.length > 0) ? quadra.fotos[0] : null,
       total_confirmados: totalConfirmados,
       vagas_restantes: limite - totalConfirmados,
-      percentual_ocupacao: limite > 0 ? (totalConfirmados / limite) * 100 : 0
+      percentual_ocupacao: limite > 0 ? (totalConfirmados / limite) * 100 : 0,
+      descricao_quadra: quadra.descricao || '',
+      comodidades_quadra: quadra.comodidades || []
     } as EventoComVagas;
   };
 
