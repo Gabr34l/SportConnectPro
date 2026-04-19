@@ -4,7 +4,25 @@ import { useAuthContext } from '../../contexts/AuthContext';
 import { useToast } from '../../components/Toast';
 import * as ImagePicker from 'expo-image-picker';
 import { databases, config, storage, ID } from '../../lib/appwrite';
-import { User, Mail, Shield, LogOut, Camera, ChevronRight, Settings, Info, CreditCard } from 'lucide-react-native';
+import { Mail, Shield, LogOut, Camera, ChevronRight, Settings, Info, CreditCard } from 'lucide-react-native';
+
+// Mover o sub-componente para fora para evitar erros de renderização e sintaxe
+const MenuOption = ({ icon: Icon, label, value, onPress, color = "#6B7280" }: any) => (
+  <TouchableOpacity 
+    className="flex-row items-center py-4 px-6 bg-white border-b border-gray-50 active:bg-gray-50"
+    onPress={onPress}
+    disabled={!onPress}
+  >
+    <View className="w-10 h-10 rounded-2xl justify-center items-center" style={{ backgroundColor: color + '15' }}>
+      <Icon size={20} color={color} />
+    </View>
+    <View className="ml-4 flex-1">
+      <Text className="text-xs text-gray-400 font-bold uppercase tracking-widest mb-0.5">{label}</Text>
+      <Text className="text-base font-bold text-gray-800">{value}</Text>
+    </View>
+    {onPress && <ChevronRight size={16} color="#D1D5DB" />}
+  </TouchableOpacity>
+);
 
 export default function Perfil() {
   const { usuario, signOut, refreshUsuario } = useAuthContext();
@@ -46,12 +64,10 @@ export default function Perfil() {
       try {
         const uri = result.assets[0].uri;
         const fileId = ID.unique();
-        const extension = uri.split('.').pop() || 'jpg';
-        const name = `avatar_${usuario.id_usuario}_${Date.now()}.${extension}`;
+        const name = `avatar_${usuario.id_usuario}_${Date.now()}.jpg`;
         
         // 1. Upload para o Appwrite Storage
         if (Platform.OS === 'web') {
-          // Solução Mestre para Web: Fetch manual para ignorar erros de biblioteca nativa
           const response = await fetch(uri);
           const blob = await response.blob();
           const formData = new FormData();
@@ -68,29 +84,23 @@ export default function Perfil() {
 
           if (!uploadResponse.ok) {
             const errorData = await uploadResponse.json();
-            throw new Error(errorData.message || 'Erro no upload para o servidor');
+            throw new Error(errorData.message || 'Erro no upload');
           }
         } else {
-          // No Celular continua normal
           const fileObj = {
             uri: Platform.OS === 'ios' ? uri.replace('file://', '') : uri,
             name: name,
-            type: `image/${extension}`,
+            type: 'image/jpeg',
           };
           await storage.createFile(config.storageId, fileId, fileObj);
         }
 
-        // 2. Pegar a URL de visualização
+        // 2. Pegar a URL e atualizar
         let fileUrl = storage.getFileView(config.storageId, fileId).toString();
-        
-        // Garantir que a URL comece com http se o toString falhar em incluir
         if (!fileUrl.startsWith('http')) {
            fileUrl = `${config.endpoint}/storage/buckets/${config.storageId}/files/${fileId}/view?project=${config.projectId}`;
         }
 
-        console.log('URL Gerada:', fileUrl);
-        
-        // 3. Atualizar no Banco de Dados
         await databases.updateDocument(
           config.databaseId,
           config.collections.usuarios,
@@ -98,12 +108,10 @@ export default function Perfil() {
           { foto_perfil: fileUrl }
         );
 
-        // 4. Atualizar o contexto global
         await refreshUsuario(usuario.id_usuario);
         showFeedback('success', 'Sucesso', 'Foto atualizada!');
       } catch (err: any) {
         console.error('Erro silencioso no upload de avatar:', err);
-        // Erro removido da interface conforme solicitado pelo usuário
       } finally {
         setLoading(false);
       }
@@ -112,30 +120,13 @@ export default function Perfil() {
 
   if (!usuario) return null;
 
-  const MenuOption = ({ icon: Icon, label, value, onPress, color = "#6B7280" }: any) => (
-    <TouchableOpacity 
-      className="flex-row items-center py-4 px-6 bg-white border-b border-gray-50 active:bg-gray-50"
-      onPress={onPress}
-      disabled={!onPress}
-    >
-      <View className="w-10 h-10 rounded-2xl justify-center items-center" style={{ backgroundColor: color + '15' }}>
-        <Icon size={20} color={color} />
-      </View>
-      <View className="ml-4 flex-1">
-        <Text className="text-xs text-gray-400 font-bold uppercase tracking-widest mb-0.5">{label}</Text>
-        <Text className="text-base font-bold text-gray-800">{value}</Text>
-      </View>
-      {onPress && <ChevronRight size={16} color="#D1D5DB" />}
-    </TouchableOpacity>
-  );
-
   return (
     <ScrollView className="flex-1 bg-gray-50" showsVerticalScrollIndicator={false}>
       {/* Profile Header */}
       <View className="items-center p-10 pt-16 bg-white shadow-sm shadow-black/5">
         <View className="relative">
           <Image 
-            source={{ uri: usuario.foto_perfil || 'https://placehold.co/150x150?text=' + usuario.nome_completo.charAt(0) }} 
+            source={{ uri: usuario.foto_perfil || 'https://placehold.co/150x150?text=' + (usuario.nome_completo?.charAt(0) || 'U') }} 
             className="w-[130px] h-[130px] rounded-[50px] bg-gray-100 border-4 border-white shadow-lg shadow-black/10" 
           />
           <TouchableOpacity 
