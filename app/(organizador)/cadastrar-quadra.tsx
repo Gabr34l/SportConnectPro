@@ -144,7 +144,20 @@ export default function CadastrarQuadra() {
       // 1. Upload images using the isolated storage service
       const urlsFotos = await uploadFiles(fotos, config.storageId, usuario.id_usuario);
       
-      // 2. Create the court document using the database service
+      // 2. Geocodificação (Transformar endereço em Lat/Long)
+      let coords = { latitude: 0, longitude: 0 };
+      try {
+        const response = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(endereco)}`);
+        const data = await response.json();
+        if (data && data.length > 0) {
+          coords.latitude = parseFloat(data[0].lat);
+          coords.longitude = parseFloat(data[0].lon);
+        }
+      } catch (err) {
+        console.warn('Erro ao geocodificar:', err);
+      }
+
+      // 3. Create the court document using the database service
       await db.courts.create({
         id_organizador: usuario.id_usuario,
         nome_local: nomeLocal,
@@ -156,6 +169,8 @@ export default function CadastrarQuadra() {
         fotos: urlsFotos,
         descricao,
         comodidades,
+        latitude: coords.latitude,
+        longitude: coords.longitude,
         status_aprovacao: 'PENDENTE'
       });
 

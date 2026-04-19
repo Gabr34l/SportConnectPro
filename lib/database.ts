@@ -117,8 +117,8 @@ export const db = {
           id_evento: doc.$id,
           nome_local: quadra.nome_local || quadra.razao_social || 'Local não informado',
           endereco_completo: quadra.endereco_completo || '',
-          latitude: quadra.latitude || 0,
-          longitude: quadra.longitude || 0,
+          latitude: quadra.latitude ? Number(quadra.latitude) : 0,
+          longitude: quadra.longitude ? Number(quadra.longitude) : 0,
           foto_quadra: quadra.fotos?.[0] || null,
         } as any as EventoComVagas;
       }));

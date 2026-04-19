@@ -71,18 +71,21 @@ export default function PlayerMapWeb() {
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
         />
-        {eventos.map(ev => (
-          ev.latitude && ev.longitude && ev.latitude !== 0 ? (
+        {eventos.map(ev => {
+          const lat = Number(ev.latitude);
+          const lng = Number(ev.longitude);
+          
+          return lat && lng && lat !== 0 ? (
             <Marker 
               key={ev.id_evento}
-              position={[ev.latitude, ev.longitude]}
+              position={[lat, lng]}
             >
               <Popup>
                 <div style={{ fontFamily: 'sans-serif', padding: '5px' }}>
                   <span style={{ fontSize: '10px', color: '#00C853', fontWeight: 'bold', textTransform: 'uppercase' }}>{ev.esporte}</span>
                   <h3 style={{ margin: '5px 0', fontSize: '16px' }}>{ev.titulo}</h3>
                   <p style={{ margin: '0', fontSize: '12px', color: '#666' }}>{ev.nome_local}</p>
-                  <p style={{ margin: '5px 0', fontWeight: 'bold' }}>R$ {ev.preco_por_vaga?.toFixed(2)} / vaga</p>
+                  <p style={{ margin: '5px 0', fontWeight: 'bold' }}>R$ {Number(ev.preco_por_vaga || 0).toFixed(2)} / vaga</p>
                   <button 
                     onClick={() => {
                       router.push(`/(jogador)/evento/${ev.id_evento}` as any);
