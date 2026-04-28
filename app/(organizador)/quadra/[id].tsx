@@ -138,12 +138,12 @@ export default function DetalhesQuadra() {
           <LinearGradient colors={['rgba(0,0,0,0.6)', 'transparent', 'rgba(0,0,0,0.8)']} className="absolute inset-0" />
           
           <View className="flex-row justify-between items-center px-6 pt-16">
-            <TouchableOpacity onPress={() => router.back()} className="w-12 h-12 bg-white dark:bg-gray-900/20 backdrop-blur-md rounded-2xl justify-center items-center">
+            <TouchableOpacity onPress={() => router.back()} className="w-12 h-12 bg-white/20 backdrop-blur-md rounded-2xl justify-center items-center">
               <ChevronLeft color="white" size={24} />
             </TouchableOpacity>
             
             <View className="flex-row gap-3">
-              <TouchableOpacity onPress={handleShare} className="w-12 h-12 bg-white dark:bg-gray-900/20 backdrop-blur-md rounded-2xl justify-center items-center">
+              <TouchableOpacity onPress={handleShare} className="w-12 h-12 bg-white/20 backdrop-blur-md rounded-2xl justify-center items-center">
                 <Share2 color="white" size={20} />
               </TouchableOpacity>
             </View>

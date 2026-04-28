@@ -106,7 +106,7 @@ export default function Login() {
           >
             <TouchableOpacity 
               onPress={() => router.back()}
-              className="w-12 h-12 bg-white dark:bg-gray-900/10 rounded-2xl justify-center items-center border border-white/10 mb-8"
+              className="w-12 h-12 bg-white/10 rounded-2xl justify-center items-center border border-white/10 mb-8"
             >
               <ChevronLeft color="white" size={24} />
             </TouchableOpacity>
@@ -117,7 +117,7 @@ export default function Login() {
             </View>
 
             <View className="gap-4">
-              <View className="bg-white dark:bg-gray-900/5 border border-white/10 rounded-[24px] flex-row items-center px-5 py-4 backdrop-blur-md">
+              <View className="bg-white/5 border border-white/10 rounded-[24px] flex-row items-center px-5 py-4 backdrop-blur-md">
                 <Mail size={20} color="#6B7280" />
                 <TextInput
                   className="flex-1 ml-4 text-white text-base font-medium"
@@ -130,7 +130,7 @@ export default function Login() {
                 />
               </View>
 
-              <View className="bg-white dark:bg-gray-900/5 border border-white/10 rounded-[24px] flex-row items-center px-5 py-4 backdrop-blur-md">
+              <View className="bg-white/5 border border-white/10 rounded-[24px] flex-row items-center px-5 py-4 backdrop-blur-md">
                 <Lock size={20} color="#6B7280" />
                 <TextInput
                   className="flex-1 ml-4 text-white text-base font-medium"
@@ -180,7 +180,7 @@ export default function Login() {
             <Text className="text-2xl font-black text-white text-center mb-2">Recuperar Senha</Text>
             <Text className="text-gray-400 text-center mb-8">Insira seu e-mail cadastrado para receber o link.</Text>
             
-            <View className="bg-white dark:bg-gray-900/5 border border-white/10 rounded-2xl flex-row items-center px-5 py-4 mb-6">
+            <View className="bg-white/5 border border-white/10 rounded-2xl flex-row items-center px-5 py-4 mb-6">
               <Mail size={20} color="#6B7280" />
               <TextInput
                 className="flex-1 ml-4 text-white text-base"

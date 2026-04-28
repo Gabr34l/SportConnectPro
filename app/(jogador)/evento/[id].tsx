@@ -162,7 +162,7 @@ export default function EventoDetalhe() {
           />
           <TouchableOpacity 
             onPress={() => router.back()}
-            className="absolute top-12 left-6 w-10 h-10 bg-white dark:bg-gray-900/20 rounded-full justify-center items-center backdrop-blur-md"
+            className="absolute top-12 left-6 w-10 h-10 bg-white/20 rounded-full justify-center items-center backdrop-blur-md"
           >
             <ChevronLeft color="white" size={24} strokeWidth={3} />
           </TouchableOpacity>
@@ -268,7 +268,7 @@ export default function EventoDetalhe() {
         </View>
       </ScrollView>
 
-      <View className="absolute bottom-0 left-0 right-0 p-6 bg-white dark:bg-gray-900/80 border-t border-gray-100 dark:border-gray-800 backdrop-blur-md">
+      <View className="absolute bottom-0 left-0 right-0 p-6 bg-white/80 border-t border-gray-100 dark:border-gray-800 backdrop-blur-md">
         {BottomButton}
       </View>
 

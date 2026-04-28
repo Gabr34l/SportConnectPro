@@ -124,10 +124,10 @@ export default function Cadastro() {
                 </View>
 
                 <TouchableOpacity
-                  className={`border rounded-[32px] p-6 mb-4 flex-row items-center backdrop-blur-md ${perfil === 'JOGADOR' ? 'border-[#00C853] bg-white dark:bg-gray-900/10' : 'border-white/10 bg-white dark:bg-gray-900/5'}`}
+                  className={`border rounded-[32px] p-6 mb-4 flex-row items-center backdrop-blur-md ${perfil === 'JOGADOR' ? 'border-[#00C853] bg-white/10' : 'border-white/10 bg-white/5'}`}
                   onPress={() => setPerfil('JOGADOR')}
                 >
-                  <View className={`w-12 h-12 rounded-xl justify-center items-center ${perfil === 'JOGADOR' ? 'bg-[#00C853]' : 'bg-white dark:bg-gray-900/10'}`}>
+                  <View className={`w-12 h-12 rounded-xl justify-center items-center ${perfil === 'JOGADOR' ? 'bg-[#00C853]' : 'bg-white/10'}`}>
                     <Gamepad2 color="white" size={24} />
                   </View>
                   <View className="ml-5 flex-1">
@@ -137,10 +137,10 @@ export default function Cadastro() {
                 </TouchableOpacity>
 
                 <TouchableOpacity
-                  className={`border rounded-[32px] p-6 mb-10 flex-row items-center backdrop-blur-md ${perfil === 'ORGANIZADOR' ? 'border-[#00952A] bg-white dark:bg-gray-900/10' : 'border-white/10 bg-white dark:bg-gray-900/5'}`}
+                  className={`border rounded-[32px] p-6 mb-10 flex-row items-center backdrop-blur-md ${perfil === 'ORGANIZADOR' ? 'border-[#00952A] bg-white/10' : 'border-white/10 bg-white/5'}`}
                   onPress={() => setPerfil('ORGANIZADOR')}
                 >
-                  <View className={`w-12 h-12 rounded-xl justify-center items-center ${perfil === 'ORGANIZADOR' ? 'bg-[#00952A]' : 'bg-white dark:bg-gray-900/10'}`}>
+                  <View className={`w-12 h-12 rounded-xl justify-center items-center ${perfil === 'ORGANIZADOR' ? 'bg-[#00952A]' : 'bg-white/10'}`}>
                     <Building2 color="white" size={24} />
                   </View>
                   <View className="ml-5 flex-1">
@@ -163,7 +163,7 @@ export default function Cadastro() {
               </View>
             ) : step === 1 ? (
               <View className="flex-1 justify-center">
-                 <TouchableOpacity onPress={() => setStep(0)} className="flex-row items-center mb-8 bg-white dark:bg-gray-900/10 self-start px-4 py-2 rounded-full border border-white/10">
+                 <TouchableOpacity onPress={() => setStep(0)} className="flex-row items-center mb-8 bg-white/10 self-start px-4 py-2 rounded-full border border-white/10">
                   <ChevronLeft size={16} color="white" />
                   <Text className="text-white font-bold ml-1 uppercase text-[10px] tracking-widest">Voltar</Text>
                 </TouchableOpacity>
@@ -179,7 +179,7 @@ export default function Cadastro() {
                 ].map((item) => (
                   <TouchableOpacity
                     key={item.value}
-                    className={`border rounded-[24px] p-5 mb-3 flex-row items-center backdrop-blur-md ${nivel === item.value ? 'border-[#00C853] bg-white dark:bg-gray-900/10' : 'border-white/10 bg-white dark:bg-gray-900/5'}`}
+                    className={`border rounded-[24px] p-5 mb-3 flex-row items-center backdrop-blur-md ${nivel === item.value ? 'border-[#00C853] bg-white/10' : 'border-white/10 bg-white/5'}`}
                     onPress={() => setNivel(item.value)}
                   >
                     <View className="flex-1">
@@ -200,7 +200,7 @@ export default function Cadastro() {
               </View>
             ) : (
               <View className="flex-1 justify-center">
-                <TouchableOpacity onPress={() => setStep(perfil === 'ORGANIZADOR' ? 0 : 1)} className="flex-row items-center mb-8 bg-white dark:bg-gray-900/10 self-start px-4 py-2 rounded-full border border-white/10">
+                <TouchableOpacity onPress={() => setStep(perfil === 'ORGANIZADOR' ? 0 : 1)} className="flex-row items-center mb-8 bg-white/10 self-start px-4 py-2 rounded-full border border-white/10">
                   <ChevronLeft size={16} color="white" />
                   <Text className="text-white font-bold ml-1 uppercase text-[10px] tracking-widest">Voltar</Text>
                 </TouchableOpacity>
@@ -209,7 +209,7 @@ export default function Cadastro() {
                 <Text className="text-gray-400 mb-10 font-medium">Crie sua identidade no SportConnect Pro.</Text>
 
                 <View className="gap-4 mb-10">
-                  <View className="bg-white dark:bg-gray-900/5 border border-white/10 rounded-[24px] flex-row items-center px-5 py-4 backdrop-blur-md">
+                  <View className="bg-white/5 border border-white/10 rounded-[24px] flex-row items-center px-5 py-4 backdrop-blur-md">
                     <User size={20} color="#6B7280" />
                     <TextInput
                       className="flex-1 ml-4 text-white text-base font-medium"
@@ -220,7 +220,7 @@ export default function Cadastro() {
                     />
                   </View>
 
-                  <View className="bg-white dark:bg-gray-900/5 border border-white/10 rounded-[24px] flex-row items-center px-5 py-4 backdrop-blur-md">
+                  <View className="bg-white/5 border border-white/10 rounded-[24px] flex-row items-center px-5 py-4 backdrop-blur-md">
                     <Mail size={20} color="#6B7280" />
                     <TextInput
                       className="flex-1 ml-4 text-white text-base font-medium"
@@ -233,7 +233,7 @@ export default function Cadastro() {
                     />
                   </View>
 
-                  <View className="bg-white dark:bg-gray-900/5 border border-white/10 rounded-[24px] flex-row items-center px-5 py-4 backdrop-blur-md">
+                  <View className="bg-white/5 border border-white/10 rounded-[24px] flex-row items-center px-5 py-4 backdrop-blur-md">
                     <Lock size={20} color="#6B7280" />
                     <TextInput
                       className="flex-1 ml-4 text-white text-base font-medium"
