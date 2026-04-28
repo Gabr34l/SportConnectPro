@@ -3,9 +3,12 @@ import { Tabs, Redirect } from 'expo-router';
 import { theme } from '../../constants/theme';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { LayoutDashboard, Map, PlusCircle, User } from 'lucide-react-native';
+import { useColorScheme } from 'nativewind';
 
 export default function OrganizadorLayout() {
   const { usuario, loading } = useAuthContext();
+  const { colorScheme } = useColorScheme();
+  const isDark = colorScheme === 'dark';
   
   if (!loading && (!usuario || usuario.tipo_perfil !== 'ORGANIZADOR')) {
     return <Redirect href="/" />;
@@ -16,7 +19,14 @@ export default function OrganizadorLayout() {
       tabBarActiveTintColor: theme.colors.primary,
       tabBarInactiveTintColor: '#9CA3AF',
       headerShown: false,
-      tabBarStyle: { paddingBottom: 5, paddingTop: 5, height: 60, backgroundColor: theme.colors.surface, borderTopWidth: 1, borderTopColor: '#F3F4F6' },
+      tabBarStyle: { 
+        paddingBottom: 5, 
+        paddingTop: 5, 
+        height: 60, 
+        backgroundColor: isDark ? '#030712' : theme.colors.surface, 
+        borderTopWidth: 1, 
+        borderTopColor: isDark ? '#1F2937' : '#F3F4F6' 
+      },
       tabBarLabelStyle: { fontSize: 12, fontWeight: '500' }
     }}>
       <Tabs.Screen 
