@@ -90,10 +90,10 @@ export default function Dashboard() {
           
           <TouchableOpacity 
             onPress={toggleColorScheme}
-            className="absolute top-12 right-2 w-20 h-20 justify-center items-center z-[100]"
+            className="absolute top-12 right-2 p-4 z-50"
           >
-            <View className="w-14 h-14 bg-gray-50 dark:bg-gray-800 rounded-full justify-center items-center shadow-sm">
-              {colorScheme === 'dark' ? <Sun color="#FBBF24" size={26} /> : <Moon color="#4B5563" size={26} />}
+            <View pointerEvents="none" className="w-12 h-12 bg-gray-100 dark:bg-gray-800 rounded-full justify-center items-center shadow-sm">
+              {colorScheme === 'dark' ? <Sun color="#FBBF24" size={24} /> : <Moon color="#4B5563" size={24} />}
             </View>
           </TouchableOpacity>
 
@@ -133,7 +133,7 @@ export default function Dashboard() {
 
         <View className="flex-row p-6 gap-4">
           <View className="flex-1 bg-gray-900 dark:bg-gray-800 p-6 rounded-[32px] shadow-xl shadow-black/20">
-            <View className="w-10 h-10 bg-white dark:bg-gray-900/10 rounded-2xl justify-center items-center mb-4">
+            <View className="w-10 h-10 bg-white/10 dark:bg-gray-700 rounded-2xl justify-center items-center mb-4">
               <Users size={20} color="white" />
             </View>
             <Text className="text-xs text-white/50 dark:text-gray-400 font-bold uppercase tracking-wider mb-1">Eventos</Text>
