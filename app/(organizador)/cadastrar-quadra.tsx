@@ -43,39 +43,55 @@ export default function CadastrarQuadra() {
     if (limpo.length !== 14) return;
     
     setLoading(true);
-    try {
-      const resp = await fetch(`https://brasilapi.com.br/api/cnpj/v1/${limpo}`);
-      const data = await resp.json();
-      
-      if (resp.ok) {
-        setRazaoSocial(data.razao_social || '');
-        if (data.cep) setCep(maskCEP(data.cep));
-        
-        const logradouro = data.logradouro || '';
-        const numero = data.numero || 'S/N';
-        const bairro = data.bairro || '';
-        const municipio = data.municipio || '';
-        const uf = data.uf || '';
-        const complemento = data.complemento ? ` - ${data.complemento}` : '';
+    
+    // Lista de APIs de CNPJ (com mesmo formato de retorno ou mapeadas)
+    const apis = [
+      `https://brasilapi.com.br/api/cnpj/v1/${limpo}`,
+      `https://minhareceita.org/${limpo}`
+    ];
 
-        if (logradouro) {
-           setEndereco(`${logradouro}, ${numero}${complemento}, ${bairro}, ${municipio} - ${uf}`);
+    let sucesso = false;
+    let dadosCnpj = null;
+
+    for (const url of apis) {
+      try {
+        const resp = await fetch(url);
+        if (resp.ok) {
+          dadosCnpj = await resp.json();
+          sucesso = true;
+          break; // Sai do loop se encontrou
         }
-
-        if (data.ddd_telefone_1) {
-           setTelefone(maskPhone(data.ddd_telefone_1));
-        }
-
-        showFeedback('success', 'CNPJ Localizado', `Empresa: ${data.razao_social}`);
-      } else {
-        showFeedback('error', 'CNPJ não encontrado', 'Verifique o número ou digite os dados manualmente.');
+      } catch (e) {
+        console.warn(`Falha ao consultar ${url}:`, e);
+        // Tenta a próxima API
       }
-    } catch (e) {
-      console.error('Erro CNPJ:', e);
-      showFeedback('error', 'Erro de conexão', 'Não foi possível consultar a base da Receita agora.');
-    } finally {
-      setLoading(false);
     }
+
+    if (sucesso && dadosCnpj) {
+      setRazaoSocial(dadosCnpj.razao_social || '');
+      if (dadosCnpj.cep) setCep(maskCEP(dadosCnpj.cep));
+      
+      const logradouro = dadosCnpj.logradouro || '';
+      const numero = dadosCnpj.numero || 'S/N';
+      const bairro = dadosCnpj.bairro || '';
+      const municipio = dadosCnpj.municipio || '';
+      const uf = dadosCnpj.uf || '';
+      const complemento = dadosCnpj.complemento ? ` - ${dadosCnpj.complemento}` : '';
+
+      if (logradouro) {
+         setEndereco(`${logradouro}, ${numero}${complemento}, ${bairro}, ${municipio} - ${uf}`);
+      }
+
+      if (dadosCnpj.ddd_telefone_1) {
+         setTelefone(maskPhone(dadosCnpj.ddd_telefone_1));
+      }
+
+      showFeedback('success', 'CNPJ Localizado', `Empresa: ${dadosCnpj.razao_social}`);
+    } else {
+      showFeedback('info', 'Aviso', 'Não foi possível buscar este CNPJ automaticamente. Por favor, preencha os dados manualmente.');
+    }
+    
+    setLoading(false);
   };
 
   const buscarCEP = async (cepBuscado: string) => {
