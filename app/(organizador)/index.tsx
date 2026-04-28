@@ -90,10 +90,11 @@ export default function Dashboard() {
           
           <TouchableOpacity 
             onPress={toggleColorScheme}
-            hitSlop={{ top: 20, bottom: 20, left: 20, right: 20 }}
-            className="absolute top-16 right-6 w-14 h-14 bg-gray-50 dark:bg-gray-950 dark:bg-gray-800 rounded-full justify-center items-center shadow-sm"
+            className="absolute top-12 right-2 w-20 h-20 justify-center items-center z-[100]"
           >
-            {colorScheme === 'dark' ? <Sun color="#FBBF24" size={26} /> : <Moon color="#4B5563" size={26} />}
+            <View className="w-14 h-14 bg-gray-50 dark:bg-gray-800 rounded-full justify-center items-center shadow-sm">
+              {colorScheme === 'dark' ? <Sun color="#FBBF24" size={26} /> : <Moon color="#4B5563" size={26} />}
+            </View>
           </TouchableOpacity>
 
           <Text className="text-gray-400 text-xs font-bold uppercase tracking-[3px] mb-1">Painel de Controle</Text>
