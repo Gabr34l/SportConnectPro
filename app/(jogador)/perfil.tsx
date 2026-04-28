@@ -152,7 +152,7 @@ export default function Perfil() {
           value={usuario.nivel_habilidade || 'Não definido'}
           color="#3B82F6"
         />
-        <MenuOption icon={CreditCard} label="Métodos de Pagamento" value="Visa •••• 4242" onPress={() => { }} color="#6366F1" />
+
         <MenuOption icon={Settings} label="Configurações" value="Privacidade, Notificações..." onPress={() => { }} />
         <MenuOption icon={Info} label="Sobre o App" value="v1.2.4" onPress={() => { }} />
       </View>
