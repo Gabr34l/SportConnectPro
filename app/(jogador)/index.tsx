@@ -32,9 +32,9 @@ export default function HomeJogador() {
   const dias = Array.from({length: 7}, (_, i) => addDays(new Date(), i));
 
   return (
-    <View className="flex-1 bg-gray-50">
+    <View className="flex-1 bg-gray-50 dark:bg-gray-950">
       {/* Premium Header */}
-      <View className="bg-white px-6 pt-16 pb-8 rounded-b-[40px] shadow-xl shadow-black/5">
+      <View className="bg-white dark:bg-gray-900 px-6 pt-16 pb-8 rounded-b-[40px] shadow-xl shadow-black/5">
         <View className="flex-row justify-between items-center mb-6">
           <View className="flex-row items-center">
             <TouchableOpacity onPress={() => router.push('/(jogador)/perfil')}>
@@ -47,20 +47,20 @@ export default function HomeJogador() {
               <Text className="text-gray-400 text-xs font-bold uppercase tracking-widest">
                 {new Date().getHours() < 12 ? 'Bom dia' : new Date().getHours() < 18 ? 'Boa tarde' : 'Boa noite'},
               </Text>
-              <Text className="text-xl font-black text-gray-800">{usuario?.nome_completo?.split(' ')[0]}!</Text>
+              <Text className="text-xl font-black text-gray-800 dark:text-white">{usuario?.nome_completo?.split(' ')[0]}!</Text>
             </View>
           </View>
           
           <View className="flex-row gap-2">
             <TouchableOpacity 
               onPress={() => router.push('/(jogador)/mapa')}
-              className="w-12 h-12 bg-gray-50 rounded-2xl justify-center items-center"
+              className="w-12 h-12 bg-gray-50 dark:bg-gray-950 rounded-2xl justify-center items-center"
             >
               <MapPin color="#111827" size={22} strokeWidth={2} />
             </TouchableOpacity>
             <TouchableOpacity 
               onPress={() => router.push('/(jogador)/notificacoes')}
-              className="w-12 h-12 bg-gray-50 rounded-2xl justify-center items-center"
+              className="w-12 h-12 bg-gray-50 dark:bg-gray-950 rounded-2xl justify-center items-center"
             >
               <Bell color="#111827" size={22} strokeWidth={2} />
               {unreadCount > 0 && (
@@ -81,12 +81,12 @@ export default function HomeJogador() {
               <TouchableOpacity 
                 key={iso}
                 onPress={() => setDataSelecionada(iso)}
-                className={`items-center justify-center p-3 rounded-[20px] mx-1 min-w-[60px] ${isSelected ? 'bg-[#00C853] shadow-lg shadow-green-500/30' : 'bg-gray-50'}`}
+                className={`items-center justify-center p-3 rounded-[20px] mx-1 min-w-[60px] ${isSelected ? 'bg-[#00C853] shadow-lg shadow-green-500/30' : 'bg-gray-50 dark:bg-gray-950'}`}
               >
                 <Text className={`text-[10px] uppercase font-black tracking-tighter ${isSelected ? 'text-white/70' : 'text-gray-400'}`}>
                   {format(dia, 'EEE', { locale: ptBR })}
                 </Text>
-                <Text className={`text-lg font-black mt-0.5 ${isSelected ? 'text-white' : 'text-gray-800'}`}>
+                <Text className={`text-lg font-black mt-0.5 ${isSelected ? 'text-white' : 'text-gray-800 dark:text-white'}`}>
                   {format(dia, 'dd')}
                 </Text>
               </TouchableOpacity>
@@ -102,7 +102,7 @@ export default function HomeJogador() {
       <View className="flex-1 px-6">
         <View className="flex-row justify-between items-end my-6">
           <View>
-            <Text className="text-2xl font-black text-gray-800">Partidas Disponíveis</Text>
+            <Text className="text-2xl font-black text-gray-800 dark:text-white">Partidas Disponíveis</Text>
             <Text className="text-sm text-gray-400 font-medium">Encontre o racha perfeito próximo a você</Text>
           </View>
         </View>
@@ -119,11 +119,11 @@ export default function HomeJogador() {
             showsVerticalScrollIndicator={false}
             contentContainerStyle={{ paddingBottom: 120 }}
             ListEmptyComponent={
-              <View className="items-center mt-8 bg-white p-10 rounded-[40px] border border-gray-100 shadow-sm shadow-black/5">
-                <View className="w-20 h-20 bg-gray-50 rounded-full justify-center items-center mb-6">
+              <View className="items-center mt-8 bg-white dark:bg-gray-900 p-10 rounded-[40px] border border-gray-100 dark:border-gray-800 shadow-sm shadow-black/5">
+                <View className="w-20 h-20 bg-gray-50 dark:bg-gray-950 rounded-full justify-center items-center mb-6">
                   <Frown size={40} color="#D1D5DB" strokeWidth={1.5} />
                 </View>
-                <Text className="text-xl font-bold text-gray-800 text-center">Tudo calmo por aqui...</Text>
+                <Text className="text-xl font-bold text-gray-800 dark:text-white text-center">Tudo calmo por aqui...</Text>
                 <Text className="text-gray-400 mt-2 text-center text-base leading-6">
                   Nenhuma partida encontrada para esta data ou filtros. Que tal mudar o esporte?
                 </Text>

@@ -113,13 +113,13 @@ export default function DetalhesQuadra() {
   };
 
   if (loading) return (
-    <View className="flex-1 bg-white justify-center items-center">
+    <View className="flex-1 bg-white dark:bg-gray-900 justify-center items-center">
       <ActivityIndicator size="large" color="#00C853" />
     </View>
   );
 
   if (!quadra) return (
-    <View className="flex-1 bg-white justify-center items-center p-8">
+    <View className="flex-1 bg-white dark:bg-gray-900 justify-center items-center p-8">
       <Text className="text-gray-400 mb-6">Quadra não encontrada.</Text>
       <TouchableOpacity onPress={() => router.back()} className="bg-[#00C853] px-6 py-3 rounded-2xl">
         <Text className="text-white font-bold">Voltar</Text>
@@ -130,7 +130,7 @@ export default function DetalhesQuadra() {
   const fotoPrincipal = Array.isArray(quadra.fotos) && quadra.fotos.length > 0 ? quadra.fotos[0] : 'https://images.unsplash.com/photo-1574629810360-7efbbe195018?auto=format&fit=crop&q=80&w=1200';
 
   return (
-    <View className="flex-1 bg-gray-50">
+    <View className="flex-1 bg-gray-50 dark:bg-gray-950">
       <ScrollView bounces={false} showsVerticalScrollIndicator={false}>
         {/* Header Visual */}
         <View className="relative h-[400px]">
@@ -138,12 +138,12 @@ export default function DetalhesQuadra() {
           <LinearGradient colors={['rgba(0,0,0,0.6)', 'transparent', 'rgba(0,0,0,0.8)']} className="absolute inset-0" />
           
           <View className="flex-row justify-between items-center px-6 pt-16">
-            <TouchableOpacity onPress={() => router.back()} className="w-12 h-12 bg-white/20 backdrop-blur-md rounded-2xl justify-center items-center">
+            <TouchableOpacity onPress={() => router.back()} className="w-12 h-12 bg-white dark:bg-gray-900/20 backdrop-blur-md rounded-2xl justify-center items-center">
               <ChevronLeft color="white" size={24} />
             </TouchableOpacity>
             
             <View className="flex-row gap-3">
-              <TouchableOpacity onPress={handleShare} className="w-12 h-12 bg-white/20 backdrop-blur-md rounded-2xl justify-center items-center">
+              <TouchableOpacity onPress={handleShare} className="w-12 h-12 bg-white dark:bg-gray-900/20 backdrop-blur-md rounded-2xl justify-center items-center">
                 <Share2 color="white" size={20} />
               </TouchableOpacity>
             </View>
@@ -160,10 +160,10 @@ export default function DetalhesQuadra() {
         </View>
 
         {/* Dash Content */}
-        <View className="-mt-6 bg-gray-50 rounded-t-[40px] px-8 pt-10 pb-32">
+        <View className="-mt-6 bg-gray-50 dark:bg-gray-950 rounded-t-[40px] px-8 pt-10 pb-32">
           
           {/* Action Bar */}
-          <View className="bg-white p-2 rounded-[32px] flex-row mb-10 shadow-xl shadow-black/5 border border-gray-100">
+          <View className="bg-white dark:bg-gray-900 p-2 rounded-[32px] flex-row mb-10 shadow-xl shadow-black/5 border border-gray-100 dark:border-gray-800">
             <TouchableOpacity 
               className="flex-1 bg-green-50 rounded-[28px] py-4 items-center justify-center"
               onPress={() => router.push({ pathname: '/(organizador)/criar-evento', params: { quadraId: quadra.id_quadra } })}
@@ -190,9 +190,9 @@ export default function DetalhesQuadra() {
           <View className="mb-10">
             <View className="flex-row items-center mb-6">
               <View className="w-1.5 h-6 bg-[#00C853] rounded-full mr-3" />
-              <Text className="text-xl font-black text-gray-800">Sobre o Local</Text>
+              <Text className="text-xl font-black text-gray-800 dark:text-white">Sobre o Local</Text>
             </View>
-            <View className="bg-white p-6 rounded-[32px] border border-gray-100 shadow-sm shadow-black/5">
+            <View className="bg-white dark:bg-gray-900 p-6 rounded-[32px] border border-gray-100 dark:border-gray-800 shadow-sm shadow-black/5">
               <Text className="text-gray-500 text-base leading-7 font-medium">
                 {quadra.descricao || 'Nenhuma descrição detalhada fornecida para este local. Clique em Editar para adicionar detalhes que atraiam mais jogadores!'}
               </Text>
@@ -201,12 +201,12 @@ export default function DetalhesQuadra() {
 
           {/* Dynamic Amenities */}
           <View>
-             <Text className="text-xl font-black text-gray-800 mb-6 px-2">Comodidades</Text>
+             <Text className="text-xl font-black text-gray-800 dark:text-white mb-6 px-2">Comodidades</Text>
              <View className="flex-row flex-wrap gap-3">
                {quadra.comodidades && quadra.comodidades.length > 0 ? (
                  quadra.comodidades.map((item) => (
-                   <View key={item} className="bg-white border border-[#00C853]/20 px-5 py-3 rounded-2xl shadow-sm shadow-black/5">
-                     <Text className="text-gray-800 font-bold text-sm tracking-tight">{item}</Text>
+                   <View key={item} className="bg-white dark:bg-gray-900 border border-[#00C853]/20 px-5 py-3 rounded-2xl shadow-sm shadow-black/5">
+                     <Text className="text-gray-800 dark:text-white font-bold text-sm tracking-tight">{item}</Text>
                    </View>
                  ))
                ) : (
@@ -220,9 +220,9 @@ export default function DetalhesQuadra() {
       {/* EDIT MODAL */}
       <Modal visible={editModalVisible} animationType="slide" transparent>
         <View className="flex-1 bg-black/60 justify-end">
-          <View className="bg-white w-full h-[85%] rounded-t-[50px] overflow-hidden">
-            <View className="flex-row justify-between items-center p-8 border-b border-gray-100">
-               <Text className="text-2xl font-black text-gray-800">Editar Detalhes</Text>
+          <View className="bg-white dark:bg-gray-900 w-full h-[85%] rounded-t-[50px] overflow-hidden">
+            <View className="flex-row justify-between items-center p-8 border-b border-gray-100 dark:border-gray-800">
+               <Text className="text-2xl font-black text-gray-800 dark:text-white">Editar Detalhes</Text>
                <TouchableOpacity onPress={() => setEditModalVisible(false)} className="bg-gray-100 p-2 rounded-full">
                  <X size={24} color="#9CA3AF" />
                </TouchableOpacity>
@@ -231,7 +231,7 @@ export default function DetalhesQuadra() {
             <ScrollView className="p-8">
               <Text className="text-gray-400 font-bold uppercase text-[10px] tracking-widest mb-4">Descrição Principal</Text>
               <TextInput 
-                className="bg-gray-50 p-6 rounded-[32px] text-gray-800 min-h-[150px] text-base border border-gray-100"
+                className="bg-gray-50 dark:bg-gray-950 p-6 rounded-[32px] text-gray-800 dark:text-white min-h-[150px] text-base border border-gray-100 dark:border-gray-800"
                 multiline
                 placeholder="Descreva seu espaço, diferenciais, etc..."
                 placeholderTextColor="#9CA3AF"
@@ -247,7 +247,7 @@ export default function DetalhesQuadra() {
                     <TouchableOpacity 
                       key={item} 
                       onPress={() => toggleComodidade(item)}
-                      className={`px-5 py-3 rounded-2xl border ${active ? 'bg-[#00C853] border-transparent' : 'bg-white border-gray-200'}`}
+                      className={`px-5 py-3 rounded-2xl border ${active ? 'bg-[#00C853] border-transparent' : 'bg-white dark:bg-gray-900 border-gray-200'}`}
                     >
                       <Text className={`font-bold text-sm ${active ? 'text-white' : 'text-gray-500'}`}>{item}</Text>
                     </TouchableOpacity>
@@ -256,7 +256,7 @@ export default function DetalhesQuadra() {
               </View>
             </ScrollView>
 
-            <View className="p-8 border-t border-gray-100 bg-white shadow-2xl">
+            <View className="p-8 border-t border-gray-100 dark:border-gray-800 bg-white dark:bg-gray-900 shadow-2xl">
               <TouchableOpacity 
                 className={`w-full py-5 rounded-[28px] items-center flex-row justify-center ${saving ? 'bg-gray-300' : 'bg-[#00C853]'}`}
                 onPress={handleUpdate}

@@ -42,9 +42,9 @@ export default function Favoritos() {
   }, [usuario]);
 
   return (
-    <View className="flex-1 bg-gray-50">
-      <View className="bg-white px-6 pt-16 pb-6 border-b border-gray-100 shadow-sm shadow-black/5">
-        <Text className="text-2xl font-bold text-gray-800">Favoritos</Text>
+    <View className="flex-1 bg-gray-50 dark:bg-gray-950">
+      <View className="bg-white dark:bg-gray-900 px-6 pt-16 pb-6 border-b border-gray-100 dark:border-gray-800 shadow-sm shadow-black/5">
+        <Text className="text-2xl font-bold text-gray-800 dark:text-white">Favoritos</Text>
       </View>
       
       {loading ? (
@@ -58,7 +58,7 @@ export default function Favoritos() {
           renderItem={({item}) => item ? <QuadraCard quadra={item} /> : null}
           contentContainerStyle={{ padding: 16 }}
           ListEmptyComponent={
-            <View className="items-center mt-12 bg-white p-8 rounded-3xl border border-gray-100 mx-6">
+            <View className="items-center mt-12 bg-white dark:bg-gray-900 p-8 rounded-3xl border border-gray-100 dark:border-gray-800 mx-6">
               <View className="w-20 h-20 bg-red-50 rounded-full justify-center items-center mb-4">
                 <Heart size={40} color="#E24B4A" fill="#E24B4A" strokeWidth={1.5} />
               </View>

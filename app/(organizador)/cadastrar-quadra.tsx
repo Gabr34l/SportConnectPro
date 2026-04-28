@@ -186,32 +186,32 @@ export default function CadastrarQuadra() {
 
 
   return (
-    <ScrollView className="flex-1 bg-gray-50" contentContainerStyle={{ paddingBottom: 40 }}>
+    <ScrollView className="flex-1 bg-gray-50 dark:bg-gray-950" contentContainerStyle={{ paddingBottom: 40 }}>
       {/* Header */}
-      <View className="bg-white px-6 pt-16 pb-6 border-b border-gray-100 shadow-sm shadow-black/5">
-        <Text className="text-2xl font-bold text-gray-800">Nova Quadra</Text>
+      <View className="bg-white dark:bg-gray-900 px-6 pt-16 pb-6 border-b border-gray-100 dark:border-gray-800 shadow-sm shadow-black/5">
+        <Text className="text-2xl font-bold text-gray-800 dark:text-white">Nova Quadra</Text>
         <Text className="text-base text-gray-400 mt-1">Preencha os dados do seu estabelecimento</Text>
       </View>
 
       <View className="p-6">
         {/* Basic Info Section */}
-        <View className="bg-white p-5 rounded-3xl border border-gray-100 mb-4 shadow-sm shadow-black/5">
+        <View className="bg-white dark:bg-gray-900 p-5 rounded-3xl border border-gray-100 dark:border-gray-800 mb-4 shadow-sm shadow-black/5">
           <Text className="text-sm font-bold text-gray-400 uppercase tracking-wider mb-4">Informações Básicas</Text>
           
-          <View className="flex-row items-center border border-gray-100 rounded-2xl px-4 py-3.5 mb-3 bg-gray-50">
+          <View className="flex-row items-center border border-gray-100 dark:border-gray-800 rounded-2xl px-4 py-3.5 mb-3 bg-gray-50 dark:bg-gray-950">
             <Building2 size={20} color="#9CA3AF" />
             <TextInput 
-              className="flex-1 ml-3 text-base text-gray-800"
+              className="flex-1 ml-3 text-base text-gray-800 dark:text-white"
               placeholder="Nome do Local (Ex: Arena Soccer)" 
               value={nomeLocal} 
               onChangeText={setNomeLocal} 
             />
           </View>
 
-          <View className="flex-row items-center border border-gray-100 rounded-2xl px-4 py-3.5 mb-3 bg-gray-50">
+          <View className="flex-row items-center border border-gray-100 dark:border-gray-800 rounded-2xl px-4 py-3.5 mb-3 bg-gray-50 dark:bg-gray-950">
             <Hash size={20} color="#9CA3AF" />
             <TextInput 
-              className="flex-1 ml-3 text-base text-gray-800"
+              className="flex-1 ml-3 text-base text-gray-800 dark:text-white"
               placeholder="CNPJ" 
               value={cnpj} 
               onChangeText={(v) => {
@@ -225,10 +225,10 @@ export default function CadastrarQuadra() {
             />
           </View>
 
-          <View className="flex-row items-center border border-gray-100 rounded-2xl px-4 py-3.5 bg-gray-50">
+          <View className="flex-row items-center border border-gray-100 dark:border-gray-800 rounded-2xl px-4 py-3.5 bg-gray-50 dark:bg-gray-950">
             <FileText size={20} color="#9CA3AF" />
             <TextInput 
-              className="flex-1 ml-3 text-base text-gray-800"
+              className="flex-1 ml-3 text-base text-gray-800 dark:text-white"
               placeholder="Razão Social" 
               value={razaoSocial} 
               onChangeText={setRazaoSocial} 
@@ -237,13 +237,13 @@ export default function CadastrarQuadra() {
         </View>
 
         {/* Location Section */}
-        <View className="bg-white p-5 rounded-3xl border border-gray-100 mb-4 shadow-sm shadow-black/5">
+        <View className="bg-white dark:bg-gray-900 p-5 rounded-3xl border border-gray-100 dark:border-gray-800 mb-4 shadow-sm shadow-black/5">
           <Text className="text-sm font-bold text-gray-400 uppercase tracking-wider mb-4">Localização & Contato</Text>
           
-          <View className="flex-row items-center border border-gray-100 rounded-2xl px-4 py-3.5 mb-3 bg-gray-50">
+          <View className="flex-row items-center border border-gray-100 dark:border-gray-800 rounded-2xl px-4 py-3.5 mb-3 bg-gray-50 dark:bg-gray-950">
             <MapPin size={20} color="#9CA3AF" />
             <TextInput 
-              className="flex-1 ml-3 text-base text-gray-800"
+              className="flex-1 ml-3 text-base text-gray-800 dark:text-white"
               placeholder="CEP" 
               value={cep} 
               onChangeText={(v) => {
@@ -255,10 +255,10 @@ export default function CadastrarQuadra() {
             />
           </View>
 
-          <View className="flex-row items-start border border-gray-100 rounded-2xl px-4 py-3.5 mb-3 bg-gray-50 min-h-[80px]">
+          <View className="flex-row items-start border border-gray-100 dark:border-gray-800 rounded-2xl px-4 py-3.5 mb-3 bg-gray-50 dark:bg-gray-950 min-h-[80px]">
             <MapPin size={20} color="#9CA3AF" style={{ marginTop: 2 }} />
             <TextInput 
-              className="flex-1 ml-3 text-base text-gray-800"
+              className="flex-1 ml-3 text-base text-gray-800 dark:text-white"
               placeholder="Endereço Completo" 
               value={endereco} 
               onChangeText={setEndereco}
@@ -266,10 +266,10 @@ export default function CadastrarQuadra() {
             />
           </View>
 
-          <View className="flex-row items-center border border-gray-100 rounded-2xl px-4 py-3.5 bg-gray-50">
+          <View className="flex-row items-center border border-gray-100 dark:border-gray-800 rounded-2xl px-4 py-3.5 bg-gray-50 dark:bg-gray-950">
             <Phone size={20} color="#9CA3AF" />
             <TextInput 
-              className="flex-1 ml-3 text-base text-gray-800"
+              className="flex-1 ml-3 text-base text-gray-800 dark:text-white"
               placeholder="Telefone Comercial" 
               value={telefone} 
               onChangeText={(v) => setTelefone(maskPhone(v))} 
@@ -279,12 +279,12 @@ export default function CadastrarQuadra() {
         </View>
 
         {/* Details Section */}
-        <View className="bg-white p-5 rounded-3xl border border-gray-100 mb-4 shadow-sm shadow-black/5">
+        <View className="bg-white dark:bg-gray-900 p-5 rounded-3xl border border-gray-100 dark:border-gray-800 mb-4 shadow-sm shadow-black/5">
           <Text className="text-sm font-bold text-gray-400 uppercase tracking-wider mb-4">Sobre o Espaço</Text>
           
-          <View className="border border-gray-100 rounded-2xl px-4 py-3.5 mb-5 bg-gray-50 min-h-[120px]">
+          <View className="border border-gray-100 dark:border-gray-800 rounded-2xl px-4 py-3.5 mb-5 bg-gray-50 dark:bg-gray-950 min-h-[120px]">
             <TextInput 
-              className="text-base text-gray-800"
+              className="text-base text-gray-800 dark:text-white"
               placeholder="Descreva seu espaço, diferenciais, regras..." 
               value={descricao} 
               onChangeText={setDescricao}
@@ -299,7 +299,7 @@ export default function CadastrarQuadra() {
               <TouchableOpacity
                 key={item}
                 onPress={() => toggleComodidade(item)}
-                className={`px-4 py-2.5 rounded-full border ${comodidades.includes(item) ? 'bg-[#00C853] border-[#00C853]' : 'bg-gray-50 border-gray-100'}`}
+                className={`px-4 py-2.5 rounded-full border ${comodidades.includes(item) ? 'bg-[#00C853] border-[#00C853]' : 'bg-gray-50 dark:bg-gray-950 border-gray-100 dark:border-gray-800'}`}
               >
                 <Text className={`text-xs font-bold ${comodidades.includes(item) ? 'text-white' : 'text-gray-400'}`}>{item}</Text>
               </TouchableOpacity>
@@ -308,7 +308,7 @@ export default function CadastrarQuadra() {
         </View>
 
         {/* Photos Section */}
-        <View className="bg-white p-5 rounded-3xl border border-gray-100 mb-6 shadow-sm shadow-black/5">
+        <View className="bg-white dark:bg-gray-900 p-5 rounded-3xl border border-gray-100 dark:border-gray-800 mb-6 shadow-sm shadow-black/5">
           <View className="flex-row justify-between items-center mb-4">
             <Text className="text-sm font-bold text-gray-400 uppercase tracking-wider">Fotos do Local</Text>
             <Text className="text-xs text-gray-400 font-bold">{fotos.length}/8</Text>
@@ -330,7 +330,7 @@ export default function CadastrarQuadra() {
             {fotos.length < 8 && (
               <TouchableOpacity 
                 onPress={pickImages}
-                className="w-24 h-24 rounded-2xl bg-gray-50 border-2 border-dashed border-gray-200 justify-center items-center"
+                className="w-24 h-24 rounded-2xl bg-gray-50 dark:bg-gray-950 border-2 border-dashed border-gray-200 justify-center items-center"
               >
                 <Camera size={24} color="#9CA3AF" />
                 <Text className="text-[10px] text-gray-400 font-bold mt-1">ADICIONAR</Text>

@@ -97,7 +97,7 @@ export default function Perfil() {
 
   const MenuOption = ({ icon: Icon, label, value, onPress, color = "#6B7280" }: any) => (
     <TouchableOpacity 
-      className="flex-row items-center py-4 px-6 bg-white border-b border-gray-50 active:bg-gray-50"
+      className="flex-row items-center py-4 px-6 bg-white dark:bg-gray-900 border-b border-gray-50 dark:border-gray-900 active:bg-gray-50 dark:bg-gray-950"
       onPress={onPress}
       disabled={!onPress}
     >
@@ -106,16 +106,16 @@ export default function Perfil() {
       </View>
       <View className="ml-4 flex-1">
         <Text className="text-xs text-gray-400 font-bold uppercase tracking-widest mb-0.5">{label}</Text>
-        <Text className="text-base font-bold text-gray-800">{value}</Text>
+        <Text className="text-base font-bold text-gray-800 dark:text-white">{value}</Text>
       </View>
       {onPress && <ChevronRight size={16} color="#D1D5DB" />}
     </TouchableOpacity>
   );
 
   return (
-    <ScrollView className="flex-1 bg-gray-50" showsVerticalScrollIndicator={false}>
+    <ScrollView className="flex-1 bg-gray-50 dark:bg-gray-950" showsVerticalScrollIndicator={false}>
       {/* Profile Header */}
-      <View className="items-center p-10 pt-16 bg-white shadow-sm shadow-black/5">
+      <View className="items-center p-10 pt-16 bg-white dark:bg-gray-900 shadow-sm shadow-black/5">
         <View className="relative">
           <Image 
             source={{ uri: usuario.foto_perfil || 'https://placehold.co/150x150?text=' + usuario.nome_completo.charAt(0) }} 
@@ -129,7 +129,7 @@ export default function Perfil() {
             {loading ? <ActivityIndicator size="small" color="white" /> : <Camera size={18} color="white" />}
           </TouchableOpacity>
         </View>
-        <Text className="text-2xl font-black text-gray-800 mt-6">{usuario.nome_completo}</Text>
+        <Text className="text-2xl font-black text-gray-800 dark:text-white mt-6">{usuario.nome_completo}</Text>
         <View className="bg-green-50 px-3 py-1 rounded-full mt-2 border border-green-100">
           <Text className="text-[10px] text-[#00952A] font-black uppercase tracking-widest">Organizador Master</Text>
         </View>
@@ -146,7 +146,7 @@ export default function Perfil() {
 
       <View className="p-8 mb-10">
         <TouchableOpacity 
-          className="bg-white border-2 border-red-50 py-4 rounded-[24px] flex-row justify-center items-center shadow-sm shadow-black/5"
+          className="bg-white dark:bg-gray-900 border-2 border-red-50 py-4 rounded-[24px] flex-row justify-center items-center shadow-sm shadow-black/5"
           onPress={handleLogout}
         >
           <LogOut size={18} color="#EF4444" className="mr-2" />
@@ -158,11 +158,11 @@ export default function Perfil() {
       {/* Logout Confirmation Modal for Web */}
       <Modal visible={showLogoutModal} transparent animationType="fade">
         <View className="flex-1 bg-black/60 justify-center items-center px-6">
-          <View className="bg-white rounded-[40px] p-8 w-full max-w-sm">
+          <View className="bg-white dark:bg-gray-900 rounded-[40px] p-8 w-full max-w-sm">
             <View className="w-16 h-16 bg-red-50 rounded-full justify-center items-center mb-6 self-center">
               <LogOut size={32} color="#EF4444" />
             </View>
-            <Text className="text-2xl font-black text-gray-800 text-center mb-2">Sair do Painel?</Text>
+            <Text className="text-2xl font-black text-gray-800 dark:text-white text-center mb-2">Sair do Painel?</Text>
             <Text className="text-base text-gray-400 text-center mb-8">Deseja realmente sair do seu painel de organizador?</Text>
             
             <TouchableOpacity 
@@ -173,7 +173,7 @@ export default function Perfil() {
             </TouchableOpacity>
             
             <TouchableOpacity 
-              className="border border-gray-100 rounded-[20px] py-4 items-center"
+              className="border border-gray-100 dark:border-gray-800 rounded-[20px] py-4 items-center"
               onPress={() => setShowLogoutModal(false)}
             >
               <Text className="text-gray-400 font-bold text-base">Cancelar</Text>

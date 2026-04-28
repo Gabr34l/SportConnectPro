@@ -128,7 +128,7 @@ export default function CriarEvento() {
   const QuadraNome = quadrasAprovadas.find(q => q.id_quadra === idQuadra)?.nome_local;
 
   const StepIndicator = () => (
-    <View className="flex-row items-center justify-between px-6 py-4 bg-white border-b border-gray-100 mb-6">
+    <View className="flex-row items-center justify-between px-6 py-4 bg-white dark:bg-gray-900 border-b border-gray-100 dark:border-gray-800 mb-6">
       {[1, 2, 3, 4].map((s) => (
         <View key={s} className="flex-row items-center">
           <View 
@@ -155,10 +155,10 @@ export default function CriarEvento() {
   );
 
   return (
-    <View className="flex-1 bg-gray-50">
+    <View className="flex-1 bg-gray-50 dark:bg-gray-950">
       {/* Header */}
-      <View className="bg-white px-6 pt-16 pb-6 shadow-sm shadow-black/5">
-        <Text className="text-2xl font-bold text-gray-800">Criar Evento</Text>
+      <View className="bg-white dark:bg-gray-900 px-6 pt-16 pb-6 shadow-sm shadow-black/5">
+        <Text className="text-2xl font-bold text-gray-800 dark:text-white">Criar Evento</Text>
         <Text className="text-base text-gray-400 mt-1">Siga as etapas para publicar</Text>
       </View>
 
@@ -168,14 +168,14 @@ export default function CriarEvento() {
         
         {step === 1 && (
           <View>
-            <View className="bg-white p-5 rounded-3xl border border-gray-100 mb-4 shadow-sm shadow-black/5">
+            <View className="bg-white dark:bg-gray-900 p-5 rounded-3xl border border-gray-100 dark:border-gray-800 mb-4 shadow-sm shadow-black/5">
               <Text className="text-sm font-bold text-gray-400 uppercase tracking-wider mb-4">Escolha a Quadra</Text>
               <View className="gap-2">
                 {quadrasAprovadas.map(q => (
                   <TouchableOpacity 
                     key={q.id_quadra} 
                     className={`flex-row items-center px-4 py-3.5 rounded-2xl border ${
-                      idQuadra === q.id_quadra ? 'bg-green-50 border-[#00C853]' : 'bg-gray-50 border-gray-100'
+                      idQuadra === q.id_quadra ? 'bg-green-50 border-[#00C853]' : 'bg-gray-50 dark:bg-gray-950 border-gray-100 dark:border-gray-800'
                     }`}
                     onPress={() => setIdQuadra(q.id_quadra)}
                   >
@@ -191,10 +191,10 @@ export default function CriarEvento() {
               </View>
 
               <Text className="text-sm font-bold text-gray-400 uppercase tracking-wider my-4">Título & Esporte</Text>
-              <View className="flex-row items-center border border-gray-100 rounded-2xl px-4 py-3.5 mb-3 bg-gray-50">
+              <View className="flex-row items-center border border-gray-100 dark:border-gray-800 rounded-2xl px-4 py-3.5 mb-3 bg-gray-50 dark:bg-gray-950">
                 <LayoutDashboard size={20} color="#9CA3AF" />
                 <TextInput 
-                  className="flex-1 ml-3 text-base text-gray-800"
+                  className="flex-1 ml-3 text-base text-gray-800 dark:text-white"
                   placeholder="Ex: Racha de Sexta" 
                   value={titulo} 
                   onChangeText={setTitulo} 
@@ -209,7 +209,7 @@ export default function CriarEvento() {
                     <TouchableOpacity 
                       key={s.id} 
                       className={`flex-row items-center px-3.5 py-2.5 rounded-2xl border ${
-                        isSelected ? 'bg-green-50 border-[#00C853]' : 'bg-gray-50 border-gray-100'
+                        isSelected ? 'bg-green-50 border-[#00C853]' : 'bg-gray-50 dark:bg-gray-950 border-gray-100 dark:border-gray-800'
                       }`}
                       onPress={() => setEsporte(s.id)}
                     >
@@ -223,7 +223,7 @@ export default function CriarEvento() {
               </View>
             </View>
 
-            <View className="bg-white p-5 rounded-3xl border border-gray-100 mb-8 shadow-sm shadow-black/5">
+            <View className="bg-white dark:bg-gray-900 p-5 rounded-3xl border border-gray-100 dark:border-gray-800 mb-8 shadow-sm shadow-black/5">
               <Text className="text-sm font-bold text-gray-400 uppercase tracking-wider mb-4">Mais Detalhes</Text>
               
               <Text className="text-xs font-bold text-gray-300 mb-2">FORMATO</Text>
@@ -232,7 +232,7 @@ export default function CriarEvento() {
                   <TouchableOpacity 
                     key={f} 
                     className={`px-4 py-2.5 rounded-2xl border ${
-                      formato === f ? 'bg-green-50 border-[#00C853]' : 'bg-gray-50 border-gray-100'
+                      formato === f ? 'bg-green-50 border-[#00C853]' : 'bg-gray-50 dark:bg-gray-950 border-gray-100 dark:border-gray-800'
                     }`}
                     onPress={() => {
                       setFormato(f);
@@ -254,7 +254,7 @@ export default function CriarEvento() {
                   <TouchableOpacity 
                     key={a} 
                     className={`px-4 py-2.5 rounded-2xl border ${
-                      ambiente === a ? 'bg-green-50 border-[#00C853]' : 'bg-gray-50 border-gray-100'
+                      ambiente === a ? 'bg-green-50 border-[#00C853]' : 'bg-gray-50 dark:bg-gray-950 border-gray-100 dark:border-gray-800'
                     }`}
                     onPress={() => setAmbiente(a)}
                   >
@@ -269,7 +269,7 @@ export default function CriarEvento() {
                   <TouchableOpacity 
                     key={n} 
                     className={`px-4 py-2.5 rounded-2xl border ${
-                      nivel === n ? 'bg-green-50 border-[#00C853]' : 'bg-gray-50 border-gray-100'
+                      nivel === n ? 'bg-green-50 border-[#00C853]' : 'bg-gray-50 dark:bg-gray-950 border-gray-100 dark:border-gray-800'
                     }`}
                     onPress={() => setNivel(n)}
                   >
@@ -291,10 +291,10 @@ export default function CriarEvento() {
 
         {step === 2 && (
           <View>
-            <View className="bg-white p-5 rounded-3xl border border-gray-100 mb-8 shadow-sm shadow-black/5">
+            <View className="bg-white dark:bg-gray-900 p-5 rounded-3xl border border-gray-100 dark:border-gray-800 mb-8 shadow-sm shadow-black/5">
               <Text className="text-sm font-bold text-gray-400 uppercase tracking-wider mb-4">Data & Horário</Text>
               
-              <View className="flex-row items-center border border-gray-100 rounded-2xl px-4 py-3.5 mb-3 bg-gray-50">
+              <View className="flex-row items-center border border-gray-100 dark:border-gray-800 rounded-2xl px-4 py-3.5 mb-3 bg-gray-50 dark:bg-gray-950">
                 <Calendar size={20} color="#9CA3AF" />
                 {Platform.OS === 'web' ? (
                   React.createElement('input', {
@@ -305,7 +305,7 @@ export default function CriarEvento() {
                   })
                 ) : (
                   <TextInput 
-                    className="flex-1 ml-3 text-base text-gray-800"
+                    className="flex-1 ml-3 text-base text-gray-800 dark:text-white"
                     placeholder="YYYY-MM-DD (2024-12-25)" 
                     value={dataEvento} 
                     onChangeText={v => setDataEvento(handleMaskData(v))} 
@@ -315,7 +315,7 @@ export default function CriarEvento() {
               </View>
 
               <View className="flex-row gap-2 mb-3">
-                <View className="flex-1 flex-row items-center border border-gray-100 rounded-2xl px-4 py-3.5 bg-gray-50">
+                <View className="flex-1 flex-row items-center border border-gray-100 dark:border-gray-800 rounded-2xl px-4 py-3.5 bg-gray-50 dark:bg-gray-950">
                   <Clock size={20} color="#9CA3AF" />
                   {Platform.OS === 'web' ? (
                     React.createElement('input', {
@@ -326,7 +326,7 @@ export default function CriarEvento() {
                     })
                   ) : (
                     <TextInput 
-                      className="flex-1 ml-3 text-base text-gray-800"
+                      className="flex-1 ml-3 text-base text-gray-800 dark:text-white"
                       placeholder="Início HH:MM" 
                       value={horaInicio} 
                       onChangeText={v => setHoraInicio(handleMaskHora(v))} 
@@ -334,7 +334,7 @@ export default function CriarEvento() {
                     />
                   )}
                 </View>
-                <View className="flex-1 flex-row items-center border border-gray-100 rounded-2xl px-4 py-3.5 bg-gray-50">
+                <View className="flex-1 flex-row items-center border border-gray-100 dark:border-gray-800 rounded-2xl px-4 py-3.5 bg-gray-50 dark:bg-gray-950">
                   <Clock size={20} color="#9CA3AF" />
                   {Platform.OS === 'web' ? (
                     React.createElement('input', {
@@ -345,7 +345,7 @@ export default function CriarEvento() {
                     })
                   ) : (
                     <TextInput 
-                      className="flex-1 ml-3 text-base text-gray-800"
+                      className="flex-1 ml-3 text-base text-gray-800 dark:text-white"
                       placeholder="Fim HH:MM" 
                       value={horaFim} 
                       onChangeText={v => setHoraFim(handleMaskHora(v))} 
@@ -375,14 +375,14 @@ export default function CriarEvento() {
 
         {step === 3 && (
           <View>
-            <View className="bg-white p-5 rounded-3xl border border-gray-100 mb-8 shadow-sm shadow-black/5">
+            <View className="bg-white dark:bg-gray-900 p-5 rounded-3xl border border-gray-100 dark:border-gray-800 mb-8 shadow-sm shadow-black/5">
               <Text className="text-sm font-bold text-gray-400 uppercase tracking-wider mb-4">Vagas & Preço</Text>
               
               <Text className="text-xs font-bold text-gray-300 mb-2">NÚMERO DE JOGADORES</Text>
-              <View className="flex-row items-center border border-gray-100 rounded-2xl px-4 py-3.5 mb-4 bg-gray-50">
+              <View className="flex-row items-center border border-gray-100 dark:border-gray-800 rounded-2xl px-4 py-3.5 mb-4 bg-gray-50 dark:bg-gray-950">
                 <Users size={20} color="#9CA3AF" />
                 <TextInput 
-                  className="flex-1 ml-3 text-base text-gray-800"
+                  className="flex-1 ml-3 text-base text-gray-800 dark:text-white"
                   placeholder="Ex: 12" 
                   value={vagas} 
                   onChangeText={setVagas} 
@@ -391,10 +391,10 @@ export default function CriarEvento() {
               </View>
 
               <Text className="text-xs font-bold text-gray-300 mb-2">VALOR POR VAGA</Text>
-              <View className="flex-row items-center border border-gray-100 rounded-2xl px-4 py-3.5 mb-6 bg-gray-50">
+              <View className="flex-row items-center border border-gray-100 dark:border-gray-800 rounded-2xl px-4 py-3.5 mb-6 bg-gray-50 dark:bg-gray-950">
                 <DollarSign size={20} color="#9CA3AF" />
                 <TextInput 
-                  className="flex-1 ml-3 text-base text-gray-800"
+                  className="flex-1 ml-3 text-base text-gray-800 dark:text-white"
                   placeholder="Ex: 25.00" 
                   value={preco} 
                   onChangeText={setPreco} 
@@ -431,41 +431,41 @@ export default function CriarEvento() {
 
         {step === 4 && (
           <View>
-            <View className="bg-white p-6 rounded-3xl border border-gray-100 mb-8 shadow-lg shadow-black/5">
+            <View className="bg-white dark:bg-gray-900 p-6 rounded-3xl border border-gray-100 dark:border-gray-800 mb-8 shadow-lg shadow-black/5">
               <Text className="text-sm font-bold text-gray-400 uppercase tracking-wider mb-6">Revisão Final</Text>
               
               <View className="gap-5">
-                <View className="flex-row items-center border-b border-gray-50 pb-4">
+                <View className="flex-row items-center border-b border-gray-50 dark:border-gray-900 pb-4">
                   <Building2 size={24} color="#00C853" />
                   <View className="ml-4">
                     <Text className="text-xs text-gray-400 mb-1">LOCAL</Text>
-                    <Text className="text-base font-bold text-gray-800">{QuadraNome}</Text>
+                    <Text className="text-base font-bold text-gray-800 dark:text-white">{QuadraNome}</Text>
                   </View>
                 </View>
 
-                <View className="flex-row items-center border-b border-gray-50 pb-4">
+                <View className="flex-row items-center border-b border-gray-50 dark:border-gray-900 pb-4">
                   <LayoutGrid size={24} color="#00C853" />
                   <View className="ml-4">
                     <Text className="text-xs text-gray-400 mb-1">ESPORTE & TÍTULO</Text>
-                    <Text className="text-base font-bold text-gray-800">{esporte.toUpperCase()} - {titulo || 'Sem título'}</Text>
+                    <Text className="text-base font-bold text-gray-800 dark:text-white">{esporte.toUpperCase()} - {titulo || 'Sem título'}</Text>
                   </View>
                 </View>
 
-                <View className="flex-row items-center border-b border-gray-50 pb-4">
+                <View className="flex-row items-center border-b border-gray-50 dark:border-gray-900 pb-4">
                   <Calendar size={24} color="#00C853" />
                   <View className="ml-4">
                     <Text className="text-xs text-gray-400 mb-1">DATA & HORÁRIO</Text>
-                    <Text className="text-base font-bold text-gray-800">
+                    <Text className="text-base font-bold text-gray-800 dark:text-white">
                       {dataEvento ? dataEvento.split('-').reverse().join('/') : ''} • {horaInicio} às {horaFim}
                     </Text>
                   </View>
                 </View>
 
-                <View className="flex-row items-center border-b border-gray-50 pb-4">
+                <View className="flex-row items-center border-b border-gray-50 dark:border-gray-900 pb-4">
                   <Users size={24} color="#00C853" />
                   <View className="ml-4">
                     <Text className="text-xs text-gray-400 mb-1">VAGAS & NÍVEL</Text>
-                    <Text className="text-base font-bold text-gray-800">{vagas} vagas • {nivel}</Text>
+                    <Text className="text-base font-bold text-gray-800 dark:text-white">{vagas} vagas • {nivel}</Text>
                   </View>
                 </View>
 

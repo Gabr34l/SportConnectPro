@@ -151,8 +151,8 @@ export default function GestaoEvento() {
     }
   };
 
-  if (loading && !evento) return <View className="flex-1 justify-center items-center bg-gray-50"><ActivityIndicator size="large" color="#00C853" /></View>;
-  if (!evento) return <View className="flex-1 justify-center items-center bg-gray-50"><Text className="text-gray-500 font-bold">Evento não encontrado.</Text></View>;
+  if (loading && !evento) return <View className="flex-1 justify-center items-center bg-gray-50 dark:bg-gray-950"><ActivityIndicator size="large" color="#00C853" /></View>;
+  if (!evento) return <View className="flex-1 justify-center items-center bg-gray-50 dark:bg-gray-950"><Text className="text-gray-500 font-bold">Evento não encontrado.</Text></View>;
 
   const confirmados = participantes.filter(p => p.status_presenca === 'CONFIRMADO');
   const aguardando = participantes.filter(p => p.status_presenca === 'AGUARDANDO_PAGAMENTO');
@@ -160,28 +160,28 @@ export default function GestaoEvento() {
   const receita = confirmados.reduce((acc, curr) => acc + (curr.pagamentos?.valor_pago || 0), 0);
 
   return (
-    <ScrollView className="flex-1 bg-gray-50" contentContainerStyle={{ paddingBottom: 100 }}>
+    <ScrollView className="flex-1 bg-gray-50 dark:bg-gray-950" contentContainerStyle={{ paddingBottom: 100 }}>
       {/* Header */}
-      <View className="bg-white px-6 pt-16 pb-6 flex-row justify-between items-center border-b border-gray-100 shadow-sm shadow-black/5">
+      <View className="bg-white dark:bg-gray-900 px-6 pt-16 pb-6 flex-row justify-between items-center border-b border-gray-100 dark:border-gray-800 shadow-sm shadow-black/5">
         <View className="flex-1 mr-4">
           <TouchableOpacity onPress={() => router.back()} className="flex-row items-center mb-2">
             <ChevronLeft size={16} color="#9CA3AF" />
             <Text className="text-xs text-gray-400 font-bold uppercase tracking-widest ml-1">Voltar</Text>
           </TouchableOpacity>
-          <Text className="text-xl font-bold text-gray-800" numberOfLines={1}>{evento.titulo}</Text>
+          <Text className="text-xl font-bold text-gray-800 dark:text-white" numberOfLines={1}>{evento.titulo}</Text>
         </View>
         <StatusBadge status={evento.status} />
       </View>
 
       {/* Summary Card */}
-      <View className="m-6 bg-white p-6 rounded-3xl border border-gray-100 shadow-lg shadow-black/5">
+      <View className="m-6 bg-white dark:bg-gray-900 p-6 rounded-3xl border border-gray-100 dark:border-gray-800 shadow-lg shadow-black/5">
         <View className="flex-row items-center mb-4">
           <View className="w-10 h-10 bg-green-50 rounded-full justify-center items-center">
             <Calendar size={20} color="#00C853" />
           </View>
           <View className="ml-4">
             <Text className="text-[10px] text-gray-400 font-bold uppercase tracking-widest">DATA & HORÁRIO</Text>
-            <Text className="text-base font-bold text-gray-800">
+            <Text className="text-base font-bold text-gray-800 dark:text-white">
               {format(new Date(evento.data_evento), 'dd/MM/yyyy')} • {evento.horario_inicio.substring(0,5)}
             </Text>
           </View>
@@ -193,19 +193,19 @@ export default function GestaoEvento() {
           </View>
           <View className="ml-4">
             <Text className="text-[10px] text-gray-400 font-bold uppercase tracking-widest">LOCAL</Text>
-            <Text className="text-base font-bold text-gray-800">{evento.id_quadra?.nome_local || 'Local não informado'}</Text>
+            <Text className="text-base font-bold text-gray-800 dark:text-white">{evento.id_quadra?.nome_local || 'Local não informado'}</Text>
           </View>
         </View>
 
         <View className="flex-row gap-4 mt-2">
-          <View className="flex-1 bg-gray-50 p-4 rounded-2xl">
+          <View className="flex-1 bg-gray-50 dark:bg-gray-950 p-4 rounded-2xl">
             <View className="flex-row items-center mb-1">
               <TrendingUp size={14} color="#10B981" />
               <Text className="text-[10px] text-gray-400 font-bold ml-1">RECEITA</Text>
             </View>
             <Text className="text-lg font-black text-green-600">R$ {receita.toFixed(2)}</Text>
           </View>
-          <View className="flex-1 bg-gray-50 p-4 rounded-2xl">
+          <View className="flex-1 bg-gray-50 dark:bg-gray-950 p-4 rounded-2xl">
             <View className="flex-row items-center mb-1">
               <Users size={14} color="#6366F1" />
               <Text className="text-[10px] text-gray-400 font-bold ml-1">VAGAS</Text>
@@ -228,7 +228,7 @@ export default function GestaoEvento() {
             <Text className="text-white font-bold ml-2">Concluir</Text>
           </TouchableOpacity>
           <TouchableOpacity 
-            className="flex-1 bg-white border border-red-100 py-4 rounded-2xl flex-row justify-center items-center"
+            className="flex-1 bg-white dark:bg-gray-900 border border-red-100 py-4 rounded-2xl flex-row justify-center items-center"
             onPress={() => handleMudarStatus('CANCELADO')}
           >
             <XCircle size={18} color="#EF4444" />
@@ -239,19 +239,19 @@ export default function GestaoEvento() {
 
       {/* Players List */}
       <View className="px-6">
-        <Text className="text-lg font-bold text-gray-800 mb-4">Jogadores Confirmados</Text>
+        <Text className="text-lg font-bold text-gray-800 dark:text-white mb-4">Jogadores Confirmados</Text>
         
         {confirmados.length === 0 ? (
-          <View className="bg-white p-8 rounded-3xl border border-dashed border-gray-200 items-center">
+          <View className="bg-white dark:bg-gray-900 p-8 rounded-3xl border border-dashed border-gray-200 items-center">
             <Users size={32} color="#D1D5DB" strokeWidth={1.5} />
             <Text className="text-gray-400 mt-2 italic text-sm text-center">Nenhum jogador confirmado ainda.</Text>
           </View>
         ) : (
           confirmados.map(p => (
-            <View key={p.id_participacao} className="flex-row items-center bg-white p-4 rounded-2xl mb-3 border border-gray-100 shadow-sm shadow-black/5">
+            <View key={p.id_participacao} className="flex-row items-center bg-white dark:bg-gray-900 p-4 rounded-2xl mb-3 border border-gray-100 dark:border-gray-800 shadow-sm shadow-black/5">
               <Image source={{ uri: p.usuarios?.foto_perfil || 'https://placehold.co/100x100?text=' + p.usuarios?.nome_completo?.charAt(0) }} className="w-12 h-12 rounded-full bg-gray-100" />
               <View className="flex-1 ml-3">
-                <Text className="text-base font-bold text-gray-800 font-bold">{p.usuarios?.nome_completo}</Text>
+                <Text className="text-base font-bold text-gray-800 dark:text-white font-bold">{p.usuarios?.nome_completo}</Text>
                 <Text className="text-xs text-green-600 font-bold">Pago: R$ {(p.pagamentos?.valor_pago || 0).toFixed(2)}</Text>
               </View>
               <TouchableOpacity 
@@ -266,12 +266,12 @@ export default function GestaoEvento() {
 
         {aguardando.length > 0 && (
           <>
-            <Text className="text-lg font-bold text-gray-800 mt-8 mb-4">Aguardando Pagamento</Text>
+            <Text className="text-lg font-bold text-gray-800 dark:text-white mt-8 mb-4">Aguardando Pagamento</Text>
             {aguardando.map(p => (
-              <View key={p.id_participacao} className="flex-row items-center bg-white p-4 rounded-2xl mb-3 border border-gray-100 opacity-60">
+              <View key={p.id_participacao} className="flex-row items-center bg-white dark:bg-gray-900 p-4 rounded-2xl mb-3 border border-gray-100 dark:border-gray-800 opacity-60">
                 <Image source={{ uri: p.usuarios?.foto_perfil || 'https://placehold.co/100x100?text=' + p.usuarios?.nome_completo?.charAt(0) }} className="w-12 h-12 rounded-full bg-gray-100" />
                 <View className="flex-1 ml-3">
-                  <Text className="text-base font-bold text-gray-800">{p.usuarios?.nome_completo}</Text>
+                  <Text className="text-base font-bold text-gray-800 dark:text-white">{p.usuarios?.nome_completo}</Text>
                   <View className="flex-row items-center mt-0.5">
                     <Clock size={10} color="#9CA3AF" />
                     <Text className="text-[10px] text-gray-400 font-bold ml-1 uppercase">Processando...</Text>
@@ -286,10 +286,10 @@ export default function GestaoEvento() {
       {/* Confirmation Modal for Web */}
       <Modal visible={showStatusModal.visible} transparent animationType="fade">
         <View className="flex-1 bg-black/50 justify-center items-center px-6">
-          <View className="bg-white rounded-3xl p-6 w-full max-w-sm">
-            <Text className="text-xl font-bold text-gray-800 text-center mb-2">Confirmar Alteração</Text>
+          <View className="bg-white dark:bg-gray-900 rounded-3xl p-6 w-full max-w-sm">
+            <Text className="text-xl font-bold text-gray-800 dark:text-white text-center mb-2">Confirmar Alteração</Text>
             <Text className="text-base text-gray-400 text-center mb-6">
-              Deseja realmente mudar o status para <Text className="text-gray-800 font-bold italic">{showStatusModal.nextStatus}</Text>?
+              Deseja realmente mudar o status para <Text className="text-gray-800 dark:text-white font-bold italic">{showStatusModal.nextStatus}</Text>?
             </Text>
             <TouchableOpacity 
               className="bg-[#00C853] rounded-2xl py-4 items-center mb-3 shadow-lg shadow-green-500/30"

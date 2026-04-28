@@ -97,25 +97,25 @@ export default function ChatScreen() {
 
   if (loading) {
     return (
-      <View className="flex-1 justify-center items-center bg-white">
+      <View className="flex-1 justify-center items-center bg-white dark:bg-gray-900">
         <ActivityIndicator size="large" color="#00C853" />
       </View>
     );
   }
 
   return (
-    <SafeAreaView className="flex-1 bg-white">
+    <SafeAreaView className="flex-1 bg-white dark:bg-gray-900">
       <KeyboardAvoidingView 
         className="flex-1" 
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
       >
         {/* Header */}
-        <View className="flex-row items-center px-6 pt-12 pb-6 border-b border-gray-100 bg-white shadow-sm shadow-black/5">
+        <View className="flex-row items-center px-6 pt-12 pb-6 border-b border-gray-100 dark:border-gray-800 bg-white dark:bg-gray-900 shadow-sm shadow-black/5">
           <TouchableOpacity onPress={() => router.back()} className="mr-4">
             <ChevronLeft size={24} color="#111827" strokeWidth={2.5} />
           </TouchableOpacity>
           <View>
-            <Text className="text-xl font-bold text-gray-800">Chat do Evento</Text>
+            <Text className="text-xl font-bold text-gray-800 dark:text-white">Chat do Evento</Text>
             <View className="flex-row items-center">
               <View className="w-2 h-2 bg-green-500 rounded-full mr-1.5" />
               <Text className="text-xs text-gray-400 font-bold uppercase tracking-widest">Tempo Real</Text>
@@ -124,11 +124,11 @@ export default function ChatScreen() {
         </View>
 
         {!acessoLiberado ? (
-          <View className="flex-1 justify-center items-center p-8 bg-gray-50">
-            <View className="w-24 h-24 bg-white rounded-3xl justify-center items-center shadow-lg shadow-black/5 mb-6">
+          <View className="flex-1 justify-center items-center p-8 bg-gray-50 dark:bg-gray-950">
+            <View className="w-24 h-24 bg-white dark:bg-gray-900 rounded-3xl justify-center items-center shadow-lg shadow-black/5 mb-6">
               <Lock size={48} color="#9CA3AF" strokeWidth={1.5} />
             </View>
-            <Text className="text-xl font-bold text-gray-800 text-center mb-2">Acesso Restrito</Text>
+            <Text className="text-xl font-bold text-gray-800 dark:text-white text-center mb-2">Acesso Restrito</Text>
             <Text className="text-base text-gray-400 text-center leading-6">
               O chat está disponível apenas para participantes com pagamento confirmado e o organizador.
             </Text>
@@ -143,7 +143,7 @@ export default function ChatScreen() {
               contentContainerStyle={{ padding: 20 }}
               showsVerticalScrollIndicator={false}
               ListEmptyComponent={
-                <View className="items-center mt-12 bg-gray-50 p-8 rounded-3xl border border-dashed border-gray-200">
+                <View className="items-center mt-12 bg-gray-50 dark:bg-gray-950 p-8 rounded-3xl border border-dashed border-gray-200">
                   <MessageCircle size={40} color="#D1D5DB" strokeWidth={1.5} />
                   <Text className="text-gray-400 mt-4 text-center italic text-sm">
                     Inicie a conversa! Envie uma mensagem para os outros jogadores.
@@ -152,14 +152,14 @@ export default function ChatScreen() {
               }
             />
             {/* Input Bar */}
-            <View className="p-4 bg-white border-t border-gray-100 flex-row items-end">
-              <View className="flex-1 bg-gray-50 border border-gray-200 rounded-3xl px-5 py-3 max-h-32">
+            <View className="p-4 bg-white dark:bg-gray-900 border-t border-gray-100 dark:border-gray-800 flex-row items-end">
+              <View className="flex-1 bg-gray-50 dark:bg-gray-950 border border-gray-200 rounded-3xl px-5 py-3 max-h-32">
                 <TextInput
                   placeholder="Mensagem..."
                   value={texto}
                   onChangeText={setTexto}
                   multiline
-                  className="text-base text-gray-800"
+                  className="text-base text-gray-800 dark:text-white"
                 />
               </View>
               <TouchableOpacity 

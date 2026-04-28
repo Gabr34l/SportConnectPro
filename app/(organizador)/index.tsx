@@ -91,7 +91,7 @@ export default function Dashboard() {
           <TouchableOpacity 
             onPress={toggleColorScheme}
             hitSlop={{ top: 20, bottom: 20, left: 20, right: 20 }}
-            className="absolute top-16 right-6 w-14 h-14 bg-gray-50 dark:bg-gray-800 rounded-full justify-center items-center shadow-sm"
+            className="absolute top-16 right-6 w-14 h-14 bg-gray-50 dark:bg-gray-950 dark:bg-gray-800 rounded-full justify-center items-center shadow-sm"
           >
             {colorScheme === 'dark' ? <Sun color="#FBBF24" size={26} /> : <Moon color="#4B5563" size={26} />}
           </TouchableOpacity>
@@ -132,7 +132,7 @@ export default function Dashboard() {
 
         <View className="flex-row p-6 gap-4">
           <View className="flex-1 bg-gray-900 dark:bg-gray-800 p-6 rounded-[32px] shadow-xl shadow-black/20">
-            <View className="w-10 h-10 bg-white/10 rounded-2xl justify-center items-center mb-4">
+            <View className="w-10 h-10 bg-white dark:bg-gray-900/10 rounded-2xl justify-center items-center mb-4">
               <Users size={20} color="white" />
             </View>
             <Text className="text-xs text-white/50 dark:text-gray-400 font-bold uppercase tracking-wider mb-1">Eventos</Text>
@@ -174,7 +174,7 @@ export default function Dashboard() {
                     className="bg-white dark:bg-gray-900 p-5 rounded-[28px] mb-4 border border-gray-100 dark:border-gray-800 shadow-sm shadow-black/5 flex-row items-center"
                     onPress={() => router.push(`/(organizador)/evento/${item.id_evento}` as any)}
                   >
-                    <View className="w-12 h-12 bg-gray-50 dark:bg-gray-800 rounded-2xl justify-center items-center mr-4">
+                    <View className="w-12 h-12 bg-gray-50 dark:bg-gray-950 dark:bg-gray-800 rounded-2xl justify-center items-center mr-4">
                        <Calendar size={20} color="#9CA3AF" />
                     </View>
                     <View className="flex-1">

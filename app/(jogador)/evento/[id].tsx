@@ -79,7 +79,7 @@ export default function EventoDetalhe() {
 
   if (loading || !evento) {
     return (
-      <View className="flex-1 justify-center items-center bg-gray-50">
+      <View className="flex-1 justify-center items-center bg-gray-50 dark:bg-gray-950">
         <ActivityIndicator size="large" color="#00C853" />
       </View>
     );
@@ -112,7 +112,7 @@ export default function EventoDetalhe() {
       } else {
         BottomButton = (
           <View className="flex-row gap-4">
-            <View className="flex-1 bg-white border-2 border-[#00C853] py-4 rounded-3xl flex-row justify-center items-center">
+            <View className="flex-1 bg-white dark:bg-gray-900 border-2 border-[#00C853] py-4 rounded-3xl flex-row justify-center items-center">
               <CheckCircle2 color="#00C853" size={20} strokeWidth={2.5} />
               <Text className="text-[#00C853] font-bold text-lg ml-2">Confirmado</Text>
             </View>
@@ -153,7 +153,7 @@ export default function EventoDetalhe() {
   }
 
   return (
-    <View className="flex-1 bg-gray-50">
+    <View className="flex-1 bg-gray-50 dark:bg-gray-950">
       <ScrollView className="flex-1" showsVerticalScrollIndicator={false}>
         <View className="relative">
           <Image 
@@ -162,7 +162,7 @@ export default function EventoDetalhe() {
           />
           <TouchableOpacity 
             onPress={() => router.back()}
-            className="absolute top-12 left-6 w-10 h-10 bg-white/20 rounded-full justify-center items-center backdrop-blur-md"
+            className="absolute top-12 left-6 w-10 h-10 bg-white dark:bg-gray-900/20 rounded-full justify-center items-center backdrop-blur-md"
           >
             <ChevronLeft color="white" size={24} strokeWidth={3} />
           </TouchableOpacity>
@@ -170,13 +170,13 @@ export default function EventoDetalhe() {
         </View>
         
         <View className="px-6 -mt-16">
-          <View className="bg-white p-6 rounded-3xl shadow-xl shadow-black/5 border border-gray-50">
+          <View className="bg-white dark:bg-gray-900 p-6 rounded-3xl shadow-xl shadow-black/5 border border-gray-50 dark:border-gray-900">
             <View className="flex-row mb-4">
               <SportBadge esporteId={evento.esporte} />
               <AmbienteBadge tipo={evento.tipo_ambiente} />
             </View>
             
-            <Text className="text-2xl font-black text-gray-800 leading-tight mb-6">{evento.titulo}</Text>
+            <Text className="text-2xl font-black text-gray-800 dark:text-white leading-tight mb-6">{evento.titulo}</Text>
             
             <View className="gap-4">
               <View className="flex-row items-center">
@@ -205,17 +205,17 @@ export default function EventoDetalhe() {
             </View>
           </View>
           
-          <View className="bg-white p-6 rounded-3xl border border-gray-100 mt-4 shadow-sm shadow-black/5">
+          <View className="bg-white dark:bg-gray-900 p-6 rounded-3xl border border-gray-100 dark:border-gray-800 mt-4 shadow-sm shadow-black/5">
             <View className="flex-row items-center mb-4">
               <Info size={18} color="#9CA3AF" />
               <Text className="text-sm font-bold text-gray-400 uppercase tracking-widest ml-2">Nível Requerido</Text>
             </View>
-            <View className="bg-gray-50 px-4 py-2 rounded-xl self-start">
+            <View className="bg-gray-50 dark:bg-gray-950 px-4 py-2 rounded-xl self-start">
               <Text className="text-base font-black text-gray-700">{evento.nivel_requerido}</Text>
             </View>
           </View>
           
-          <View className="bg-white p-6 rounded-3xl border border-gray-100 mt-4 shadow-sm shadow-black/5">
+          <View className="bg-white dark:bg-gray-900 p-6 rounded-3xl border border-gray-100 dark:border-gray-800 mt-4 shadow-sm shadow-black/5">
             <View className="flex-row justify-between items-center mb-6">
               <View className="flex-row items-center">
                 <Users size={18} color="#9CA3AF" />
@@ -240,7 +240,7 @@ export default function EventoDetalhe() {
             )}
           </View>
           
-          <View className="bg-white p-6 rounded-3xl border border-gray-100 mt-4 shadow-sm shadow-black/5">
+          <View className="bg-white dark:bg-gray-900 p-6 rounded-3xl border border-gray-100 dark:border-gray-800 mt-4 shadow-sm shadow-black/5">
             <Text className="text-sm font-bold text-gray-400 uppercase tracking-widest mb-4">Sobre o Local</Text>
             <Text className="text-base text-gray-700 leading-6 mb-6">
               {evento.descricao_quadra || 'Nenhuma descrição disponível para este local.'}
@@ -249,7 +249,7 @@ export default function EventoDetalhe() {
             {evento.comodidades_quadra && evento.comodidades_quadra.length > 0 && (
               <View className="flex-row flex-wrap gap-2">
                 {evento.comodidades_quadra.map(c => (
-                  <View key={c} className="bg-gray-50 border border-gray-100 px-3 py-1.5 rounded-lg">
+                  <View key={c} className="bg-gray-50 dark:bg-gray-950 border border-gray-100 dark:border-gray-800 px-3 py-1.5 rounded-lg">
                     <Text className="text-xs font-bold text-gray-500">{c}</Text>
                   </View>
                 ))}
@@ -257,35 +257,35 @@ export default function EventoDetalhe() {
             )}
           </View>
           
-          <View className="bg-white p-6 rounded-3xl border border-gray-100 mt-4 shadow-sm shadow-black/5 mb-24">
+          <View className="bg-white dark:bg-gray-900 p-6 rounded-3xl border border-gray-100 dark:border-gray-800 mt-4 shadow-sm shadow-black/5 mb-24">
             <Text className="text-sm font-bold text-gray-400 uppercase tracking-widest mb-4">Avaliação da Quadra</Text>
-            <View className="flex-row items-center bg-gray-50 p-4 rounded-2xl">
+            <View className="flex-row items-center bg-gray-50 dark:bg-gray-950 p-4 rounded-2xl">
               <RatingStars rating={Math.round(mediaAvaliacoes)} />
-              <Text className="ml-3 text-2xl font-black text-gray-800">{mediaAvaliacoes.toFixed(1)}</Text>
+              <Text className="ml-3 text-2xl font-black text-gray-800 dark:text-white">{mediaAvaliacoes.toFixed(1)}</Text>
               <ChevronRight size={16} color="#D1D5DB" className="ml-auto" />
             </View>
           </View>
         </View>
       </ScrollView>
 
-      <View className="absolute bottom-0 left-0 right-0 p-6 bg-white/80 border-t border-gray-100 backdrop-blur-md">
+      <View className="absolute bottom-0 left-0 right-0 p-6 bg-white dark:bg-gray-900/80 border-t border-gray-100 dark:border-gray-800 backdrop-blur-md">
         {BottomButton}
       </View>
 
       <Modal visible={modalVisible} transparent animationType="slide">
         <View className="flex-1 bg-black/60 justify-end">
-          <View className="bg-white rounded-t-[40px] p-8 pb-12">
+          <View className="bg-white dark:bg-gray-900 rounded-t-[40px] p-8 pb-12">
             <View className="w-12 h-1.5 bg-gray-100 rounded-full self-center mb-8" />
-            <Text className="text-2xl font-black text-gray-800 text-center mb-2">Avaliar Evento</Text>
+            <Text className="text-2xl font-black text-gray-800 dark:text-white text-center mb-2">Avaliar Evento</Text>
             <Text className="text-gray-400 text-center mb-8">Como foi sua experiência nesta partida?</Text>
             
             <View className="items-center mb-8">
               <RatingStars rating={nota} onRatingChange={setNota} size={40} />
             </View>
 
-            <View className="bg-gray-50 border border-gray-100 rounded-3xl p-4 mb-8">
+            <View className="bg-gray-50 dark:bg-gray-950 border border-gray-100 dark:border-gray-800 rounded-3xl p-4 mb-8">
               <TextInput
-                className="text-base text-gray-800 min-h-[120px]"
+                className="text-base text-gray-800 dark:text-white min-h-[120px]"
                 placeholder="Deixe um comentário (opcional)"
                 value={comentario}
                 onChangeText={setComentario}

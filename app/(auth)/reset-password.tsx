@@ -76,7 +76,7 @@ export default function ResetPassword() {
           >
             <TouchableOpacity 
               onPress={() => router.replace('/(auth)/login')}
-              className="w-12 h-12 bg-white/10 rounded-2xl justify-center items-center border border-white/10 mb-8"
+              className="w-12 h-12 bg-white dark:bg-gray-900/10 rounded-2xl justify-center items-center border border-white/10 mb-8"
             >
               <ChevronLeft color="white" size={24} />
             </TouchableOpacity>
@@ -87,7 +87,7 @@ export default function ResetPassword() {
             </View>
 
             <View className="gap-4">
-              <View className="bg-white/5 border border-white/10 rounded-[24px] flex-row items-center px-5 py-4 backdrop-blur-md">
+              <View className="bg-white dark:bg-gray-900/5 border border-white/10 rounded-[24px] flex-row items-center px-5 py-4 backdrop-blur-md">
                 <Lock size={20} color="#6B7280" />
                 <TextInput
                   className="flex-1 ml-4 text-white text-base font-medium"
@@ -99,7 +99,7 @@ export default function ResetPassword() {
                 />
               </View>
 
-              <View className="bg-white/5 border border-white/10 rounded-[24px] flex-row items-center px-5 py-4 backdrop-blur-md">
+              <View className="bg-white dark:bg-gray-900/5 border border-white/10 rounded-[24px] flex-row items-center px-5 py-4 backdrop-blur-md">
                 <Lock size={20} color="#6B7280" />
                 <TextInput
                   className="flex-1 ml-4 text-white text-base font-medium"

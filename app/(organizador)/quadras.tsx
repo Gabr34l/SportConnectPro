@@ -20,9 +20,9 @@ export default function QuadrasList() {
   }, [usuario]);
 
   return (
-    <View className="flex-1 bg-gray-50">
-      <View className="bg-white px-6 pt-16 pb-6 flex-row justify-between items-center border-b border-gray-100 shadow-sm shadow-black/5">
-        <Text className="text-2xl font-bold text-gray-800">Minhas Quadras</Text>
+    <View className="flex-1 bg-gray-50 dark:bg-gray-950">
+      <View className="bg-white dark:bg-gray-900 px-6 pt-16 pb-6 flex-row justify-between items-center border-b border-gray-100 dark:border-gray-800 shadow-sm shadow-black/5">
+        <Text className="text-2xl font-bold text-gray-800 dark:text-white">Minhas Quadras</Text>
         <TouchableOpacity 
           className="bg-green-50 px-4 py-2 rounded-2xl flex-row items-center" 
           onPress={() => router.push('/(organizador)/cadastrar-quadra')}
@@ -45,8 +45,8 @@ export default function QuadrasList() {
           )}
           contentContainerStyle={{ padding: 16, paddingBottom: 100 }}
           ListEmptyComponent={
-            <View className="items-center mt-12 bg-white p-8 rounded-3xl border border-gray-100 mx-6 shadow-sm shadow-black/5">
-              <View className="w-20 h-20 bg-gray-50 rounded-full justify-center items-center mb-4">
+            <View className="items-center mt-12 bg-white dark:bg-gray-900 p-8 rounded-3xl border border-gray-100 dark:border-gray-800 mx-6 shadow-sm shadow-black/5">
+              <View className="w-20 h-20 bg-gray-50 dark:bg-gray-950 rounded-full justify-center items-center mb-4">
                 <Building2 size={40} color="#9CA3AF" strokeWidth={1.5} />
               </View>
               <Text className="text-gray-500 text-center text-base leading-6">

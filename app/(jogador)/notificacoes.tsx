@@ -12,9 +12,9 @@ export default function Notificacoes() {
   const { notificacoes, loading, marcarComoLida, marcarTodasComoLidas } = useNotificacoes(usuario?.id_usuario);
 
   return (
-    <View className="flex-1 bg-gray-50">
-      <View className="flex-row justify-between items-center px-6 pt-16 pb-6 bg-white border-b border-gray-100 shadow-sm shadow-black/5">
-        <Text className="text-2xl font-bold text-gray-800">Notificações</Text>
+    <View className="flex-1 bg-gray-50 dark:bg-gray-950">
+      <View className="flex-row justify-between items-center px-6 pt-16 pb-6 bg-white dark:bg-gray-900 border-b border-gray-100 dark:border-gray-800 shadow-sm shadow-black/5">
+        <Text className="text-2xl font-bold text-gray-800 dark:text-white">Notificações</Text>
         <TouchableOpacity 
           className="bg-green-50 px-4 py-2 rounded-2xl"
           onPress={marcarTodasComoLidas}
@@ -45,7 +45,7 @@ export default function Notificacoes() {
             )}
             contentContainerStyle={{ padding: 20 }}
             ListEmptyComponent={
-              <View className="items-center mt-12 bg-white p-8 rounded-3xl border border-gray-100 shadow-sm shadow-black/5">
+              <View className="items-center mt-12 bg-white dark:bg-gray-900 p-8 rounded-3xl border border-gray-100 dark:border-gray-800 shadow-sm shadow-black/5">
                 <Text style={{fontSize: 48}} className="mb-4">📭</Text>
                 <Text className="text-gray-400 font-bold text-center text-lg">
                   Nada por aqui...
