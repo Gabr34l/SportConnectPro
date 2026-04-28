@@ -6,7 +6,12 @@ import { useFonts, Inter_400Regular, Inter_700Bold } from '@expo-google-fonts/in
 import { useEffect } from 'react';
 import '../global.css';
 
-SplashScreen.preventAutoHideAsync();
+// Polyfill para serialização de BigInt (necessário para alguns debuggers/loggers em ambiente web)
+if (typeof BigInt !== 'undefined' && !(BigInt.prototype as any).toJSON) {
+  (BigInt.prototype as any).toJSON = function () {
+    return this.toString();
+  };
+}
 
 export default function RootLayout() {
   const [fontsLoaded, fontError] = useFonts({

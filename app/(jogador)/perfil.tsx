@@ -8,7 +8,7 @@ import { Mail, Shield, LogOut, Camera, ChevronRight, Settings, Info, CreditCard 
 
 // Mover o sub-componente para fora para evitar erros de renderização e sintaxe
 const MenuOption = ({ icon: Icon, label, value, onPress, color = "#6B7280" }: any) => (
-  <TouchableOpacity 
+  <TouchableOpacity
     className="flex-row items-center py-4 px-6 bg-white border-b border-gray-50 active:bg-gray-50"
     onPress={onPress}
     disabled={!onPress}
@@ -65,7 +65,7 @@ export default function Perfil() {
         const uri = result.assets[0].uri;
         const fileId = ID.unique();
         const name = `avatar_${usuario.id_usuario}_${Date.now()}.jpg`;
-        
+
         // 1. Upload para o Appwrite Storage
         if (Platform.OS === 'web') {
           const response = await fetch(uri);
@@ -91,14 +91,15 @@ export default function Perfil() {
             uri: Platform.OS === 'ios' ? uri.replace('file://', '') : uri,
             name: name,
             type: 'image/jpeg',
+            size: result.assets[0].fileSize || 0,
           };
-          await storage.createFile(config.storageId, fileId, fileObj);
+          await storage.createFile(config.storageId, fileId, fileObj as any);
         }
 
         // 2. Pegar a URL e atualizar
         let fileUrl = storage.getFileView(config.storageId, fileId).toString();
         if (!fileUrl.startsWith('http')) {
-           fileUrl = `${config.endpoint}/storage/buckets/${config.storageId}/files/${fileId}/view?project=${config.projectId}`;
+          fileUrl = `${config.endpoint}/storage/buckets/${config.storageId}/files/${fileId}/view?project=${config.projectId}`;
         }
 
         await databases.updateDocument(
@@ -125,11 +126,11 @@ export default function Perfil() {
       {/* Profile Header */}
       <View className="items-center p-10 pt-16 bg-white shadow-sm shadow-black/5">
         <View className="relative">
-          <Image 
-            source={{ uri: usuario.foto_perfil || 'https://placehold.co/150x150?text=' + (usuario.nome_completo?.charAt(0) || 'U') }} 
-            className="w-[130px] h-[130px] rounded-[50px] bg-gray-100 border-4 border-white shadow-lg shadow-black/10" 
+          <Image
+            source={{ uri: usuario.foto_perfil || 'https://placehold.co/150x150?text=' + (usuario.nome_completo?.charAt(0) || 'U') }}
+            className="w-[130px] h-[130px] rounded-[50px] bg-gray-100 border-4 border-white shadow-lg shadow-black/10"
           />
-          <TouchableOpacity 
+          <TouchableOpacity
             onPress={uploadAvatar}
             disabled={loading}
             className="absolute bottom-1 right-1 w-10 h-10 bg-[#00C853] rounded-full justify-center items-center border-4 border-white shadow-lg shadow-black/10"
@@ -145,19 +146,19 @@ export default function Perfil() {
 
       <View className="mt-4">
         <MenuOption icon={Mail} label="E-mail" value={usuario.email} />
-        <MenuOption 
-          icon={Shield} 
-          label="Nível de Habilidade" 
-          value={usuario.nivel_habilidade || 'Não definido'} 
-          color="#3B82F6" 
+        <MenuOption
+          icon={Shield}
+          label="Nível de Habilidade"
+          value={usuario.nivel_habilidade || 'Não definido'}
+          color="#3B82F6"
         />
-        <MenuOption icon={CreditCard} label="Métodos de Pagamento" value="Visa •••• 4242" onPress={() => {}} color="#6366F1" />
-        <MenuOption icon={Settings} label="Configurações" value="Privacidade, Notificações..." onPress={() => {}} />
-        <MenuOption icon={Info} label="Sobre o App" value="v1.2.4" onPress={() => {}} />
+        <MenuOption icon={CreditCard} label="Métodos de Pagamento" value="Visa •••• 4242" onPress={() => { }} color="#6366F1" />
+        <MenuOption icon={Settings} label="Configurações" value="Privacidade, Notificações..." onPress={() => { }} />
+        <MenuOption icon={Info} label="Sobre o App" value="v1.2.4" onPress={() => { }} />
       </View>
 
       <View className="p-8 mb-10">
-        <TouchableOpacity 
+        <TouchableOpacity
           className="bg-white border-2 border-red-50 py-4 rounded-[24px] flex-row justify-center items-center shadow-sm shadow-black/5"
           onPress={handleLogout}
         >
@@ -176,15 +177,15 @@ export default function Perfil() {
             </View>
             <Text className="text-2xl font-black text-gray-800 text-center mb-2">Sair da conta?</Text>
             <Text className="text-base text-gray-400 text-center mb-8">Deseja realmente sair da sua conta atual?</Text>
-            
-            <TouchableOpacity 
+
+            <TouchableOpacity
               className="bg-[#EF4444] rounded-[20px] py-4 items-center mb-3 shadow-lg shadow-red-500/30"
               onPress={() => { setShowLogoutModal(false); signOut(); }}
             >
               <Text className="text-white font-black text-lg">Sim, quero sair</Text>
             </TouchableOpacity>
-            
-            <TouchableOpacity 
+
+            <TouchableOpacity
               className="border border-gray-100 rounded-[20px] py-4 items-center"
               onPress={() => setShowLogoutModal(false)}
             >

@@ -44,9 +44,11 @@ export default function Login() {
       const sessionData = await account.createEmailPasswordSession(limpoEmail, password);
       
       if (sessionData) {
-        showFeedback('success', 'Sucesso', 'Bem-vindo de volta!');
         await refreshUsuario(sessionData.userId);
         setLoginSuccess(true);
+        // We do not set loading to false here immediately if successful,
+        // because the useEffect will handle the redirect.
+        // However, if the user profile wasn't found, we should stop loading.
       }
     } catch (e: any) {
       console.error('Erro no login:', e);
@@ -56,6 +58,15 @@ export default function Login() {
       setLoading(false);
     }
   };
+
+  // Check if login was successful but user profile is null after refresh
+  useEffect(() => {
+    if (loginSuccess && !usuario) {
+      setLoading(false);
+      showFeedback('error', 'Perfil não encontrado', 'Houve um erro com seu perfil. Entre em contato com o suporte ou crie uma nova conta.');
+      setLoginSuccess(false);
+    }
+  }, [loginSuccess, usuario]);
 
   const handleResetPassword = async () => {
     if (!resetEmail) {

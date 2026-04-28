@@ -26,8 +26,29 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       const user = await account.get();
       setSession(user);
 
-      const userProfile = await db.users.get(userId);
-      setUsuario(userProfile);
+      try {
+        const userProfile = await db.users.get(userId);
+        setUsuario(userProfile);
+      } catch (profileError: any) {
+        if (profileError.code === 404) {
+          console.log('Perfil não encontrado, recriando com base na conta auth...');
+          // Cria um perfil mínimo com os dados da conta
+          const newProfile = await db.users.create(userId, {
+            nome_completo: user.name || 'Usuário',
+            email: user.email,
+            tipo_perfil: 'JOGADOR', // default
+            interesses: [],
+            nivel_habilidade: 'INICIANTE',
+          });
+          setUsuario({
+            ...newProfile,
+            id_usuario: newProfile.$id,
+            created_at: newProfile.$createdAt
+          } as any as Usuario);
+        } else {
+          throw profileError;
+        }
+      }
     } catch (e) {
       console.error('Erro ao buscar perfil do usuário:', e);
       setUsuario(null);

@@ -29,15 +29,17 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
     opacity.setValue(0);
     translateY.setValue(-20);
 
+    const useNativeDriver = Platform.OS !== 'web';
+
     Animated.parallel([
-      Animated.timing(opacity, { toValue: 1, duration: 300, useNativeDriver: true }),
-      Animated.timing(translateY, { toValue: 0, duration: 300, useNativeDriver: true }),
+      Animated.timing(opacity, { toValue: 1, duration: 300, useNativeDriver }),
+      Animated.timing(translateY, { toValue: 0, duration: 300, useNativeDriver }),
     ]).start();
 
     setTimeout(() => {
       Animated.parallel([
-        Animated.timing(opacity, { toValue: 0, duration: 300, useNativeDriver: true }),
-        Animated.timing(translateY, { toValue: -20, duration: 300, useNativeDriver: true }),
+        Animated.timing(opacity, { toValue: 0, duration: 300, useNativeDriver }),
+        Animated.timing(translateY, { toValue: -20, duration: 300, useNativeDriver }),
       ]).start(() => setToast(null));
     }, 3500);
   }, [opacity, translateY]);

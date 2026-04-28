@@ -1,4 +1,4 @@
-import { databases, config, ID, Query } from './appwrite';
+import { databases, config, ID, Query, Permission, Role } from './appwrite';
 import { Quadra, Evento, Participacao, Usuario, EventoComVagas, MensagemChat } from '../types';
 
 /**
@@ -15,6 +15,20 @@ export const db = {
         id_usuario: doc.$id,
         created_at: doc.$createdAt
       } as any as Usuario;
+    },
+    create: async (userId: string, data: any) => {
+      return await databases.createDocument(
+        config.databaseId,
+        config.collections.usuarios,
+        userId,
+        data,
+        [
+          // Using imported Role and Permission from appwrite
+          Permission.read(Role.user(userId)),
+          Permission.update(Role.user(userId)),
+          Permission.delete(Role.user(userId)),
+        ]
+      );
     },
     update: async (userId: string, data: Partial<Usuario>) => {
       return await databases.updateDocument(config.databaseId, config.collections.usuarios, userId, data);
@@ -63,7 +77,9 @@ export const db = {
       return response.documents.map(d => ({
         ...d,
         id_quadra: d.$id,
-        created_at: d.$createdAt
+        created_at: d.$createdAt,
+        latitude: d.latitude ? Number(d.latitude) : 0,
+        longitude: d.longitude ? Number(d.longitude) : 0,
       })) as any as Quadra[];
     }
   },
@@ -99,7 +115,7 @@ export const db = {
         config.databaseId,
         config.collections.eventos,
         [
-          Query.greaterThan('data_evento', new Date().toISOString().split('T')[0]),
+          Query.greaterThanEqual('data_evento', new Date().toISOString().split('T')[0]),
           Query.equal('status', 'ABERTO'),
           Query.limit(50)
         ]
@@ -153,8 +169,8 @@ export const db = {
         // Usamos razao_social como fallback caso nome_local não exista
         nome_local: quadra.nome_local || quadra.razao_social || 'Local não informado',
         endereco_completo: quadra.endereco_completo || 'Endereço não informado',
-        latitude: quadra.latitude || 0,
-        longitude: quadra.longitude || 0,
+        latitude: quadra.latitude ? Number(quadra.latitude) : 0,
+        longitude: quadra.longitude ? Number(quadra.longitude) : 0,
         foto_quadra: (quadra.fotos && quadra.fotos.length > 0) ? quadra.fotos[0] : null,
         total_confirmados: totalConfirmados,
         vagas_restantes: limite - totalConfirmados,

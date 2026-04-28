@@ -48,10 +48,16 @@ export function EventCard({ evento }: { evento: EventoComVagas }) {
             <Clock size={14} color="#00C853" strokeWidth={2.5} />
             <Text className="ml-1.5 text-xs font-bold text-gray-700">{horaInicio}</Text>
           </View>
-          <View className="flex-row items-center bg-gray-50 px-3 py-1.5 rounded-xl flex-1">
+          <TouchableOpacity 
+            className="flex-row items-center bg-gray-50 px-3 py-1.5 rounded-xl flex-1"
+            onPress={() => router.push({
+              pathname: '/(jogador)/mapa',
+              params: { lat: evento.latitude, lng: evento.longitude }
+            } as any)}
+          >
             <MapPin size={14} color="#6B7280" />
             <Text className="ml-1.5 text-xs font-bold text-gray-500" numberOfLines={1}>{evento.nome_local}</Text>
-          </View>
+          </TouchableOpacity>
         </View>
         
         <View className="flex-row justify-between items-center">
