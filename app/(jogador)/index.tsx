@@ -44,7 +44,9 @@ export default function HomeJogador() {
               />
             </TouchableOpacity>
             <View className="ml-3">
-              <Text className="text-gray-400 text-xs font-bold uppercase tracking-widest">Bom dia,</Text>
+              <Text className="text-gray-400 text-xs font-bold uppercase tracking-widest">
+                {new Date().getHours() < 12 ? 'Bom dia' : new Date().getHours() < 18 ? 'Boa tarde' : 'Boa noite'},
+              </Text>
               <Text className="text-xl font-black text-gray-800">{usuario?.nome_completo?.split(' ')[0]}!</Text>
             </View>
           </View>

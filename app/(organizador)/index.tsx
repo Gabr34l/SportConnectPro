@@ -85,7 +85,9 @@ export default function Dashboard() {
       {/* Premium Header */}
       <View className="bg-white px-6 pt-16 pb-8 rounded-b-[40px] shadow-xl shadow-black/5">
         <Text className="text-gray-400 text-xs font-bold uppercase tracking-[3px] mb-1">Painel de Controle</Text>
-        <Text className="text-3xl font-black text-gray-800">Olá, {usuario?.nome_completo?.split(' ')[0]}!</Text>
+        <Text className="text-3xl font-black text-gray-800">
+          {new Date().getHours() < 12 ? 'Bom dia' : new Date().getHours() < 18 ? 'Boa tarde' : 'Boa noite'}, {usuario?.nome_completo?.split(' ')[0]}!
+        </Text>
         <Text className="text-sm text-gray-400 mt-1 font-medium">Gerencie suas quadras e eventos</Text>
       </View>
 
