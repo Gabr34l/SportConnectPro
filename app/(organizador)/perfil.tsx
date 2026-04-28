@@ -140,7 +140,7 @@ export default function Perfil() {
         <MenuOption icon={Building2} label="Gerenciar Quadras" value="Configuração e Fotos" onPress={() => router.push('/(organizador)/quadras')} color="#10B981" />
 
         <MenuOption icon={BarChart3} label="Relatórios & Vendas" value="Ver faturamento" onPress={() => {}} color="#F59E0B" />
-        <MenuOption icon={UserSquare2} label="Dados Pessoais" value="Nome, CPF, Telefone" onPress={() => {}} color="#3B82F6" />
+
         <MenuOption icon={Settings} label="Configurações do App" value="Notificações e Suporte" onPress={() => {}} />
       </View>
 
