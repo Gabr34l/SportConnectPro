@@ -61,7 +61,7 @@ export default function Welcome() {
             style={{ width: '100%' }}
           >
             <View className="items-center w-full self-center" style={{ maxWidth: 500 }}>
-              <View className="bg-white dark:bg-gray-900/10 px-4 py-2 rounded-full border border-white/20 mb-4">
+              <View className="bg-white/10 px-4 py-2 rounded-full border border-white/20 mb-4">
                 <Text className="text-white text-[10px] font-black uppercase tracking-[3px]">SportConnect Pro</Text>
               </View>
               <Text className="text-5xl font-black text-white text-center leading-[50px]">
@@ -83,8 +83,8 @@ export default function Welcome() {
               <View className="flex-row mt-12 items-center justify-center">
                 {esportes.map((_, idx) => (
                   <View 
-                    key={idx} 
-                    className={`h-1.5 rounded-full mx-1.5 ${idx === currentIndex ? 'bg-[#00C853] w-10' : 'bg-white dark:bg-gray-900/20 w-3'}`} 
+                    key={idx}
+                    className={`h-1.5 rounded-full mx-1.5 ${idx === currentIndex ? 'bg-[#00C853] w-10' : 'bg-white/20 w-3'}`} 
                   />
                 ))}
               </View>
@@ -106,7 +106,7 @@ export default function Welcome() {
               </TouchableOpacity>
 
               <TouchableOpacity
-                className="bg-white dark:bg-gray-900/5 border border-white/10 rounded-3xl py-5"
+                className="bg-white/5 border border-white/10 rounded-3xl py-5"
                 activeOpacity={0.7}
                 onPress={() => router.push('/(auth)/login')}
               >
