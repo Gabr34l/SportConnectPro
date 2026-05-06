@@ -59,13 +59,8 @@ export default function OrganizadorLayout() {
       
       <Tabs.Screen name="evento/[id]" options={{ href: null }} />
       
-      <Tabs.Screen 
-        name="perfil" 
-        options={{ 
-          title: 'Perfil', 
-          tabBarIcon: ({ color }) => <User color={color} size={24} /> 
-        }} 
-      />
+      <Tabs.Screen name="perfil" options={{ title: 'Perfil', tabBarIcon: ({ color }) => <User color={color} size={24} /> }} />
+      <Tabs.Screen name="faturamento" options={{ href: null }} />
     </Tabs>
   );
 }

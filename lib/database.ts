@@ -176,7 +176,8 @@ export const db = {
         vagas_restantes: limite - totalConfirmados,
         percentual_ocupacao: limite > 0 ? (totalConfirmados / limite) * 100 : 0,
         descricao_quadra: quadra.descricao || '',
-        comodidades_quadra: quadra.comodidades || []
+        comodidades_quadra: quadra.comodidades || [],
+        cnpj: quadra.cnpj || ''
       } as any as EventoComVagas;
     },
     get: async (eventId: string): Promise<Evento> => {
@@ -262,6 +263,46 @@ export const db = {
         ]
       );
       return response.total > 0;
+    }
+  },
+
+  // --- NOTIFICATIONS ---
+  notifications: {
+    create: async (userId: string, titulo: string, corpo: string, tipo?: string, idReferencia?: string) => {
+      return await databases.createDocument(
+        config.databaseId,
+        config.collections.notificacoes,
+        ID.unique(),
+        {
+          id_usuario: userId,
+          titulo,
+          corpo,
+          lida: false,
+          tipo,
+          id_referencia: idReferencia,
+          created_at: new Date().toISOString()
+        }
+      );
+    },
+    listByUser: async (userId: string) => {
+      const response = await databases.listDocuments(
+        config.databaseId,
+        config.collections.notificacoes,
+        [
+          Query.equal('id_usuario', userId),
+          Query.orderDesc('$createdAt'),
+          Query.limit(50)
+        ]
+      );
+      return response.documents;
+    },
+    markAsRead: async (notificationId: string) => {
+      return await databases.updateDocument(
+        config.databaseId,
+        config.collections.notificacoes,
+        notificationId,
+        { lida: true }
+      );
     }
   }
 };

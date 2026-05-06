@@ -219,21 +219,41 @@ export default function GestaoEvento() {
 
       {/* Quick Actions */}
       {evento.status !== 'CONCLUIDO' && evento.status !== 'CANCELADO' && (
-        <View className="flex-row px-6 gap-3 mb-8">
-          <TouchableOpacity 
-            className="flex-1 bg-green-500 py-4 rounded-2xl flex-row justify-center items-center shadow-md shadow-green-500/30"
-            onPress={() => handleMudarStatus('CONCLUIDO')}
-          >
-            <CheckCircle size={18} color="white" strokeWidth={2.5} />
-            <Text className="text-white font-bold ml-2">Concluir</Text>
-          </TouchableOpacity>
-          <TouchableOpacity 
-            className="flex-1 bg-white dark:bg-gray-900 border border-red-100 py-4 rounded-2xl flex-row justify-center items-center"
-            onPress={() => handleMudarStatus('CANCELADO')}
-          >
-            <XCircle size={18} color="#EF4444" />
-            <Text className="text-red-500 font-bold ml-2">Cancelar</Text>
-          </TouchableOpacity>
+        <View className="px-6 mb-8">
+          {confirmados.length === evento.limite_participantes && evento.status !== 'CONFIRMADO' ? (
+            <TouchableOpacity 
+              className="bg-[#00C853] py-5 rounded-[24px] flex-row justify-center items-center shadow-xl shadow-green-500/40 mb-4"
+              onPress={() => handleMudarStatus('CONFIRMADO')}
+            >
+              <CheckCircle size={24} color="white" strokeWidth={2.5} />
+              <View className="ml-3">
+                <Text className="text-white font-black text-lg">Liberar Quadra</Text>
+                <Text className="text-white/80 text-[10px] font-bold uppercase">Todos os jogadores pagaram!</Text>
+              </View>
+            </TouchableOpacity>
+          ) : evento.status === 'CONFIRMADO' ? (
+            <View className="bg-green-50 dark:bg-green-950/30 p-4 rounded-[24px] border border-green-100 dark:border-green-900/50 flex-row items-center mb-4">
+              <CheckCircle size={20} color="#00C853" />
+              <Text className="text-[#00C853] font-bold ml-2">Quadra Liberada & Partida Confirmada</Text>
+            </View>
+          ) : null}
+
+          <View className="flex-row gap-3">
+            <TouchableOpacity 
+              className="flex-1 bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 py-4 rounded-2xl flex-row justify-center items-center"
+              onPress={() => handleMudarStatus('CONCLUIDO')}
+            >
+              <CheckCircle size={18} color="#10B981" strokeWidth={2} />
+              <Text className="text-[#10B981] font-bold ml-2">Finalizar</Text>
+            </TouchableOpacity>
+            <TouchableOpacity 
+              className="flex-1 bg-white dark:bg-gray-800 border border-red-50 dark:border-red-900/30 py-4 rounded-2xl flex-row justify-center items-center"
+              onPress={() => handleMudarStatus('CANCELADO')}
+            >
+              <XCircle size={18} color="#EF4444" />
+              <Text className="text-red-500 font-bold ml-2">Cancelar</Text>
+            </TouchableOpacity>
+          </View>
         </View>
       )}
 

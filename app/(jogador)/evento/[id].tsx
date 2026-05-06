@@ -1,30 +1,32 @@
 import React, { useState } from 'react';
-import { View, Text, ScrollView, Image, TouchableOpacity, ActivityIndicator, TextInput, Modal, Platform } from 'react-native';
+import { View, Text, ScrollView, Image, TouchableOpacity, ActivityIndicator, TextInput, Modal, Platform, Clipboard } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import * as WebBrowser from 'expo-web-browser';
 import { useAuthContext } from '../../../contexts/AuthContext';
 import { useEventoDetalhe } from '../../../hooks/useEventoDetalhe';
 import { useParticipacao } from '../../../hooks/useParticipacao';
+import { db } from '../../../lib/database';
 import { SportBadge } from '../../../components/SportBadge';
 import { AmbienteBadge } from '../../../components/AmbienteBadge';
 import { PlayerSlots } from '../../../components/PlayerSlots';
 import { RatingStars } from '../../../components/RatingStars';
 import { useToast } from '../../../components/Toast';
 import { format } from 'date-fns';
-import { 
-  CalendarDays, 
-  Clock, 
-  MapPin, 
-  Timer, 
-  Star, 
-  CheckCircle2, 
-  MessageCircle, 
-  CreditCard, 
+import {
+  CalendarDays,
+  Clock,
+  MapPin,
+  Timer,
+  Star,
+  CheckCircle2,
+  MessageCircle,
   Lock,
   ChevronLeft,
   Users,
   Info,
-  ChevronRight
+  ChevronRight,
+  Copy,
+  QrCode,
+  Smartphone
 } from 'lucide-react-native';
 
 export default function EventoDetalhe() {
@@ -32,15 +34,17 @@ export default function EventoDetalhe() {
   const { usuario } = useAuthContext();
   const router = useRouter();
   const toast = useToast();
-  
+
   const { evento, participantes, minhaParticipacao, mediaAvaliacoes, loading, refetch } = useEventoDetalhe(id, usuario?.id_usuario);
   const { iniciarCheckout, avaliarEvento, loading: partLoading } = useParticipacao();
-  
+
   const [modalVisible, setModalVisible] = useState(false);
+  const [pixModalVisible, setPixModalVisible] = useState(false);
   const [nota, setNota] = useState(5);
   const [comentario, setComentario] = useState('');
 
   const confirmados = participantes.filter(p => p.status_presenca === 'CONFIRMADO');
+  const precoVaga = evento?.preco_por_vaga || 0;
 
   const showFeedback = (type: 'success' | 'error' | 'info', title: string, message: string) => {
     if (Platform.OS === 'web') {
@@ -53,17 +57,36 @@ export default function EventoDetalhe() {
 
   const handlePagar = async () => {
     if (!usuario || !evento) return;
-    const url = await iniciarCheckout(evento.id_evento, usuario.id_usuario);
-    if (url) {
-      if (Platform.OS === 'web') {
-        window.open(url, '_blank');
-        showFeedback('info', 'Pagamento', 'Finalize o pagamento na nova aba para confirmar sua vaga.');
-      } else {
-        const result = await WebBrowser.openBrowserAsync(url);
-        if (result.type === 'cancel' || result.type === 'dismiss') {
-          refetch();
-        }
-      }
+    setPixModalVisible(true);
+  };
+
+  const handleCopyPix = () => {
+    if (!evento?.cnpj) return;
+    Clipboard.setString(evento.cnpj);
+    showFeedback('success', 'Copiado!', 'Chave Pix (CNPJ) copiada para a área de transferência.');
+  };
+
+  const handleConfirmarPagamento = async () => {
+    if (!usuario || !evento) return;
+    try {
+      // 1. Criar Notificação para o Organizador
+      await db.notifications.create(
+        evento.id_organizador,
+        'Pagamento Realizado (Pix)',
+        `${usuario.nome_completo} informou que pagou R$ ${precoVaga.toFixed(2)} via Pix para o evento: ${evento.titulo}`,
+        'PAGAMENTO_PIX',
+        evento.id_evento
+      );
+
+      // 2. Registrar participação (simulado via iniciarCheckout)
+      const url = await iniciarCheckout(evento.id_evento, usuario.id_usuario);
+      
+      showFeedback('success', 'Notificado!', 'O organizador foi notificado. Sua vaga será confirmada após a validação.');
+      setPixModalVisible(false);
+      refetch();
+    } catch (e) {
+      console.error('Erro ao notificar pagamento:', e);
+      showFeedback('error', 'Erro', 'Não foi possível notificar o organizador.');
     }
   };
 
@@ -88,11 +111,11 @@ export default function EventoDetalhe() {
   const dataFormatada = format(new Date(evento.data_evento), 'dd/MM/yyyy');
   const horaInicio = evento.horario_inicio.substring(0, 5);
   const horaFim = evento.horario_fim.substring(0, 5);
-  
+
   const isPassado = new Date(evento.data_evento) < new Date();
-  
+
   let BottomButton = null;
-  
+
   if (minhaParticipacao) {
     if (minhaParticipacao.status_presenca === 'AGUARDANDO_PAGAMENTO') {
       BottomButton = (
@@ -127,17 +150,17 @@ export default function EventoDetalhe() {
   } else {
     if (evento.status === 'ABERTO') {
       BottomButton = (
-        <TouchableOpacity 
-          className="bg-[#00C853] py-4 rounded-3xl flex-row justify-center items-center shadow-lg shadow-green-500/30" 
-          onPress={handlePagar} 
+        <TouchableOpacity
+          className="bg-[#00C853] py-4 rounded-3xl flex-row justify-center items-center shadow-lg shadow-green-500/30"
+          onPress={handlePagar}
           disabled={partLoading}
         >
           {partLoading ? (
             <ActivityIndicator color="#fff" />
           ) : (
             <>
-              <CreditCard color="white" size={20} />
-              <Text className="text-white font-bold text-lg ml-2">Garantir Vaga — R$ {evento.preco_por_vaga.toFixed(2)}</Text>
+              <Smartphone color="white" size={20} />
+              <Text className="text-white font-black text-lg ml-2">FAZER PAGAMENTO — R$ {precoVaga.toFixed(2)}</Text>
             </>
           )}
         </TouchableOpacity>
@@ -156,11 +179,11 @@ export default function EventoDetalhe() {
     <View className="flex-1 bg-gray-50 dark:bg-gray-950">
       <ScrollView className="flex-1" showsVerticalScrollIndicator={false}>
         <View className="relative">
-          <Image 
-            source={{ uri: evento.foto_quadra || 'https://images.unsplash.com/photo-1543351611-58f69d7c1781?auto=format&fit=crop&q=80&w=800' }} 
-            className="w-full h-[280px]" 
+          <Image
+            source={{ uri: evento.foto_quadra || 'https://images.unsplash.com/photo-1543351611-58f69d7c1781?auto=format&fit=crop&q=80&w=800' }}
+            className="w-full h-[280px]"
           />
-          <TouchableOpacity 
+          <TouchableOpacity
             onPress={() => router.back()}
             className="absolute top-12 left-6 w-10 h-10 bg-white/20 rounded-full justify-center items-center backdrop-blur-md"
           >
@@ -168,17 +191,29 @@ export default function EventoDetalhe() {
           </TouchableOpacity>
           <View className="absolute bottom-0 left-0 right-0 h-24 bg-gradient-to-t from-gray-50" />
         </View>
-        
+
         <View className="px-6 -mt-16">
           <View className="bg-white dark:bg-gray-900 p-6 rounded-3xl shadow-xl shadow-black/5 border border-gray-50 dark:border-gray-900">
             <View className="flex-row mb-4">
               <SportBadge esporteId={evento.esporte} />
               <AmbienteBadge tipo={evento.tipo_ambiente} />
             </View>
-            
+
             <Text className="text-2xl font-black text-gray-800 dark:text-white leading-tight mb-6">{evento.titulo}</Text>
-            
+
             <View className="gap-4">
+              {evento.status === 'CONFIRMADO' && (
+                <View className="bg-green-50 dark:bg-green-950/30 p-4 rounded-2xl border border-green-100 dark:border-green-900/50 flex-row items-center mb-2">
+                  <View className="w-10 h-10 bg-[#00C853] rounded-full justify-center items-center shadow-lg shadow-green-500/20">
+                    <CheckCircle2 size={24} color="white" />
+                  </View>
+                  <View className="ml-3">
+                    <Text className="text-[#00C853] font-black text-base">Quadra Liberada!</Text>
+                    <Text className="text-[#00C853]/70 text-[10px] font-bold uppercase">A partida está garantida 🏟️</Text>
+                  </View>
+                </View>
+              )}
+
               <View className="flex-row items-center">
                 <View className="w-10 h-10 bg-green-50 rounded-full justify-center items-center">
                   <CalendarDays size={20} color="#00C853" />
@@ -204,7 +239,7 @@ export default function EventoDetalhe() {
               </View>
             </View>
           </View>
-          
+
           <View className="bg-white dark:bg-gray-900 p-6 rounded-3xl border border-gray-100 dark:border-gray-800 mt-4 shadow-sm shadow-black/5">
             <View className="flex-row items-center mb-4">
               <Info size={18} color="#9CA3AF" />
@@ -214,7 +249,7 @@ export default function EventoDetalhe() {
               <Text className="text-base font-black text-gray-700">{evento.nivel_requerido}</Text>
             </View>
           </View>
-          
+
           <View className="bg-white dark:bg-gray-900 p-6 rounded-3xl border border-gray-100 dark:border-gray-800 mt-4 shadow-sm shadow-black/5">
             <View className="flex-row justify-between items-center mb-6">
               <View className="flex-row items-center">
@@ -223,9 +258,9 @@ export default function EventoDetalhe() {
               </View>
               <Text className="text-sm font-black text-[#00C853]">{confirmados.length}/{evento.limite_participantes}</Text>
             </View>
-            
+
             <PlayerSlots total={evento.limite_participantes} ocupadas={confirmados.length} />
-            
+
             {confirmados.length > 0 && (
               <ScrollView horizontal showsHorizontalScrollIndicator={false} className="flex-row mt-6">
                 {confirmados.map((p, i) => (
@@ -239,13 +274,13 @@ export default function EventoDetalhe() {
               </ScrollView>
             )}
           </View>
-          
+
           <View className="bg-white dark:bg-gray-900 p-6 rounded-3xl border border-gray-100 dark:border-gray-800 mt-4 shadow-sm shadow-black/5">
             <Text className="text-sm font-bold text-gray-400 uppercase tracking-widest mb-4">Sobre o Local</Text>
             <Text className="text-base text-gray-700 leading-6 mb-6">
               {evento.descricao_quadra || 'Nenhuma descrição disponível para este local.'}
             </Text>
-            
+
             {evento.comodidades_quadra && evento.comodidades_quadra.length > 0 && (
               <View className="flex-row flex-wrap gap-2">
                 {evento.comodidades_quadra.map(c => (
@@ -256,7 +291,7 @@ export default function EventoDetalhe() {
               </View>
             )}
           </View>
-          
+
           <View className="bg-white dark:bg-gray-900 p-6 rounded-3xl border border-gray-100 dark:border-gray-800 mt-4 shadow-sm shadow-black/5 mb-24">
             <Text className="text-sm font-bold text-gray-400 uppercase tracking-widest mb-4">Avaliação da Quadra</Text>
             <View className="flex-row items-center bg-gray-50 dark:bg-gray-950 p-4 rounded-2xl">
@@ -278,7 +313,7 @@ export default function EventoDetalhe() {
             <View className="w-12 h-1.5 bg-gray-100 rounded-full self-center mb-8" />
             <Text className="text-2xl font-black text-gray-800 dark:text-white text-center mb-2">Avaliar Evento</Text>
             <Text className="text-gray-400 text-center mb-8">Como foi sua experiência nesta partida?</Text>
-            
+
             <View className="items-center mb-8">
               <RatingStars rating={nota} onRatingChange={setNota} size={40} />
             </View>
@@ -302,6 +337,56 @@ export default function EventoDetalhe() {
                 {partLoading ? <ActivityIndicator color="#fff" /> : <Text className="text-white font-bold text-base">Enviar</Text>}
               </TouchableOpacity>
             </View>
+          </View>
+        </View>
+      </Modal>
+
+      {/* Pix Payment Modal */}
+      <Modal visible={pixModalVisible} transparent animationType="fade">
+        <View className="flex-1 bg-black/60 justify-center items-center px-6">
+          <View className="bg-white dark:bg-gray-900 rounded-[40px] p-8 w-full max-w-sm items-center">
+            <View className="w-16 h-16 bg-green-50 rounded-full justify-center items-center mb-6">
+              <QrCode size={32} color="#00C853" />
+            </View>
+            <Text className="text-2xl font-black text-gray-800 dark:text-white text-center mb-2">Pagamento via Pix</Text>
+            <Text className="text-gray-400 text-center mb-8">Pague sua parte para garantir sua vaga na partida.</Text>
+            
+            <View className="bg-gray-50 dark:bg-gray-800 p-6 rounded-3xl items-center w-full mb-6 border border-gray-100 dark:border-gray-700">
+              <Image 
+                source={{ uri: `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(evento.cnpj || '')}` }} 
+                className="w-[180px] h-[180px] rounded-xl mb-4"
+              />
+              <Text className="text-[10px] text-gray-400 font-bold uppercase tracking-widest mb-1">Chave CNPJ (Copia e Cola)</Text>
+              <TouchableOpacity 
+                onPress={handleCopyPix}
+                className="flex-row items-center bg-white dark:bg-gray-900 px-4 py-2 rounded-full border border-gray-100 dark:border-gray-700"
+              >
+                <Text className="text-gray-800 dark:text-white font-bold mr-2">{evento.cnpj || 'CNPJ não cadastrado'}</Text>
+                <Copy size={14} color="#9CA3AF" />
+              </TouchableOpacity>
+            </View>
+
+            <View className="w-full bg-blue-50 dark:bg-blue-950/30 p-4 rounded-2xl flex-row items-center mb-8">
+              <Info size={16} color="#3B82F6" />
+              <Text className="text-blue-600 dark:text-blue-400 text-xs font-bold ml-2 flex-1">
+                Valor a pagar: R$ {precoVaga.toFixed(2)}
+              </Text>
+            </View>
+            
+            <TouchableOpacity 
+              className="bg-[#00C853] w-full rounded-[20px] py-4 items-center mb-3 shadow-lg shadow-green-500/30"
+              onPress={handleConfirmarPagamento}
+              disabled={partLoading}
+            >
+              {partLoading ? <ActivityIndicator color="#fff" /> : <Text className="text-white font-black text-lg">Já realizei o pagamento</Text>}
+            </TouchableOpacity>
+            
+            <TouchableOpacity 
+              className="w-full border border-gray-100 dark:border-gray-800 rounded-[20px] py-4 items-center"
+              onPress={() => setPixModalVisible(false)}
+            >
+              <Text className="text-gray-400 font-bold text-base">Cancelar</Text>
+            </TouchableOpacity>
           </View>
         </View>
       </Modal>
