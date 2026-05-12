@@ -35,14 +35,18 @@ export const db = {
     }
   },
 
-  // --- COURTS (QUADRAS) ---
   courts: {
     create: async (data: Omit<Quadra, 'id_quadra' | 'created_at'>) => {
       return await databases.createDocument(
         config.databaseId,
         config.collections.quadras,
         ID.unique(),
-        data
+        data,
+        [
+          Permission.read(Role.users()), // Allow all authenticated users to see courts
+          Permission.update(Role.user(data.id_organizador)),
+          Permission.delete(Role.user(data.id_organizador)),
+        ]
       );
     },
     listByOrganizer: async (organizerId: string): Promise<Quadra[]> => {
@@ -84,21 +88,52 @@ export const db = {
     }
   },
 
-  // --- EVENTS (EVENTOS) ---
   events: {
+    _syncExpired: async (event: any) => {
+      const now = new Date();
+      const today = now.toISOString().split('T')[0];
+      const currentTime = now.toTimeString().split(' ')[0];
+
+      const isPast = event.data_evento < today || (event.data_evento === today && event.horario_fim < currentTime);
+      const isActive = ['ABERTO', 'LOTADO', 'CONFIRMADO'].includes(event.status);
+
+      if (isPast && isActive) {
+        try {
+          await databases.updateDocument(config.databaseId, config.collections.eventos, event.$id, {
+            status: 'CONCLUIDO'
+          });
+          return { ...event, status: 'CONCLUIDO' };
+        } catch (e) {
+          // Silently fail to not break the UI flow
+        }
+      }
+      return event;
+    },
     create: async (data: Omit<Evento, 'id_evento' | 'created_at'>) => {
       return await databases.createDocument(
         config.databaseId,
         config.collections.eventos,
         ID.unique(),
-        data
+        data,
+        [
+          Permission.read(Role.users()), // Permitir que todos os jogadores vejam o evento
+          Permission.update(Role.user(data.id_organizador)),
+          Permission.delete(Role.user(data.id_organizador)),
+        ]
       );
     },
     listUpcoming: async (filters: any[] = []): Promise<Evento[]> => {
+      const now = new Date();
+      const today = now.toISOString().split('T')[0];
       const response = await databases.listDocuments(
         config.databaseId,
         config.collections.eventos,
-        [Query.greaterThan('data_evento', new Date().toISOString()), ...filters]
+        [
+          Query.greaterThanEqual('data_evento', today),
+          Query.notEqual('status', 'CONCLUIDO'),
+          Query.notEqual('status', 'CANCELADO'),
+          ...filters
+        ]
       );
       return response.documents as any as Evento[];
     },
@@ -108,42 +143,57 @@ export const db = {
         config.collections.eventos,
         [Query.equal('id_organizador', organizerId), Query.orderDesc('data_evento')]
       );
-      return response.documents as any as Evento[];
+      
+      // Lazy sync for the organizer view
+      const syncedDocs = await Promise.all(response.documents.map(d => db.events._syncExpired(d)));
+      return syncedDocs as any as Evento[];
     },
     listUpcomingHydrated: async (): Promise<EventoComVagas[]> => {
+      const today = new Date().toISOString().split('T')[0];
       const response = await databases.listDocuments(
         config.databaseId,
         config.collections.eventos,
         [
-          Query.greaterThanEqual('data_evento', new Date().toISOString().split('T')[0]),
+          Query.greaterThanEqual('data_evento', today),
           Query.equal('status', 'ABERTO'),
           Query.limit(50)
         ]
       );
       
       const hydrated = await Promise.all(response.documents.map(async (doc) => {
-        let quadra = doc.quadra || doc.quadras || doc.id_quadra || {};
-        if (typeof quadra === 'string') {
+        // Sync check for events that might have ended today
+        const syncedDoc = await db.events._syncExpired(doc);
+        if (syncedDoc.status === 'CONCLUIDO') return null;
+
+        let quadra = syncedDoc.quadra || syncedDoc.quadras || syncedDoc.id_quadra || {};
+        if (typeof quadra === 'string' && quadra.length > 5) {
           try {
             quadra = await databases.getDocument(config.databaseId, config.collections.quadras, quadra);
-          } catch { quadra = {}; }
+          } catch (e) { 
+            console.warn('Erro ao hidratar quadra no list:', e);
+            quadra = {}; 
+          }
         }
+        
         return {
-          ...doc,
-          id_evento: doc.$id,
+          ...syncedDoc,
+          id_evento: syncedDoc.$id,
           nome_local: quadra.nome_local || quadra.razao_social || 'Local não informado',
           endereco_completo: quadra.endereco_completo || '',
           latitude: quadra.latitude ? Number(quadra.latitude) : 0,
           longitude: quadra.longitude ? Number(quadra.longitude) : 0,
-          foto_quadra: quadra.fotos?.[0] || null,
+          foto_quadra: (quadra.fotos && quadra.fotos.length > 0) ? quadra.fotos[0] : null,
         } as any as EventoComVagas;
       }));
       
-      return hydrated;
+      return hydrated.filter(h => h !== null) as EventoComVagas[];
     },
     getHydrated: async (eventId: string): Promise<EventoComVagas> => {
-      const doc = await databases.getDocument(config.databaseId, config.collections.eventos, eventId);
+      let doc = await databases.getDocument(config.databaseId, config.collections.eventos, eventId);
       
+      // Force sync if viewing a past event
+      doc = await db.events._syncExpired(doc);
+
       // Tenta encontrar a quadra nos campos de relacionamento
       let quadra = doc.quadra || doc.quadras || doc.id_quadra || {};
       
@@ -181,7 +231,8 @@ export const db = {
       } as any as EventoComVagas;
     },
     get: async (eventId: string): Promise<Evento> => {
-      const doc = await databases.getDocument(config.databaseId, config.collections.eventos, eventId);
+      let doc = await databases.getDocument(config.databaseId, config.collections.eventos, eventId);
+      doc = await db.events._syncExpired(doc);
       return {
         ...doc,
         id_evento: doc.$id,

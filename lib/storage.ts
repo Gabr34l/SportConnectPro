@@ -36,9 +36,8 @@ export const uploadFile = async (uri: string, bucketId: string, userId: string):
       throw new Error(errorData.message || 'Failed to upload file to storage');
     }
 
-    // Appwrite SDK getFileView on Web sometimes returns an incomplete URL without project param
-    const viewUrl = storage.getFileView(bucketId, fileId).toString();
-    return viewUrl.includes('project=') ? viewUrl : `${viewUrl}&project=${config.projectId}`;
+    // Manually construct the view URL to avoid SDK version inconsistencies and Promise issues
+    return `${config.endpoint}/storage/buckets/${bucketId}/files/${fileId}/view?project=${config.projectId}`;
   } else {
     // Native Mobile handle
     const fileToUpload = {
@@ -48,8 +47,9 @@ export const uploadFile = async (uri: string, bucketId: string, userId: string):
     };
     
     await storage.createFile(bucketId, fileId, fileToUpload as any);
-    const viewUrl = storage.getFileView(bucketId, fileId).toString();
-    return viewUrl.includes('project=') ? viewUrl : `${viewUrl}&project=${config.projectId}`;
+    
+    // Manually construct the view URL to avoid SDK version inconsistencies and Promise issues
+    return `${config.endpoint}/storage/buckets/${bucketId}/files/${fileId}/view?project=${config.projectId}`;
   }
 };
 

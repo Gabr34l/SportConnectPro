@@ -70,15 +70,15 @@ export default function Perfil() {
           size: 0,
         });
 
-        // 2. Pegar a URL de visualização
-        const url = storage.getFileView(config.storageId, fileId);
+        // 2. Pegar a URL de visualização (Manualmente para evitar problemas com Promises do SDK)
+        const fileUrl = `${config.endpoint}/storage/buckets/${config.storageId}/files/${fileId}/view?project=${config.projectId}`;
         
         // 3. Atualizar no Banco de Dados
         await databases.updateDocument(
           config.databaseId,
           config.collections.usuarios,
           usuario.id_usuario,
-          { foto_perfil: url.toString() }
+          { foto_perfil: fileUrl }
         );
 
         // 4. Atualizar o contexto global

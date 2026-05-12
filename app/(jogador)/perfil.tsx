@@ -96,11 +96,8 @@ export default function Perfil() {
           await storage.createFile(config.storageId, fileId, fileObj as any);
         }
 
-        // 2. Pegar a URL e atualizar
-        let fileUrl = storage.getFileView(config.storageId, fileId).toString();
-        if (!fileUrl.startsWith('http')) {
-          fileUrl = `${config.endpoint}/storage/buckets/${config.storageId}/files/${fileId}/view?project=${config.projectId}`;
-        }
+        // 2. Pegar a URL de visualização (Manualmente para evitar problemas com Promises do SDK)
+        const fileUrl = `${config.endpoint}/storage/buckets/${config.storageId}/files/${fileId}/view?project=${config.projectId}`;
 
         await databases.updateDocument(
           config.databaseId,

@@ -1,10 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, ScrollView, Image, TouchableOpacity, ActivityIndicator, Modal, TextInput, Platform, Share, Alert } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import { databases, config } from '../../../lib/appwrite';
+import * as ImagePicker from 'expo-image-picker';
+import { databases, config, storage } from '../../../lib/appwrite';
+import { uploadFiles } from '../../../lib/storage';
 import { Quadra } from '../../../types';
 import { LinearGradient } from 'expo-linear-gradient';
-import { MapPin, ChevronLeft, Plus, Trash2, Edit3, Settings, Share2, Info, X, CheckCircle2 } from 'lucide-react-native';
+import { MapPin, ChevronLeft, Plus, Trash2, Edit3, Settings, Share2, Info, X, CheckCircle2, Camera } from 'lucide-react-native';
 import { StatusBadge } from '../../../components/StatusBadge';
 import { useToast } from '../../../components/Toast';
 
@@ -23,6 +25,7 @@ export default function DetalhesQuadra() {
   const [tempDescricao, setTempDescricao] = useState('');
   const [tempComodidades, setTempComodidades] = useState<string[]>([]);
   const [saving, setSaving] = useState(false);
+  const [tempFotos, setTempFotos] = useState<string[]>([]);
 
   useEffect(() => {
     if (id) fetchQuadra();
@@ -35,6 +38,7 @@ export default function DetalhesQuadra() {
       setQuadra(data);
       setTempDescricao(data.descricao || '');
       setTempComodidades(data.comodidades || []);
+      setTempFotos(data.fotos || []);
     } catch (e) {
       console.error('Erro ao buscar quadra:', e);
     } finally {
@@ -57,8 +61,21 @@ export default function DetalhesQuadra() {
   const handleUpdate = async () => {
     setSaving(true);
     try {
-      // Usamos try-catch interno para ignorar erros se os campos (descricao/comodidades) não existirem no banco
-      const updateData: any = {};
+      // 1. Upload das novas fotos (que ainda são URIs locais)
+      const fotosParaUpload = tempFotos.filter(f => f.startsWith('file://') || f.startsWith('blob:') || !f.startsWith('http'));
+      const fotosExistentes = tempFotos.filter(f => f.startsWith('http'));
+      
+      let finalFotos = fotosExistentes;
+      
+      if (fotosParaUpload.length > 0) {
+        const novasUrls = await uploadFiles(fotosParaUpload, config.storageId, quadra?.id_organizador || '');
+        finalFotos = [...fotosExistentes, ...novasUrls];
+      }
+
+      const updateData: any = {
+        fotos: finalFotos
+      };
+      
       if (tempDescricao !== undefined) updateData.descricao = tempDescricao;
       if (tempComodidades !== undefined) updateData.comodidades = tempComodidades;
 
@@ -74,7 +91,6 @@ export default function DetalhesQuadra() {
       fetchQuadra();
     } catch (e: any) {
       console.error('Erro ao atualizar:', e);
-      // Se der erro de atributo inexistente, avisamos de forma sutil
       if (e.message?.includes('attribute')) {
          toast.show({ 
            type: 'info', 
@@ -93,6 +109,29 @@ export default function DetalhesQuadra() {
     setTempComodidades(prev => 
       prev.includes(item) ? prev.filter(i => i !== item) : [...prev, item]
     );
+  };
+
+  const pickImages = async () => {
+    let result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      allowsMultipleSelection: true,
+      selectionLimit: 8,
+      quality: 0.7,
+    });
+
+    if (!result.canceled) {
+      const novosUris = result.assets.map(a => a.uri);
+      const total = tempFotos.length + novosUris.length;
+      if (total > 8) {
+        toast.show({ type: 'info', title: 'Aviso', message: 'Máximo de 8 fotos permitidas' });
+        return;
+      }
+      setTempFotos([...tempFotos, ...novosUris]);
+    }
+  };
+
+  const removeFoto = (index: number) => {
+    setTempFotos(tempFotos.filter((_, i) => i !== index));
   };
 
   const handleDelete = async () => {
@@ -238,6 +277,31 @@ export default function DetalhesQuadra() {
                 value={tempDescricao}
                 onChangeText={setTempDescricao}
               />
+
+              <Text className="text-gray-400 font-bold uppercase text-[10px] tracking-widest mt-8 mb-4">Fotos da Quadra ({tempFotos.length}/8)</Text>
+              <ScrollView horizontal showsHorizontalScrollIndicator={false} className="flex-row">
+                {tempFotos.map((f, i) => (
+                  <View key={i} className="mr-3 relative">
+                    <Image source={{ uri: f }} className="w-24 h-24 rounded-2xl" />
+                    <TouchableOpacity 
+                      onPress={() => removeFoto(i)}
+                      className="absolute -top-1 -right-1 bg-red-500 w-6 h-6 rounded-full justify-center items-center border-2 border-white"
+                    >
+                      <X size={14} color="white" strokeWidth={3} />
+                    </TouchableOpacity>
+                  </View>
+                ))}
+                
+                {tempFotos.length < 8 && (
+                  <TouchableOpacity 
+                    onPress={pickImages}
+                    className="w-24 h-24 rounded-2xl bg-gray-50 dark:bg-gray-950 border-2 border-dashed border-gray-200 justify-center items-center"
+                  >
+                    <Camera size={24} color="#9CA3AF" />
+                    <Text className="text-[10px] text-gray-400 font-bold mt-1 uppercase">Adicionar</Text>
+                  </TouchableOpacity>
+                )}
+              </ScrollView>
 
               <Text className="text-gray-400 font-bold uppercase text-[10px] tracking-widest mt-8 mb-4">Comodidades (Selecione)</Text>
               <View className="flex-row flex-wrap gap-3 mb-20">
