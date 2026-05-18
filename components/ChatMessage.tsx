@@ -1,8 +1,8 @@
 import React from 'react';
 import { View, Text, StyleSheet, Image } from 'react-native';
-import { useAuthContext } from '../contexts/AuthContext';
+import { useAuthContext } from '@/contexts/AuthContext';
 import { MensagemChat } from '../types';
-import { theme } from '../constants/theme';
+import { theme } from '@/constants/theme';
 import { format } from 'date-fns';
 
 export function ChatMessage({ mensagem }: { mensagem: MensagemChat }) {

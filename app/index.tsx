@@ -1,7 +1,7 @@
 import { View, ActivityIndicator } from 'react-native';
 import { Redirect, useLocalSearchParams } from 'expo-router';
-import { useAuthContext } from '../contexts/AuthContext';
-import { theme } from '../constants/theme';
+import { useAuthContext } from '@/contexts/AuthContext';
+import { theme } from '@/constants/theme';
 
 export default function Index() {
   const { session, usuario, loading } = useAuthContext();

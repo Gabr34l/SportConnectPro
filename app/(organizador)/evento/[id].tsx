@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, ScrollView, TouchableOpacity, ActivityIndicator, Image, Platform, Modal } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import { databases, config, Query } from '../../../lib/appwrite';
-import { StatusBadge } from '../../../components/StatusBadge';
-import { useToast } from '../../../components/Toast';
+import { databases, config, Query } from '@/lib/appwrite';
+import { StatusBadge } from '@/components/StatusBadge';
+import { useToast } from '@/components/Toast';
 import { format } from 'date-fns';
 import { Calendar, MapPin, Users, TrendingUp, CheckCircle, XCircle, UserMinus, ChevronLeft, LayoutDashboard, Clock } from 'lucide-react-native';
 

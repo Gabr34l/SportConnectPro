@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { databases, config, Query } from '../lib/appwrite';
+import { databases, config, Query } from '@/lib/appwrite';
 import { EventoComVagas, Participacao, Usuario } from '../types';
 
 export type ParticipanteInfo = Participacao & { usuarios?: Pick<Usuario, 'nome_completo' | 'foto_perfil' | 'nivel_habilidade'> };
@@ -49,7 +49,7 @@ export function useEventoDetalhe(idEvento: string, idUsuario?: string) {
     setLoading(true);
     try {
       // 1. Buscar Evento usando o serviço unificado que já tem o fallback de quadra
-      const { db } = require('../lib/database');
+      const { db } = require('@/lib/database');
       const eventoMapeado = await db.events.getHydrated(idEvento);
       setEvento(eventoMapeado);
 

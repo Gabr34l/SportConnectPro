@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { databases, config, Query, client } from '../lib/appwrite';
+import { databases, config, Query, client } from '@/lib/appwrite';
 import { Notificacao } from '../types';
 
 export function useNotificacoes(idUsuario?: string) {

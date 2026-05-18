@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { databases, config, Query, client } from '../lib/appwrite';
+import { databases, config, Query, client } from '@/lib/appwrite';
 import { EventoComVagas } from '../types';
 
 export function useJogosDoDia(filtroData: string, filtroEsporte?: string, filtroAmbiente?: string, filtroNivel?: string) {

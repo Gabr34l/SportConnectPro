@@ -1,15 +1,15 @@
 import React, { useState } from 'react';
 import { View, Text, ScrollView, Image, TouchableOpacity, ActivityIndicator, TextInput, Modal, Platform, Clipboard } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import { useAuthContext } from '../../../contexts/AuthContext';
-import { useEventoDetalhe } from '../../../hooks/useEventoDetalhe';
-import { useParticipacao } from '../../../hooks/useParticipacao';
-import { db } from '../../../lib/database';
-import { SportBadge } from '../../../components/SportBadge';
-import { AmbienteBadge } from '../../../components/AmbienteBadge';
-import { PlayerSlots } from '../../../components/PlayerSlots';
-import { RatingStars } from '../../../components/RatingStars';
-import { useToast } from '../../../components/Toast';
+import { useAuthContext } from '@/contexts/AuthContext';
+import { useEventoDetalhe } from '@/hooks/useEventoDetalhe';
+import { useParticipacao } from '@/hooks/useParticipacao';
+import { db } from '@/lib/database';
+import { SportBadge } from '@/components/SportBadge';
+import { AmbienteBadge } from '@/components/AmbienteBadge';
+import { PlayerSlots } from '@/components/PlayerSlots';
+import { RatingStars } from '@/components/RatingStars';
+import { useToast } from '@/components/Toast';
 import { format } from 'date-fns';
 import {
   CalendarDays,

@@ -1,8 +1,8 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { Platform } from 'react-native';
 import { router } from 'expo-router';
-import { account, config } from '../lib/appwrite';
-import { db } from '../lib/database';
+import { account, config } from '@/lib/appwrite';
+import { db } from '@/lib/database';
 import { Usuario } from '../types';
 import { Models } from 'react-native-appwrite';
 

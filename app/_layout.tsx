@@ -1,7 +1,7 @@
 import { Slot, SplashScreen } from 'expo-router';
-import { AuthProvider } from '../contexts/AuthContext';
+import { AuthProvider } from '@/contexts/AuthContext';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
-import { ToastProvider } from '../components/Toast';
+import { ToastProvider } from '@/components/Toast';
 import { useFonts, Inter_400Regular, Inter_700Bold } from '@expo-google-fonts/inter';
 import { useEffect } from 'react';
 import '../global.css';

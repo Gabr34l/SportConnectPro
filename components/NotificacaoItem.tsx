@@ -1,7 +1,7 @@
 import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import { Notificacao } from '../types';
-import { theme } from '../constants/theme';
+import { theme } from '@/constants/theme';
 import { format } from 'date-fns';
 
 export function NotificacaoItem({ item, onPress }: { item: Notificacao, onPress: () => void }) {

@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, ActivityIndicator, ImageBackground, ScrollView } from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
-import { account } from '../../lib/appwrite';
-import { useToast } from '../../components/Toast';
+import { account } from '@/lib/appwrite';
+import { useToast } from '@/components/Toast';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Lock, ChevronLeft, CheckCircle2 } from 'lucide-react-native';
 
@@ -66,7 +66,7 @@ export default function ResetPassword() {
     <View style={{ flex: 1, backgroundColor: '#000' }}>
       <ScrollView contentContainerStyle={{ flexGrow: 1 }} bounces={false}>
         <ImageBackground 
-          source={require('../../assets/images/hero_background.png')}
+          source={require('@/assets/images/hero_background.png')}
           style={{ flex: 1, width: '100%' }}
           resizeMode="cover"
         >

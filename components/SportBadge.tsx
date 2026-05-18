@@ -1,6 +1,6 @@
 import React from 'react';
 import { View, Text } from 'react-native';
-import { SPORTS } from '../constants/sports';
+import { SPORTS } from '@/constants/sports';
 import * as LucideIcons from 'lucide-react-native';
 
 export function SportBadge({ esporteId }: { esporteId: string }) {

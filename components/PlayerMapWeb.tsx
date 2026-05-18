@@ -4,9 +4,9 @@ import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
 import * as Location from 'expo-location';
-import { theme } from '../constants/theme';
+import { theme } from '@/constants/theme';
 import { Quadra } from '../types';
-import { db } from '../lib/database';
+import { db } from '@/lib/database';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { Search, Navigation } from 'lucide-react-native';
 

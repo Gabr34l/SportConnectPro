@@ -1,11 +1,12 @@
 import { useState, useEffect } from 'react';
 import { View, Text, TextInput, TouchableOpacity, ActivityIndicator, Modal, Platform, ImageBackground, ScrollView } from 'react-native';
 import { useRouter, Link } from 'expo-router';
-import { account, config } from '../../lib/appwrite';
-import { useToast } from '../../components/Toast';
-import { useAuthContext } from '../../contexts/AuthContext';
+import { account, config } from '@/lib/appwrite';
+import { useToast } from '@/components/Toast';
+import { useAuthContext } from '@/contexts/AuthContext';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Mail, Lock, ChevronLeft, AlertCircle } from 'lucide-react-native';
+import { Button, Input } from '@/components/ui';
 
 export default function Login() {
   const router = useRouter();
@@ -96,7 +97,7 @@ export default function Login() {
         showsVerticalScrollIndicator={false}
       >
         <ImageBackground 
-          source={require('../../assets/images/hero_background.png')}
+          source={require('@/assets/images/hero_background.png')}
           style={{ flex: 1, width: '100%' }}
           resizeMode="cover"
         >
@@ -117,46 +118,40 @@ export default function Login() {
             </View>
 
             <View className="gap-4">
-              <View className="bg-white/5 border border-white/10 rounded-[24px] flex-row items-center px-5 py-4 backdrop-blur-md">
-                <Mail size={20} color="#6B7280" />
-                <TextInput
-                  className="flex-1 ml-4 text-white text-base font-medium"
-                  placeholder="Seu e-mail"
-                  placeholderTextColor="#6B7280"
-                  value={email}
-                  onChangeText={setEmail}
-                  autoCapitalize="none"
-                  keyboardType="email-address"
-                />
-              </View>
+              <Input
+                icon={Mail}
+                placeholder="Seu e-mail"
+                value={email}
+                onChangeText={setEmail}
+                autoCapitalize="none"
+                keyboardType="email-address"
+                containerClassName="mb-0"
+                inputClassName="text-white font-medium"
+              />
 
-              <View className="bg-white/5 border border-white/10 rounded-[24px] flex-row items-center px-5 py-4 backdrop-blur-md">
-                <Lock size={20} color="#6B7280" />
-                <TextInput
-                  className="flex-1 ml-4 text-white text-base font-medium"
-                  placeholder="Sua senha"
-                  placeholderTextColor="#6B7280"
-                  value={password}
-                  onChangeText={setPassword}
-                  secureTextEntry
-                />
-              </View>
+              <Input
+                icon={Lock}
+                placeholder="Sua senha"
+                value={password}
+                onChangeText={setPassword}
+                secureTextEntry
+                containerClassName="mb-0"
+                inputClassName="text-white font-medium"
+              />
 
               <TouchableOpacity onPress={() => setResetModalVisible(true)} className="items-end mt-1 px-2">
                 <Text className="text-gray-500 text-sm font-bold">Esqueceu a senha?</Text>
               </TouchableOpacity>
 
-              <TouchableOpacity 
-                className={`rounded-[24px] py-5 items-center mt-6 transition-all ${loading ? 'bg-gray-800' : 'bg-[#00C853] shadow-lg shadow-green-500/40'}`}
+              <Button 
+                variant="primary" 
+                size="lg" 
+                className="mt-6 uppercase tracking-widest font-black"
                 onPress={handleLogin} 
-                disabled={loading}
+                loading={loading}
               >
-                {loading ? (
-                  <ActivityIndicator color="#fff" />
-                ) : (
-                  <Text className="text-white font-black text-lg uppercase tracking-widest">Entrar</Text>
-                )}
-              </TouchableOpacity>
+                Entrar
+              </Button>
 
               <View className="flex-row justify-center mt-6 pb-10">
                 <Text className="text-gray-500 text-base">Novo por aqui? </Text>
@@ -180,31 +175,30 @@ export default function Login() {
             <Text className="text-2xl font-black text-white text-center mb-2">Recuperar Senha</Text>
             <Text className="text-gray-400 text-center mb-8">Insira seu e-mail cadastrado para receber o link.</Text>
             
-            <View className="bg-white/5 border border-white/10 rounded-2xl flex-row items-center px-5 py-4 mb-6">
-              <Mail size={20} color="#6B7280" />
-              <TextInput
-                className="flex-1 ml-4 text-white text-base"
+            <Input
+                icon={Mail}
                 placeholder="E-mail"
-                placeholderTextColor="#6B7280"
                 value={resetEmail}
                 onChangeText={setResetEmail}
                 autoCapitalize="none"
+                containerClassName="mb-6"
+                inputClassName="text-white"
               />
-            </View>
 
-            <TouchableOpacity 
-              className="bg-[#00C853] rounded-2xl py-4 items-center mb-3 shadow-lg shadow-green-500/20"
+            <Button 
+              variant="primary" 
+              className="mb-3"
               onPress={handleResetPassword}
             >
-              <Text className="text-white font-bold text-base">Enviar Link</Text>
-            </TouchableOpacity>
+              Enviar Link
+            </Button>
             
-            <TouchableOpacity 
-              className="py-4 items-center"
+            <Button 
+              variant="ghost" 
               onPress={() => setResetModalVisible(false)}
             >
-              <Text className="text-gray-500 font-bold text-base">Voltar</Text>
-            </TouchableOpacity>
+              Voltar
+            </Button>
           </View>
         </View>
       </Modal>

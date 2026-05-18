@@ -1,4 +1,3 @@
-import { Platform } from 'react-native';
 import { storage, config, ID, account } from './appwrite';
 
 /**
@@ -9,6 +8,10 @@ export const uploadFile = async (uri: string, bucketId: string, userId: string):
   const extension = uri.split('.').pop() || 'jpg';
   const name = `file_${userId}_${Date.now()}.${extension}`;
   
+  // Garantir que os valores do config sejam strings
+  const endpoint = String(config.endpoint);
+  const projectId = String(config.projectId);
+
   if (Platform.OS === 'web') {
     // Web requires JWT for fetch-based upload to bypass react-native-appwrite limitations on web
     const jwtResponse = await account.createJWT();
@@ -21,10 +24,10 @@ export const uploadFile = async (uri: string, bucketId: string, userId: string):
     formData.append('fileId', fileId);
     formData.append('file', fileToUpload);
 
-    const uploadRes = await fetch(`${config.endpoint}/storage/buckets/${bucketId}/files`, {
+    const uploadRes = await fetch(`${endpoint}/storage/buckets/${bucketId}/files`, {
       method: 'POST',
       headers: {
-        'X-Appwrite-Project': config.projectId,
+        'X-Appwrite-Project': projectId,
         'X-Appwrite-JWT': jwtResponse.jwt,
       },
       body: formData,
@@ -37,7 +40,8 @@ export const uploadFile = async (uri: string, bucketId: string, userId: string):
     }
 
     // Manually construct the view URL to avoid SDK version inconsistencies and Promise issues
-    return `${config.endpoint}/storage/buckets/${bucketId}/files/${fileId}/view?project=${config.projectId}`;
+    const viewUrl = `${endpoint}/storage/buckets/${bucketId}/files/${fileId}/view?project=${projectId}`;
+    return viewUrl;
   } else {
     // Native Mobile handle
     const fileToUpload = {
@@ -49,7 +53,8 @@ export const uploadFile = async (uri: string, bucketId: string, userId: string):
     await storage.createFile(bucketId, fileId, fileToUpload as any);
     
     // Manually construct the view URL to avoid SDK version inconsistencies and Promise issues
-    return `${config.endpoint}/storage/buckets/${bucketId}/files/${fileId}/view?project=${config.projectId}`;
+    const viewUrl = `${endpoint}/storage/buckets/${bucketId}/files/${fileId}/view?project=${projectId}`;
+    return viewUrl;
   }
 };
 
@@ -60,9 +65,8 @@ export const uploadFiles = async (uris: string[], bucketId: string, userId: stri
   if (!uris || uris.length === 0) return [];
   
   // Executa todos os uploads em paralelo e aguarda a resolução de todos
-  const urls = await Promise.all(
-    uris.map(uri => uploadFile(uri, bucketId, userId))
-  );
+  const uploadPromises = uris.map(uri => uploadFile(uri, bucketId, userId));
+  const urls = await Promise.all(uploadPromises);
   
   return urls;
 };

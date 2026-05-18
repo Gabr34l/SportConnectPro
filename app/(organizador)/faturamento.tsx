@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, TouchableOpacity, ScrollView, ActivityIndicator, FlatList, RefreshControl } from 'react-native';
 import { useRouter } from 'expo-router';
-import { databases, config, Query } from '../../lib/appwrite';
-import { useAuthContext } from '../../contexts/AuthContext';
+import { databases, config, Query } from '@/lib/appwrite';
+import { useAuthContext } from '@/contexts/AuthContext';
 import { 
   ChevronLeft, 
   TrendingUp, 

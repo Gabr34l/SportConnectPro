@@ -1,6 +1,6 @@
 import { useState } from 'react';
-import { databases, config, Query } from '../lib/appwrite';
-import { db } from '../lib/database';
+import { databases, config, Query } from '@/lib/appwrite';
+import { db } from '@/lib/database';
 import { Quadra } from '../types';
 
 export function useQuadras() {

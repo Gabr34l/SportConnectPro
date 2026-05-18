@@ -2,10 +2,10 @@ import React, { useState, useEffect } from 'react';
 import { View, StyleSheet, ActivityIndicator, Text } from 'react-native';
 import MapView, { Marker } from 'react-native-maps';
 import * as Location from 'expo-location';
-import { theme } from '../constants/theme';
+import { theme } from '@/constants/theme';
 import { Quadra } from '../types';
 import { MapQuadraPin } from './MapQuadraPin';
-import { databases, config, Query } from '../lib/appwrite';
+import { databases, config, Query } from '@/lib/appwrite';
 
 export default function PlayerMap() {
   const [location, setLocation] = useState<Location.LocationObject | null>(null);

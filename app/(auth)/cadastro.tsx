@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, TextInput, TouchableOpacity, ScrollView, ActivityIndicator, Image, Platform, ImageBackground } from 'react-native';
 import { useRouter } from 'expo-router';
-import { account, databases, config, ID, Permission, Role } from '../../lib/appwrite';
-import { useToast } from '../../components/Toast';
-import { useAuthContext } from '../../contexts/AuthContext';
+import { account, databases, config, ID, Permission, Role } from '@/lib/appwrite';
+import { useToast } from '@/components/Toast';
+import { useAuthContext } from '@/contexts/AuthContext';
 import { TipoPerfil } from '../../types';
 import { LinearGradient } from 'expo-linear-gradient';
 import {
@@ -104,7 +104,7 @@ export default function Cadastro() {
         showsVerticalScrollIndicator={false}
       >
         <ImageBackground 
-          source={require('../../assets/images/hero_background.png')}
+          source={require('@/assets/images/hero_background.png')}
           style={{ flex: 1, width: '100%' }}
           resizeMode="cover"
         >

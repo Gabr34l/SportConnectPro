@@ -2,13 +2,13 @@ import React, { useEffect, useState } from 'react';
 import { View, Text, ScrollView, Image, TouchableOpacity, ActivityIndicator, Modal, TextInput, Platform, Share, Alert } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import * as ImagePicker from 'expo-image-picker';
-import { databases, config, storage } from '../../../lib/appwrite';
-import { uploadFiles } from '../../../lib/storage';
+import { databases, config, storage } from '@/lib/appwrite';
+import { uploadFiles } from '@/lib/storage';
 import { Quadra } from '../../../types';
 import { LinearGradient } from 'expo-linear-gradient';
 import { MapPin, ChevronLeft, Plus, Trash2, Edit3, Settings, Share2, Info, X, CheckCircle2, Camera } from 'lucide-react-native';
-import { StatusBadge } from '../../../components/StatusBadge';
-import { useToast } from '../../../components/Toast';
+import { StatusBadge } from '@/components/StatusBadge';
+import { useToast } from '@/components/Toast';
 
 const COMODIDADES_LIST = ['Vestiário', 'Estacionamento', 'Bar/Cantina', 'Wi-Fi', 'Iluminação', 'Bolas/Coletes', 'Churrasqueira'];
 

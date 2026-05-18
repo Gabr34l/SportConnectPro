@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, TextInput, TouchableOpacity, FlatList, ActivityIndicator, KeyboardAvoidingView, Platform, SafeAreaView } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import { databases, config, client, ID } from '../../lib/appwrite';
-import { db } from '../../lib/database';
-import { useAuthContext } from '../../contexts/AuthContext';
-import { ChatMessage } from '../../components/ChatMessage';
+import { databases, config, client, ID } from '@/lib/appwrite';
+import { db } from '@/lib/database';
+import { useAuthContext } from '@/contexts/AuthContext';
+import { ChatMessage } from '@/components/ChatMessage';
 import { MensagemChat } from '../../types';
 import { ChevronLeft, Send, Lock, MessageCircle } from 'lucide-react-native';
 

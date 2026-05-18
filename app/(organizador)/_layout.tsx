@@ -1,7 +1,7 @@
 import React from 'react';
 import { Tabs, Redirect } from 'expo-router';
-import { theme } from '../../constants/theme';
-import { useAuthContext } from '../../contexts/AuthContext';
+import { theme } from '@/constants/theme';
+import { useAuthContext } from '@/contexts/AuthContext';
 import { LayoutDashboard, Map, PlusCircle, User } from 'lucide-react-native';
 import { useColorScheme } from 'nativewind';
 

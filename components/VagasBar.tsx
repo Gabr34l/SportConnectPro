@@ -1,6 +1,6 @@
 import React from 'react';
 import { View, StyleSheet } from 'react-native';
-import { corVagas } from '../constants/theme';
+import { corVagas } from '@/constants/theme';
 
 export function VagasBar({ vagas, limite }: { vagas: number, limite: number }) {
   const pct = Math.max(0, Math.min(1, vagas / limite));

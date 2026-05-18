@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { databases, config, ID, client } from '../lib/appwrite';
+import { databases, config, ID, client } from '@/lib/appwrite';
 import { Functions } from 'react-native-appwrite';
 
 export function useParticipacao() {

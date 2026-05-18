@@ -1,14 +1,14 @@
 import React, { useState } from 'react';
 import { View, Text, FlatList, TouchableOpacity, ActivityIndicator, Image, ScrollView } from 'react-native';
 import { useRouter } from 'expo-router';
-import { useAuthContext } from '../../contexts/AuthContext';
-import { useJogosDoDia } from '../../hooks/useJogosDoDia';
-import { EventCard } from '../../components/EventCard';
-import { FilterChips, FilterOption } from '../../components/FilterChips';
-import { SPORTS, AMBIENTES, NIVEIS } from '../../constants/sports';
+import { useAuthContext } from '@/contexts/AuthContext';
+import { useJogosDoDia } from '@/hooks/useJogosDoDia';
+import { EventCard } from '@/components/EventCard';
+import { FilterChips, FilterOption } from '@/components/FilterChips';
+import { SPORTS, AMBIENTES, NIVEIS } from '@/constants/sports';
 import { format, addDays } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
-import { useNotificacoes } from '../../hooks/useNotificacoes';
+import { useNotificacoes } from '@/hooks/useNotificacoes';
 import { Bell, Frown, LayoutGrid, Leaf, Scaling, MapPin } from 'lucide-react-native';
 
 export default function HomeJogador() {

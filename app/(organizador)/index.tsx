@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, FlatList, TouchableOpacity, ActivityIndicator, ScrollView } from 'react-native';
 import { useRouter } from 'expo-router';
-import { databases, config, Query } from '../../lib/appwrite';
-import { useAuthContext } from '../../contexts/AuthContext';
-import { useQuadras } from '../../hooks/useQuadras';
-import { StatusBadge } from '../../components/StatusBadge';
+import { databases, config, Query } from '@/lib/appwrite';
+import { useAuthContext } from '@/contexts/AuthContext';
+import { useQuadras } from '@/hooks/useQuadras';
+import { StatusBadge } from '@/components/StatusBadge';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { Calendar, Plus, TrendingUp, Users, Sun, Moon } from 'lucide-react-native';

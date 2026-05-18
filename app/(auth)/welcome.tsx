@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import { View, Text, TouchableOpacity, Animated, ImageBackground, ScrollView, Dimensions } from 'react-native';
 import { useRouter } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
-import { useAuthContext } from '../../contexts/AuthContext';
+import { useAuthContext } from '@/contexts/AuthContext';
 
 const esportes = [
   { emoji: "⚽", nome: "Futebol", color: "#00C853" },
@@ -51,7 +51,7 @@ export default function Welcome() {
         showsVerticalScrollIndicator={false}
       >
         <ImageBackground 
-          source={require('../../assets/images/hero_background.png')}
+          source={require('@/assets/images/hero_background.png')}
           style={{ flex: 1, width: '100%', minHeight: Dimensions.get('window').height }}
           resizeMode="cover"
         >

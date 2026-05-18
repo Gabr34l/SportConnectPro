@@ -1,6 +1,6 @@
 import React from 'react';
 import { View, StyleSheet } from 'react-native';
-import { theme } from '../constants/theme';
+import { theme } from '@/constants/theme';
 
 export function PlayerSlots({ total, ocupadas }: { total: number, ocupadas: number }) {
   const slots = Array.from({ length: total }, (_, i) => i < ocupadas);

@@ -2,13 +2,14 @@ import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, ScrollView, ActivityIndicator, Image, Platform, Alert } from 'react-native';
 import { useRouter } from 'expo-router';
 import * as ImagePicker from 'expo-image-picker';
-import { config } from '../../lib/appwrite';
-import { useAuthContext } from '../../contexts/AuthContext';
-import { useToast } from '../../components/Toast';
+import { config } from '@/lib/appwrite';
+import { useAuthContext } from '@/contexts/AuthContext';
+import { useToast } from '@/components/Toast';
 import { MapPin, Camera, Building2, FileText, Phone, Hash, X, CheckCircle2 } from 'lucide-react-native';
-import { maskCNPJ, maskCEP, maskPhone } from '../../lib/utils';
-import { uploadFiles } from '../../lib/storage';
-import { db } from '../../lib/database';
+import { maskCNPJ, maskCEP, maskPhone } from '@/lib/utils';
+import { uploadFiles } from '@/lib/storage';
+import { db } from '@/lib/database';
+import { Button, Input, Card, CardContent } from '@/components/ui';
 
 export default function CadastrarQuadra() {
   const router = useRouter();
@@ -214,67 +215,59 @@ export default function CadastrarQuadra() {
 
       <View className="p-6">
         {/* Basic Info Section */}
-        <View className="bg-white dark:bg-gray-900 p-5 rounded-3xl border border-gray-100 dark:border-gray-800 mb-4 shadow-sm shadow-black/5">
+        <Card className="mb-4">
+          <CardContent>
           <Text className="text-sm font-bold text-gray-400 uppercase tracking-wider mb-4">Informações Básicas</Text>
           
-          <View className="flex-row items-center border border-gray-100 dark:border-gray-800 rounded-2xl px-4 py-3.5 mb-3 bg-gray-50 dark:bg-gray-950">
-            <Building2 size={20} color="#9CA3AF" />
-            <TextInput 
-              className="flex-1 ml-3 text-base text-gray-800 dark:text-white"
-              placeholder="Nome do Local (Ex: Arena Soccer)" 
-              value={nomeLocal} 
-              onChangeText={setNomeLocal} 
-            />
-          </View>
+          <Input 
+            icon={Building2}
+            placeholder="Nome do Local (Ex: Arena Soccer)" 
+            value={nomeLocal} 
+            onChangeText={setNomeLocal} 
+          />
 
-          <View className="flex-row items-center border border-gray-100 dark:border-gray-800 rounded-2xl px-4 py-3.5 mb-3 bg-gray-50 dark:bg-gray-950">
-            <Hash size={20} color="#9CA3AF" />
-            <TextInput 
-              className="flex-1 ml-3 text-base text-gray-800 dark:text-white"
-              placeholder="CNPJ" 
-              value={cnpj} 
-              onChangeText={(v) => {
-                const masked = maskCNPJ(v);
-                setCnpj(masked);
-                if (masked.replace(/\D/g, '').length === 14) {
-                   buscarCNPJ(masked);
-                }
-              }} 
-              keyboardType="numeric" 
-            />
-          </View>
+          <Input 
+            icon={Hash}
+            placeholder="CNPJ" 
+            value={cnpj} 
+            onChangeText={(v) => {
+              const masked = maskCNPJ(v);
+              setCnpj(masked);
+              if (masked.replace(/\D/g, '').length === 14) {
+                 buscarCNPJ(masked);
+              }
+            }} 
+            keyboardType="numeric" 
+          />
 
-          <View className="flex-row items-center border border-gray-100 dark:border-gray-800 rounded-2xl px-4 py-3.5 bg-gray-50 dark:bg-gray-950">
-            <FileText size={20} color="#9CA3AF" />
-            <TextInput 
-              className="flex-1 ml-3 text-base text-gray-800 dark:text-white"
-              placeholder="Razão Social" 
-              value={razaoSocial} 
-              onChangeText={setRazaoSocial} 
-            />
-          </View>
-        </View>
+          <Input 
+            icon={FileText}
+            placeholder="Razão Social" 
+            value={razaoSocial} 
+            onChangeText={setRazaoSocial}
+            containerClassName="mb-0"
+          />
+          </CardContent>
+        </Card>
 
         {/* Location Section */}
-        <View className="bg-white dark:bg-gray-900 p-5 rounded-3xl border border-gray-100 dark:border-gray-800 mb-4 shadow-sm shadow-black/5">
+        <Card className="mb-4">
+          <CardContent>
           <Text className="text-sm font-bold text-gray-400 uppercase tracking-wider mb-4">Localização & Contato</Text>
           
-          <View className="flex-row items-center border border-gray-100 dark:border-gray-800 rounded-2xl px-4 py-3.5 mb-3 bg-gray-50 dark:bg-gray-950">
-            <MapPin size={20} color="#9CA3AF" />
-            <TextInput 
-              className="flex-1 ml-3 text-base text-gray-800 dark:text-white"
-              placeholder="CEP" 
-              value={cep} 
-              onChangeText={(v) => {
-                const m = maskCEP(v);
-                setCep(m);
-                if (m.length === 9) buscarCEP(m);
-              }} 
-              keyboardType="numeric" 
-            />
-          </View>
+          <Input 
+            icon={MapPin}
+            placeholder="CEP" 
+            value={cep} 
+            onChangeText={(v) => {
+              const m = maskCEP(v);
+              setCep(m);
+              if (m.length === 9) buscarCEP(m);
+            }} 
+            keyboardType="numeric" 
+          />
 
-          <View className="flex-row items-start border border-gray-100 dark:border-gray-800 rounded-2xl px-4 py-3.5 mb-3 bg-gray-50 dark:bg-gray-950 min-h-[80px]">
+          <View className="flex-row items-start border border-gray-100 dark:border-gray-800 rounded-2xl px-4 py-3.5 mb-4 bg-gray-50 dark:bg-gray-950 min-h-[80px]">
             <MapPin size={20} color="#9CA3AF" style={{ marginTop: 2 }} />
             <TextInput 
               className="flex-1 ml-3 text-base text-gray-800 dark:text-white"
@@ -285,20 +278,20 @@ export default function CadastrarQuadra() {
             />
           </View>
 
-          <View className="flex-row items-center border border-gray-100 dark:border-gray-800 rounded-2xl px-4 py-3.5 bg-gray-50 dark:bg-gray-950">
-            <Phone size={20} color="#9CA3AF" />
-            <TextInput 
-              className="flex-1 ml-3 text-base text-gray-800 dark:text-white"
-              placeholder="Telefone Comercial" 
-              value={telefone} 
-              onChangeText={(v) => setTelefone(maskPhone(v))} 
-              keyboardType="phone-pad" 
-            />
-          </View>
-        </View>
+          <Input 
+            icon={Phone}
+            placeholder="Telefone Comercial" 
+            value={telefone} 
+            onChangeText={(v) => setTelefone(maskPhone(v))} 
+            keyboardType="phone-pad" 
+            containerClassName="mb-0"
+          />
+          </CardContent>
+        </Card>
 
         {/* Details Section */}
-        <View className="bg-white dark:bg-gray-900 p-5 rounded-3xl border border-gray-100 dark:border-gray-800 mb-4 shadow-sm shadow-black/5">
+        <Card className="mb-4">
+          <CardContent>
           <Text className="text-sm font-bold text-gray-400 uppercase tracking-wider mb-4">Sobre o Espaço</Text>
           
           <View className="border border-gray-100 dark:border-gray-800 rounded-2xl px-4 py-3.5 mb-5 bg-gray-50 dark:bg-gray-950 min-h-[120px]">
@@ -324,10 +317,12 @@ export default function CadastrarQuadra() {
               </TouchableOpacity>
             ))}
           </View>
-        </View>
+          </CardContent>
+        </Card>
 
         {/* Photos Section */}
-        <View className="bg-white dark:bg-gray-900 p-5 rounded-3xl border border-gray-100 dark:border-gray-800 mb-6 shadow-sm shadow-black/5">
+        <Card className="mb-6">
+          <CardContent>
           <View className="flex-row justify-between items-center mb-4">
             <Text className="text-sm font-bold text-gray-400 uppercase tracking-wider">Fotos do Local</Text>
             <Text className="text-xs text-gray-400 font-bold">{fotos.length}/8</Text>
@@ -357,31 +352,27 @@ export default function CadastrarQuadra() {
             )}
           </ScrollView>
           <Text className="text-xs text-gray-400 mt-3 italic">* Adicione fotos da fachada, vestiário e da própria quadra.</Text>
-        </View>
+          </CardContent>
+        </Card>
 
         {/* Actions */}
-        <TouchableOpacity 
-          className={`flex-row justify-center items-center rounded-3xl py-4 mb-4 ${loading ? 'bg-gray-300' : 'bg-[#00C853]'}`}
+        <Button 
+          size="lg"
+          className="mb-4"
           onPress={handleCadastrar} 
-          disabled={loading}
+          loading={loading}
         >
-          {loading ? (
-            <ActivityIndicator color="#fff" />
-          ) : (
-            <>
-              <CheckCircle2 size={20} color="white" className="mr-2" strokeWidth={2.5} />
-              <Text className="text-white font-bold text-lg ml-2">Salvar Quadra</Text>
-            </>
-          )}
-        </TouchableOpacity>
+          <CheckCircle2 size={20} color="white" className="mr-2" strokeWidth={2.5} />
+          Salvar Quadra
+        </Button>
 
-        <TouchableOpacity 
-          className="py-4 items-center"
+        <Button 
+          variant="ghost"
           onPress={() => router.back()} 
           disabled={loading}
         >
-          <Text className="text-gray-400 font-bold text-base">Cancelar e voltar</Text>
-        </TouchableOpacity>
+          Cancelar e voltar
+        </Button>
       </View>
     </ScrollView>
   );

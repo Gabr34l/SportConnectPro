@@ -1,10 +1,10 @@
 import React from 'react';
 import { View, Text, StyleSheet, FlatList, TouchableOpacity, ActivityIndicator } from 'react-native';
 import { useRouter } from 'expo-router';
-import { useAuthContext } from '../../contexts/AuthContext';
-import { useNotificacoes } from '../../hooks/useNotificacoes';
-import { NotificacaoItem } from '../../components/NotificacaoItem';
-import { theme } from '../../constants/theme';
+import { useAuthContext } from '@/contexts/AuthContext';
+import { useNotificacoes } from '@/hooks/useNotificacoes';
+import { NotificacaoItem } from '@/components/NotificacaoItem';
+import { theme } from '@/constants/theme';
 
 export default function Notificacoes() {
   const { usuario } = useAuthContext();

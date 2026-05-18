@@ -1,6 +1,6 @@
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
-import { SPORTS } from '../constants/sports';
+import { SPORTS } from '@/constants/sports';
 
 export function MapQuadraPin({ esporteId }: { esporteId: string }) {
   const sport = SPORTS.find(s => s.id === esporteId) || SPORTS[SPORTS.length - 1];

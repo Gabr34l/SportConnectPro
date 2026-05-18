@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, FlatList, TouchableOpacity, ActivityIndicator } from 'react-native';
 import { useRouter } from 'expo-router';
-import { useAuthContext } from '../../contexts/AuthContext';
-import { useQuadras } from '../../hooks/useQuadras';
-import { QuadraCard } from '../../components/QuadraCard';
+import { useAuthContext } from '@/contexts/AuthContext';
+import { useQuadras } from '@/hooks/useQuadras';
+import { QuadraCard } from '@/components/QuadraCard';
 import { Quadra } from '../../types';
 import { Plus, Building2 } from 'lucide-react-native';
 

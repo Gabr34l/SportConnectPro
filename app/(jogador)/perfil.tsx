@@ -1,10 +1,11 @@
 import React, { useState } from 'react';
 import { View, Text, TouchableOpacity, ScrollView, Image, Platform, Modal, ActivityIndicator } from 'react-native';
-import { useAuthContext } from '../../contexts/AuthContext';
-import { useToast } from '../../components/Toast';
+import { useAuthContext } from '@/contexts/AuthContext';
+import { useToast } from '@/components/Toast';
 import * as ImagePicker from 'expo-image-picker';
-import { databases, config, storage, ID } from '../../lib/appwrite';
-import { Mail, Shield, LogOut, Camera, ChevronRight, Settings, Info, CreditCard } from 'lucide-react-native';
+import { databases, config, storage, ID } from '@/lib/appwrite';
+import { Mail, Shield, LogOut, Camera, ChevronRight, Info, CreditCard } from 'lucide-react-native';
+import { Button } from '@/components/ui';
 
 // Mover o sub-componente para fora para evitar erros de renderização e sintaxe
 const MenuOption = ({ icon: Icon, label, value, onPress, color = "#6B7280" }: any) => (
@@ -97,7 +98,9 @@ export default function Perfil() {
         }
 
         // 2. Pegar a URL de visualização (Manualmente para evitar problemas com Promises do SDK)
-        const fileUrl = `${config.endpoint}/storage/buckets/${config.storageId}/files/${fileId}/view?project=${config.projectId}`;
+        const endpoint = String(config.endpoint);
+        const projectId = String(config.projectId);
+        const fileUrl = `${endpoint}/storage/buckets/${config.storageId}/files/${fileId}/view?project=${projectId}`;
 
         await databases.updateDocument(
           config.databaseId,
@@ -150,18 +153,21 @@ export default function Perfil() {
           color="#3B82F6"
         />
 
-        <MenuOption icon={Settings} label="Configurações" value="Privacidade, Notificações..." onPress={() => { }} />
+
         <MenuOption icon={Info} label="Sobre o App" value="v1.2.4" onPress={() => { }} />
       </View>
 
       <View className="p-8 mb-10">
-        <TouchableOpacity
-          className="bg-white dark:bg-gray-900 border-2 border-red-50 py-4 rounded-[24px] flex-row justify-center items-center shadow-sm shadow-black/5"
+        <Button 
+          variant="danger" 
+          size="lg"
+          className="rounded-[24px] bg-red-50 dark:bg-red-900/20 border-2 border-red-100 dark:border-red-900/30 text-red-500 shadow-none"
+          textClassName="text-red-500"
           onPress={handleLogout}
         >
           <LogOut size={18} color="#EF4444" className="mr-2" />
-          <Text className="text-[#EF4444] font-black text-base ml-2">Sair da Conta</Text>
-        </TouchableOpacity>
+          Sair da Conta
+        </Button>
         <Text className="text-gray-300 text-center mt-6 text-xs uppercase tracking-[3px] font-bold">SportConnect Pro</Text>
       </View>
 
@@ -175,19 +181,22 @@ export default function Perfil() {
             <Text className="text-2xl font-black text-gray-800 dark:text-white text-center mb-2">Sair da conta?</Text>
             <Text className="text-base text-gray-400 text-center mb-8">Deseja realmente sair da sua conta atual?</Text>
 
-            <TouchableOpacity
-              className="bg-[#EF4444] rounded-[20px] py-4 items-center mb-3 shadow-lg shadow-red-500/30"
+            <Button 
+              variant="danger" 
+              className="mb-3 rounded-[20px]"
               onPress={() => { setShowLogoutModal(false); signOut(); }}
             >
-              <Text className="text-white font-black text-lg">Sim, quero sair</Text>
-            </TouchableOpacity>
+              Sim, quero sair
+            </Button>
 
-            <TouchableOpacity
-              className="border border-gray-100 dark:border-gray-800 rounded-[20px] py-4 items-center"
+            <Button 
+              variant="outline" 
+              className="rounded-[20px] border-gray-200 dark:border-gray-800"
+              textClassName="text-gray-400"
               onPress={() => setShowLogoutModal(false)}
             >
-              <Text className="text-gray-400 font-bold text-base">Cancelar</Text>
-            </TouchableOpacity>
+              Cancelar
+            </Button>
           </View>
         </View>
       </Modal>

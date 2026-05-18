@@ -1,13 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, TextInput, TouchableOpacity, ScrollView, ActivityIndicator, Platform } from 'react-native';
 import { useRouter } from 'expo-router';
-import { config } from '../../lib/appwrite';
-import { db } from '../../lib/database';
-import { SPORTS, FORMATOS, AMBIENTES, NIVEIS } from '../../constants/sports';
-import { useAuthContext } from '../../contexts/AuthContext';
-import { useQuadras } from '../../hooks/useQuadras';
-import { useToast } from '../../components/Toast';
-import { Quadra } from '../../types';
+import { config } from '@/lib/appwrite';
+import { db } from '@/lib/database';
+import { SPORTS, FORMATOS, AMBIENTES, NIVEIS } from '@/constants/sports';
+import { useAuthContext } from '@/contexts/AuthContext';
+import { useQuadras } from '@/hooks/useQuadras';
+import { useToast } from '@/components/Toast';
+import { Quadra } from '@/types';
+import { Button, Input, Card, CardContent } from '@/components/ui';
 import * as LucideIcons from 'lucide-react-native';
 import { 
   Building2, 
@@ -20,9 +21,27 @@ import {
   ChevronLeft,
   LayoutGrid,
   Leaf,
-  BicepsFlexed,
-  LayoutDashboard
+  LayoutDashboard,
+  Trophy,
+  Activity,
+  Footprints,
+  Target,
+  Dribbble,
+  CircleDot,
+  Waves,
+  Dumbbell
 } from 'lucide-react-native';
+
+const LUCIDE_ICONS: Record<string, any> = {
+  Trophy,
+  Footprints,
+  Target,
+  Dribbble,
+  CircleDot,
+  Waves,
+  Dumbbell,
+  Activity
+};
 
 export default function CriarEvento() {
   const router = useRouter();
@@ -46,11 +65,6 @@ export default function CriarEvento() {
   const [horaInicio, setHoraInicio] = useState(''); // HH:MM
   const [horaFim, setHoraFim] = useState(''); // HH:MM
   
-  // Pickers Native
-  const [showDatePicker, setShowDatePicker] = useState(false);
-  const [showTimePickerInicio, setShowTimePickerInicio] = useState(false);
-  const [showTimePickerFim, setShowTimePickerFim] = useState(false);
-  
   const [vagas, setVagas] = useState('12');
   const [preco, setPreco] = useState('0.00');
 
@@ -68,9 +82,38 @@ export default function CriarEvento() {
     if (Platform.OS === 'web') {
       toast.show({ type, title, message });
     } else {
-      const { Alert } = require('react-native');
       Alert.alert(title, message);
     }
+  };
+
+  const validateStep = (currentStep: number) => {
+    if (currentStep === 1) {
+      if (!idQuadra) {
+        showFeedback('info', 'Aviso', 'Selecione uma quadra');
+        return false;
+      }
+      if (!titulo) {
+        showFeedback('info', 'Aviso', 'Informe um título para o evento');
+        return false;
+      }
+    }
+    if (currentStep === 2) {
+      if (!dataEvento || dataEvento.length < 10) {
+        showFeedback('info', 'Aviso', 'Informe uma data válida (AAAA-MM-DD)');
+        return false;
+      }
+      if (!horaInicio || !horaFim) {
+        showFeedback('info', 'Aviso', 'Informe os horários de início e fim');
+        return false;
+      }
+    }
+    if (currentStep === 3) {
+      if (!vagas || parseInt(vagas) <= 0) {
+        showFeedback('info', 'Aviso', 'Informe o número de vagas');
+        return false;
+      }
+    }
+    return true;
   };
 
   const handleMaskData = (v: string) => {
@@ -91,6 +134,8 @@ export default function CriarEvento() {
 
   const handlePublicar = async () => {
     if (!usuario) return;
+    if (!validateStep(1) || !validateStep(2) || !validateStep(3)) return;
+
     setLoading(true);
     
     try {
@@ -103,21 +148,22 @@ export default function CriarEvento() {
         tipo_ambiente: ambiente,
         preco_por_vaga: parsePreco(),
         data_evento: dataEvento,
-        horario_inicio: horaInicio + ':00',
-        horario_fim: horaFim + ':00',
+        horario_inicio: horaInicio.includes(':') ? (horaInicio.length === 5 ? horaInicio + ':00' : horaInicio) : '19:00:00',
+        horario_fim: horaFim.includes(':') ? (horaFim.length === 5 ? horaFim + ':00' : horaFim) : '20:00:00',
         limite_participantes: parseVagas(),
-        nivel_requerido: nivel,
+        nivel_requerido: nivel as any,
         status: 'ABERTO'
       });
 
-      showFeedback('success', 'Evento Criado!', 'Seu evento já está disponível para os jogadores.');
-      setTimeout(() => router.replace('/(organizador)'), 2000);
+      showFeedback('success', 'Sucesso!', 'Evento criado com sucesso!');
+      router.replace('/(organizador)');
     } catch (e: any) {
-      console.error('Info: Registro no banco pode ter ocorrido apesar do erro:', e);
-      // Sempre mostramos sucesso pois o Appwrite costuma retornar erro de autorização
-      // mesmo após criar o documento com sucesso no banco de dados.
-      showFeedback('success', 'Evento Criado!', 'Seu evento já está disponível para os jogadores.');
-      setTimeout(() => router.replace('/(organizador)'), 2000);
+      console.error('Erro ao criar evento:', e);
+      if (e.message?.includes('Permissions') || e.message?.includes('authorized')) {
+        showFeedback('error', 'Erro de Permissão', 'Você não tem permissão para criar eventos nesta quadra.');
+      } else {
+        showFeedback('error', 'Falha ao Criar', 'Não foi possível salvar o evento no banco de dados.');
+      }
     } finally {
       setLoading(false);
     }
@@ -166,7 +212,8 @@ export default function CriarEvento() {
         
         {step === 1 && (
           <View>
-            <View className="bg-white dark:bg-gray-900 p-5 rounded-3xl border border-gray-100 dark:border-gray-800 mb-4 shadow-sm shadow-black/5">
+            <Card className="mb-4">
+              <CardContent>
               <Text className="text-sm font-bold text-gray-400 uppercase tracking-wider mb-4">Escolha a Quadra</Text>
               <View className="gap-2">
                 {quadrasAprovadas.map(q => (
@@ -189,19 +236,17 @@ export default function CriarEvento() {
               </View>
 
               <Text className="text-sm font-bold text-gray-400 uppercase tracking-wider my-4">Título & Esporte</Text>
-              <View className="flex-row items-center border border-gray-100 dark:border-gray-800 rounded-2xl px-4 py-3.5 mb-3 bg-gray-50 dark:bg-gray-950">
-                <LayoutDashboard size={20} color="#9CA3AF" />
-                <TextInput 
-                  className="flex-1 ml-3 text-base text-gray-800 dark:text-white"
-                  placeholder="Ex: Racha de Sexta" 
-                  value={titulo} 
-                  onChangeText={setTitulo} 
-                />
-              </View>
+              <Input
+                icon={LayoutDashboard}
+                placeholder="Ex: Racha de Sexta"
+                value={titulo}
+                onChangeText={setTitulo}
+                containerClassName="mb-3"
+              />
 
               <View className="flex-row flex-wrap gap-2">
                 {SPORTS.map(s => {
-                  const Icon = (LucideIcons as any)[s.iconName] || LucideIcons.Activity;
+                  const Icon = LUCIDE_ICONS[s.iconName] || Activity;
                   const isSelected = esporte === s.id;
                   return (
                     <TouchableOpacity 
@@ -219,9 +264,11 @@ export default function CriarEvento() {
                   );
                 })}
               </View>
-            </View>
+              </CardContent>
+            </Card>
 
-            <View className="bg-white dark:bg-gray-900 p-5 rounded-3xl border border-gray-100 dark:border-gray-800 mb-8 shadow-sm shadow-black/5">
+            <Card className="mb-8">
+              <CardContent>
               <Text className="text-sm font-bold text-gray-400 uppercase tracking-wider mb-4">Mais Detalhes</Text>
               
               <Text className="text-xs font-bold text-gray-300 mb-2">FORMATO</Text>
@@ -275,15 +322,18 @@ export default function CriarEvento() {
                   </TouchableOpacity>
                 ))}
               </View>
-            </View>
+              </CardContent>
+            </Card>
 
-            <TouchableOpacity 
-              className="bg-[#00C853] py-4 rounded-3xl flex-row justify-center items-center"
-              onPress={() => setStep(2)}
+            <Button 
+              size="lg"
+              onPress={() => {
+                if (validateStep(1)) setStep(2);
+              }}
             >
-              <Text className="text-white font-bold text-lg">Próxima Etapa</Text>
+              Próxima Etapa
               <ChevronRight color="white" size={20} className="ml-2" />
-            </TouchableOpacity>
+            </Button>
           </View>
         )}
 
@@ -355,19 +405,22 @@ export default function CriarEvento() {
 
             </View>
 
-            <TouchableOpacity 
-              className="bg-[#00C853] py-4 rounded-3xl flex-row justify-center items-center mb-3"
-              onPress={() => setStep(3)}
+            <Button 
+              size="lg"
+              className="mb-3"
+              onPress={() => {
+                if (validateStep(2)) setStep(3);
+              }}
             >
-              <Text className="text-white font-bold text-lg">Próxima Etapa</Text>
+              Próxima Etapa
               <ChevronRight color="white" size={20} className="ml-2" />
-            </TouchableOpacity>
-            <TouchableOpacity 
-              className="py-4 items-center"
+            </Button>
+            <Button 
+              variant="ghost"
               onPress={() => setStep(1)}
             >
-              <Text className="text-gray-400 font-bold text-base">Voltar</Text>
-            </TouchableOpacity>
+              Voltar
+            </Button>
           </View>
         )}
 
@@ -411,19 +464,22 @@ export default function CriarEvento() {
               </View>
             </View>
 
-            <TouchableOpacity 
-              className="bg-[#00C853] py-4 rounded-3xl flex-row justify-center items-center mb-3"
-              onPress={() => setStep(4)}
+            <Button 
+              size="lg"
+              className="mb-3"
+              onPress={() => {
+                if (validateStep(3)) setStep(4);
+              }}
             >
-              <Text className="text-white font-bold text-lg">Revisar Evento</Text>
+              Revisar Evento
               <ChevronRight color="white" size={20} className="ml-2" />
-            </TouchableOpacity>
-            <TouchableOpacity 
-              className="py-4 items-center"
+            </Button>
+            <Button 
+              variant="ghost"
               onPress={() => setStep(2)}
             >
-              <Text className="text-gray-400 font-bold text-base">Voltar</Text>
-            </TouchableOpacity>
+              Voltar
+            </Button>
           </View>
         )}
 
@@ -491,13 +547,13 @@ export default function CriarEvento() {
                 </>
               )}
             </TouchableOpacity>
-            <TouchableOpacity 
-              className="py-4 items-center"
+            <Button 
+              variant="ghost"
               onPress={() => setStep(3)}
               disabled={loading}
             >
-              <Text className="text-gray-400 font-bold text-base">Ajustar Detalhes</Text>
-            </TouchableOpacity>
+              Ajustar Detalhes
+            </Button>
           </View>
         )}
 

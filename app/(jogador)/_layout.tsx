@@ -1,7 +1,7 @@
 import React from 'react';
 import { Tabs, Redirect } from 'expo-router';
 import { View, Text } from 'react-native';
-import { useAuthContext } from '../../contexts/AuthContext';
+import { useAuthContext } from '@/contexts/AuthContext';
 import { Home, Map, Heart, User } from 'lucide-react-native';
 
 export default function JogadorLayout() {

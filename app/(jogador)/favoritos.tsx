@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, FlatList, ActivityIndicator } from 'react-native';
-import { databases, config, Query } from '../../lib/appwrite';
-import { useAuthContext } from '../../contexts/AuthContext';
-import { QuadraCard } from '../../components/QuadraCard';
+import { databases, config, Query } from '@/lib/appwrite';
+import { useAuthContext } from '@/contexts/AuthContext';
+import { QuadraCard } from '@/components/QuadraCard';
 import { Quadra } from '../../types';
 import { Heart } from 'lucide-react-native';
 
