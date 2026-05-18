@@ -2,7 +2,7 @@ import React from 'react';
 import { TouchableOpacity, Text, TouchableOpacityProps, ActivityIndicator } from 'react-native';
 
 export interface ButtonProps extends TouchableOpacityProps {
-  variant?: 'primary' | 'secondary' | 'outline' | 'ghost' | 'danger';
+  variant?: 'primary' | 'secondary' | 'outline' | 'ghost' | 'danger' | 'danger-outline' | 'danger-ghost';
   size?: 'sm' | 'md' | 'lg';
   loading?: boolean;
   children: React.ReactNode;
@@ -28,6 +28,8 @@ export function Button({
     outline: 'border border-[#00C853] bg-transparent',
     ghost: 'bg-transparent',
     danger: 'bg-red-500 shadow-lg shadow-red-500/40',
+    'danger-outline': 'border border-red-100 bg-red-50 dark:bg-red-950/20 dark:border-red-900/30',
+    'danger-ghost': 'bg-transparent',
   };
 
   const sizeClasses = {
@@ -44,6 +46,8 @@ export function Button({
     outline: 'text-[#00C853]',
     ghost: 'text-gray-400',
     danger: 'text-white',
+    'danger-outline': 'text-red-500',
+    'danger-ghost': 'text-red-500',
   };
 
   const textSizeClasses = {

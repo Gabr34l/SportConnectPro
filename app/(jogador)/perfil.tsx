@@ -196,10 +196,9 @@ export default function Perfil() {
 
       <View className="p-8 mb-10">
         <Button 
-          variant="danger" 
-          size="lg"
-          className="rounded-[24px] bg-red-50 dark:bg-red-900/20 border-2 border-red-100 dark:border-red-900/30 text-red-500 shadow-none"
-          textClassName="text-red-500"
+          variant="danger-outline" 
+          size="md"
+          className="rounded-[24px]"
           onPress={handleLogout}
         >
           <LogOut size={18} color="#EF4444" className="mr-2" />
