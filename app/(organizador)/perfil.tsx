@@ -107,7 +107,7 @@ export default function Perfil() {
         <Icon size={20} color={color} />
       </View>
       <View className="ml-4 flex-1">
-        <Text className="text-xs text-gray-400 font-bold uppercase tracking-widest mb-0.5">{label}</Text>
+        {label ? <Text className="text-xs text-gray-400 font-bold uppercase tracking-widest mb-0.5">{label}</Text> : null}
         <Text className="text-base font-bold text-gray-800 dark:text-white">{value}</Text>
       </View>
       {onPress && <ChevronRight size={16} color="#D1D5DB" />}
@@ -139,11 +139,8 @@ export default function Perfil() {
 
       <View className="mt-4">
         <MenuOption icon={Mail} label="E-mail de Contato" value={usuario.email} />
-        <MenuOption icon={Building2} label="Gerenciar Quadras" value="Configuração e Fotos" onPress={() => router.push('/(organizador)/quadras')} color="#10B981" />
-
+        <MenuOption icon={Building2} value="Gerenciar Quadras" onPress={() => router.push('/(organizador)/quadras')} color="#10B981" />
         <MenuOption icon={BarChart3} label="Relatórios & Vendas" value="Ver faturamento" onPress={() => router.push('/(organizador)/faturamento')} color="#F59E0B" />
-
-
       </View>
 
       <View className="p-8 mb-10">

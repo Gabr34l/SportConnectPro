@@ -18,7 +18,7 @@ const MenuOption = ({ icon: Icon, label, value, onPress, color = "#6B7280" }: an
       <Icon size={20} color={color} />
     </View>
     <View className="ml-4 flex-1">
-      <Text className="text-xs text-gray-400 font-bold uppercase tracking-widest mb-0.5">{label}</Text>
+      {label ? <Text className="text-xs text-gray-400 font-bold uppercase tracking-widest mb-0.5">{label}</Text> : null}
       <Text className="text-base font-bold text-gray-800 dark:text-white">{value}</Text>
     </View>
     {onPress && <ChevronRight size={16} color="#D1D5DB" />}
@@ -30,6 +30,17 @@ export default function Perfil() {
   const toast = useToast();
   const [loading, setLoading] = useState(false);
   const [showLogoutModal, setShowLogoutModal] = useState(false);
+  const [showLevelModal, setShowLevelModal] = useState(false);
+  
+  // Local state for optimistic UI update
+  const [nivelLocal, setNivelLocal] = useState(usuario?.nivel_habilidade || 'Não definido');
+
+  // Sync if context updates
+  React.useEffect(() => {
+    if (usuario?.nivel_habilidade) {
+      setNivelLocal(usuario.nivel_habilidade);
+    }
+  }, [usuario?.nivel_habilidade]);
 
   const showFeedback = (type: 'success' | 'error' | 'info', title: string, message: string) => {
     if (Platform.OS === 'web') {
@@ -119,6 +130,31 @@ export default function Perfil() {
     }
   };
 
+  const handleMudarNivel = async (novoNivel: string) => {
+    if (!usuario) return;
+    
+    // Optimistic UI Update
+    setNivelLocal(novoNivel);
+    setShowLevelModal(false);
+    
+    try {
+      await databases.updateDocument(
+        config.databaseId,
+        config.collections.usuarios,
+        usuario.id_usuario,
+        { nivel_habilidade: novoNivel }
+      );
+      // Background refresh context without blocking UI
+      refreshUsuario(usuario.id_usuario);
+    } catch (e) {
+      console.error('Erro ao atualizar nível:', e);
+      // Se falhar silenciosamente retorna ao estado original
+      if (usuario.nivel_habilidade) {
+        setNivelLocal(usuario.nivel_habilidade);
+      }
+    }
+  };
+
   if (!usuario) return null;
 
   return (
@@ -149,8 +185,9 @@ export default function Perfil() {
         <MenuOption
           icon={Shield}
           label="Nível de Habilidade"
-          value={usuario.nivel_habilidade || 'Não definido'}
+          value={nivelLocal}
           color="#3B82F6"
+          onPress={() => setShowLevelModal(true)}
         />
 
 
@@ -194,6 +231,38 @@ export default function Perfil() {
               className="rounded-[20px] border-gray-200 dark:border-gray-800"
               textClassName="text-gray-400"
               onPress={() => setShowLogoutModal(false)}
+            >
+              Cancelar
+            </Button>
+          </View>
+        </View>
+      </Modal>
+
+      {/* Level Selection Modal */}
+      <Modal visible={showLevelModal} transparent animationType="fade">
+        <View className="flex-1 bg-black/60 justify-end sm:justify-center px-4 pb-4">
+          <View className="bg-white dark:bg-gray-900 rounded-[32px] p-6 shadow-2xl">
+            <Text className="text-xl font-black text-gray-800 dark:text-white mb-2 text-center">Seu Nível de Jogo</Text>
+            <Text className="text-sm text-gray-400 text-center mb-6">Como você avalia sua habilidade hoje?</Text>
+            
+            <View className="gap-3 mb-6">
+              {['Iniciante', 'Intermediário', 'Avançado'].map((n) => (
+                <TouchableOpacity 
+                  key={n}
+                  className={`py-4 px-6 rounded-2xl flex-row items-center border ${nivelLocal === n ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20' : 'border-gray-100 dark:border-gray-800'}`}
+                  onPress={() => handleMudarNivel(n)}
+                >
+                  <Shield size={20} color={nivelLocal === n ? "#3B82F6" : "#9CA3AF"} />
+                  <Text className={`ml-3 text-base font-bold ${nivelLocal === n ? 'text-blue-600 dark:text-blue-400' : 'text-gray-600 dark:text-gray-300'}`}>
+                    {n}
+                  </Text>
+                </TouchableOpacity>
+              ))}
+            </View>
+
+            <Button 
+              variant="ghost" 
+              onPress={() => setShowLevelModal(false)}
             >
               Cancelar
             </Button>
