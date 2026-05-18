@@ -133,8 +133,13 @@ export default function Perfil() {
   const handleMudarNivel = async (novoNivel: string) => {
     if (!usuario) return;
     
+    // Mapping para os valores exatos do banco
+    const dbValue = novoNivel === 'Iniciante' ? 'INICIANTE' : 
+                    novoNivel === 'Intermediário' ? 'INTERMEDIÁRIO' : 
+                    novoNivel === 'Avançado' ? 'Avançado' : novoNivel;
+
     // Optimistic UI Update
-    setNivelLocal(novoNivel);
+    setNivelLocal(dbValue);
     setShowLevelModal(false);
     
     try {
@@ -142,7 +147,7 @@ export default function Perfil() {
         config.databaseId,
         config.collections.usuarios,
         usuario.id_usuario,
-        { nivel_habilidade: novoNivel }
+        { nivel_habilidade: dbValue }
       );
       // Background refresh context without blocking UI
       refreshUsuario(usuario.id_usuario);
@@ -185,7 +190,12 @@ export default function Perfil() {
         <MenuOption
           icon={Shield}
           label="Nível de Habilidade"
-          value={nivelLocal}
+          value={
+            nivelLocal === 'INICIANTE' ? 'Iniciante' :
+            nivelLocal === 'INTERMEDIÁRIO' ? 'Intermediário' :
+            nivelLocal === 'Avançado' ? 'Avançado' :
+            nivelLocal || 'Não definido'
+          }
           color="#3B82F6"
           onPress={() => setShowLevelModal(true)}
         />
@@ -245,18 +255,22 @@ export default function Perfil() {
             <Text className="text-sm text-gray-400 text-center mb-6">Como você avalia sua habilidade hoje?</Text>
             
             <View className="gap-3 mb-6">
-              {['Iniciante', 'Intermediário', 'Avançado'].map((n) => (
+              {['Iniciante', 'Intermediário', 'Avançado'].map((n) => {
+                const dbValue = n === 'Iniciante' ? 'INICIANTE' : 
+                                n === 'Intermediário' ? 'INTERMEDIÁRIO' : 
+                                'Avançado';
+                return (
                 <TouchableOpacity 
                   key={n}
-                  className={`py-4 px-6 rounded-2xl flex-row items-center border ${nivelLocal === n ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20' : 'border-gray-100 dark:border-gray-800'}`}
+                  className={`py-4 px-6 rounded-2xl flex-row items-center border ${nivelLocal === dbValue ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20' : 'border-gray-100 dark:border-gray-800'}`}
                   onPress={() => handleMudarNivel(n)}
                 >
-                  <Shield size={20} color={nivelLocal === n ? "#3B82F6" : "#9CA3AF"} />
-                  <Text className={`ml-3 text-base font-bold ${nivelLocal === n ? 'text-blue-600 dark:text-blue-400' : 'text-gray-600 dark:text-gray-300'}`}>
+                  <Shield size={20} color={nivelLocal === dbValue ? "#3B82F6" : "#9CA3AF"} />
+                  <Text className={`ml-3 text-base font-bold ${nivelLocal === dbValue ? 'text-blue-600 dark:text-blue-400' : 'text-gray-600 dark:text-gray-300'}`}>
                     {n}
                   </Text>
                 </TouchableOpacity>
-              ))}
+              )})}
             </View>
 
             <Button 
