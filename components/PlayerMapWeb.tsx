@@ -276,10 +276,9 @@ export default function PlayerMapWeb() {
                   <div style={{ backgroundColor: '#EBF8FF', color: '#3182CE', padding: '4px 10px', borderRadius: '6px', fontSize: '10px', fontWeight: '800', display: 'inline-block', marginBottom: '8px' }}>QUADRA SPORTCONNECT</div>
                   <h3 style={{ margin: '0 0 5px', fontSize: '19px', fontWeight: '900', color: '#1A202C' }}>{q.nome_local}</h3>
                   <p style={{ margin: '0 0 20px', fontSize: '13px', color: '#718096' }}>📍 {q.endereco_completo}</p>
-                  <button onClick={() => openInGoogleMaps(q.latitude!, q.longitude!, q.endereco_completo)} style={{ width: '100%', backgroundColor: '#4285F4', color: 'white', border: 'none', padding: '12px', borderRadius: '12px', fontWeight: '800', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', marginBottom: '10px' }}>
+                  <button onClick={() => openInGoogleMaps(q.latitude!, q.longitude!, q.endereco_completo)} style={{ width: '100%', backgroundColor: '#4285F4', color: 'white', border: 'none', padding: '12px', borderRadius: '12px', fontWeight: '800', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
                     <Navigation size={16} /> VER NO GOOGLE MAPS
                   </button>
-                  <button onClick={() => router.push(`/(jogador)/index` as any)} style={{ width: '100%', backgroundColor: theme.colors.primary, color: 'white', border: 'none', padding: '12px', borderRadius: '12px', fontWeight: '800', cursor: 'pointer' }}>VER PARTIDAS DISPONÍVEIS</button>
                 </div>
               </Popup>
             </Marker>
