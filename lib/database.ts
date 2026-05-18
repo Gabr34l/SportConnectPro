@@ -195,17 +195,31 @@ export const db = {
       doc = await db.events._syncExpired(doc);
 
       // Tenta encontrar a quadra nos campos de relacionamento
-      let quadra = doc.quadra || doc.quadras || doc.id_quadra || {};
+      let quadra = doc.quadra || doc.quadras || doc.id_quadra;
       
-      // Fallback: Busca manual se vier apenas o ID
+      // Se for array (relacionamento many-to-one que vem como array) pega o primeiro
+      if (Array.isArray(quadra) && quadra.length > 0) {
+        quadra = quadra[0];
+      }
+
+      // Se for apenas o ID (string) ou um objeto que só tem o $id
+      let quadraIdToFetch = null;
       if (typeof quadra === 'string' && quadra.length > 5) {
+        quadraIdToFetch = quadra;
+      } else if (quadra && typeof quadra === 'object' && quadra.$id && !quadra.nome_local) {
+        quadraIdToFetch = quadra.$id;
+      }
+
+      if (quadraIdToFetch) {
         try {
-          const courtDoc = await databases.getDocument(config.databaseId, config.collections.quadras, quadra);
+          const courtDoc = await databases.getDocument(config.databaseId, config.collections.quadras, quadraIdToFetch);
           quadra = { ...courtDoc, id_quadra: courtDoc.$id };
         } catch (e: any) {
-          // Se der erro de autorização, logamos mas não travamos o app
           if (e.code !== 401) console.error('Erro no fallback da quadra:', e);
+          quadra = {}; // Evitar crash
         }
+      } else if (!quadra) {
+        quadra = {};
       }
       
       const participacoes = doc.participacoes || [];

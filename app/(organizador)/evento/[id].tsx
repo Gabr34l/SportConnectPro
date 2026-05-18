@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { View, Text, ScrollView, TouchableOpacity, ActivityIndicator, Image, Platform, Modal } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { databases, config, Query } from '@/lib/appwrite';
+import { db } from '@/lib/database';
 import { StatusBadge } from '@/components/StatusBadge';
 import { useToast } from '@/components/Toast';
 import { format } from 'date-fns';
@@ -22,15 +23,11 @@ export default function GestaoEvento() {
     setLoading(true);
     try {
       // 1. Buscar Evento (Com dados da Quadra via Two-way mapping)
-      const evDoc = await databases.getDocument(
-        config.databaseId,
-        config.collections.eventos,
-        id
-      );
+      const evDoc = await db.events.getHydrated(id);
       
       setEvento({
         ...evDoc,
-        id_evento: evDoc.$id,
+        id_evento: evDoc.id_evento,
         data_evento: evDoc.data_evento || new Date().toISOString()
       });
 
@@ -193,7 +190,7 @@ export default function GestaoEvento() {
           </View>
           <View className="ml-4">
             <Text className="text-[10px] text-gray-400 font-bold uppercase tracking-widest">LOCAL</Text>
-            <Text className="text-base font-bold text-gray-800 dark:text-white">{evento.id_quadra?.nome_local || 'Local não informado'}</Text>
+            <Text className="text-base font-bold text-gray-800 dark:text-white">{evento.nome_local || 'Local não informado'}</Text>
           </View>
         </View>
 
