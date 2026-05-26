@@ -49,10 +49,21 @@ export default function DetalhesQuadra() {
   const handleShare = async () => {
     try {
       const url = Platform.OS === 'web' ? window.location.href : `sportconnectpro://quadra/${id}`;
-      await Share.share({
-        message: `Confira esta quadra no SportConnect Pro: ${quadra?.nome_local}\nLocal: ${quadra?.endereco_completo}\nLink: ${url}`,
-        url: url
-      });
+      const shareMessage = `Confira esta quadra no SportConnect Pro: ${quadra?.nome_local}\nLocal: ${quadra?.endereco_completo}\nLink: ${url}`;
+      
+      try {
+        await Share.share({
+          message: shareMessage,
+          url: url
+        });
+      } catch (shareError) {
+        if (Platform.OS === 'web' && navigator.clipboard) {
+          await navigator.clipboard.writeText(shareMessage);
+          toast.show({ type: 'success', title: 'Copiado!', message: 'Link copiado para a área de transferência.' });
+        } else {
+          throw shareError;
+        }
+      }
     } catch (error: any) {
       toast.show({ type: 'error', title: 'Erro', message: 'Não foi possível compartilhar' });
     }

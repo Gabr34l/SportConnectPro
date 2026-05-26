@@ -8,7 +8,8 @@ import { theme } from '@/constants/theme';
 import { Quadra } from '../types';
 import { db } from '@/lib/database';
 import { useRouter, useLocalSearchParams } from 'expo-router';
-import { Search, Navigation } from 'lucide-react-native';
+import { Search, Navigation, Heart } from 'lucide-react-native';
+import { useAuthContext } from '@/contexts/AuthContext';
 
 // Fix for Leaflet default markers in bundlers like Expo Web
 if (typeof window !== 'undefined') {
@@ -54,18 +55,75 @@ function MapUpdater({ center, openPopupRef }: { center: [number, number], openPo
 }
 
 export default function PlayerMapWeb() {
+  const { usuario } = useAuthContext();
   const params = useLocalSearchParams();
   const [location, setLocation] = useState<Location.LocationObject | null>(null);
   const [quadras, setQuadras] = useState<Quadra[]>([]);
+  const [favoritosMap, setFavoritosMap] = useState<{ [key: string]: string }>({});
   const [searchQuery, setSearchQuery] = useState('');
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [isLoadingSearch, setIsLoadingSearch] = useState(false);
   const [selectedResult, setSelectedResult] = useState<{ lat: number, lng: number, name: string } | null>(null);
   const [mapCenter, setMapCenter] = useState<[number, number]>(UBERLANDIA_CENTER);
   const router = useRouter();
-  
+
   const searchMarkerRef = useRef<any>(null);
   const courtRefs = useRef<{ [key: string]: any }>({});
+
+  useEffect(() => {
+    if (usuario && quadras.length > 0) {
+      db.favorites.listByUser(usuario.id_usuario).then(favs => {
+        const fMap: { [key: string]: string } = {};
+        favs.forEach(f => {
+          if (f.id_quadra && typeof f.id_quadra === 'object') {
+            fMap[f.id_quadra.$id] = f.$id;
+          } else if (f.id_quadra) {
+            fMap[f.id_quadra] = f.$id;
+          }
+        });
+        setFavoritosMap(fMap);
+      }).catch(e => console.error('Erro ao buscar favoritos', e));
+    }
+  }, [usuario, quadras]);
+
+  const toggleFavorite = async (quadra: Quadra, e?: any) => {
+    if (e) {
+      e.stopPropagation();
+      e.preventDefault();
+    }
+    if (!usuario) return;
+
+    const quadraId = quadra.id_quadra;
+    const isFavorited = !!favoritosMap[quadraId];
+    const favId = favoritosMap[quadraId];
+
+    try {
+      if (isFavorited) {
+        setFavoritosMap(prev => {
+          const next = { ...prev };
+          delete next[quadraId];
+          return next;
+        });
+        await db.favorites.remove(favId);
+      } else {
+        setFavoritosMap(prev => ({ ...prev, [quadraId]: 'temp' }));
+        const newFav = await db.favorites.add(usuario.id_usuario, quadraId);
+        setFavoritosMap(prev => ({ ...prev, [quadraId]: newFav.$id }));
+
+        if (quadra.id_organizador) {
+          await db.notifications.create(
+            quadra.id_organizador,
+            'Nova Quadra Favoritada! ❤️',
+            `${usuario.nome_completo || 'Um jogador'} favoritou a quadra ${quadra.nome_local}.`,
+            'FAVORITO',
+            quadraId
+          );
+        }
+      }
+    } catch (err) {
+      console.error('Erro ao favoritar:', err);
+    }
+  };
 
   useEffect(() => {
     const initMap = async () => {
@@ -82,7 +140,7 @@ export default function PlayerMapWeb() {
           setLocation(loc);
           if (!params.lat) setMapCenter([loc.coords.latitude, loc.coords.longitude]);
         }
-      } catch (err) {}
+      } catch (err) { }
 
       try {
         const approved = await db.courts.listApproved();
@@ -112,15 +170,15 @@ export default function PlayerMapWeb() {
     if (!searchQuery.trim()) return;
     setIsLoadingSearch(true);
     setShowSuggestions(false);
-    
+
     try {
       // 1. Busca interna no projeto
-      const matchingCourt = quadras.find(q => 
+      const matchingCourt = quadras.find(q =>
         q.nome_local.toLowerCase().includes(searchQuery.toLowerCase()) ||
         q.endereco_completo?.toLowerCase().includes(searchQuery.toLowerCase())
       );
 
-      if (matchingCourt && matchingCourt.latitude && isValidCoord(matchingCourt.latitude, matchingCourt.longitude)) {
+      if (matchingCourt && matchingCourt.latitude !== undefined && matchingCourt.longitude !== undefined && isValidCoord(matchingCourt.latitude, matchingCourt.longitude)) {
         setMapCenter([matchingCourt.latitude, matchingCourt.longitude]);
         setSearchQuery(matchingCourt.nome_local);
         setSelectedResult(null);
@@ -144,7 +202,7 @@ export default function PlayerMapWeb() {
           break;
         }
       }
-      
+
       if (foundData) {
         const lat = parseFloat(foundData.lat);
         const lon = parseFloat(foundData.lon);
@@ -178,23 +236,23 @@ export default function PlayerMapWeb() {
     <View style={styles.container}>
       <View style={styles.searchOverlay}>
         <div style={{ width: '100%', maxWidth: '500px', position: 'relative' }}>
-          <div style={{ 
-            display: 'flex', backgroundColor: 'white', borderRadius: '20px', padding: '6px 14px', 
+          <div style={{
+            display: 'flex', backgroundColor: 'white', borderRadius: '20px', padding: '6px 14px',
             boxShadow: '0 12px 45px rgba(0,0,0,0.18)', alignItems: 'center', border: '1px solid #eee'
           }}>
             <Search size={20} color={theme.colors.primary} />
-            <input 
+            <input
               type="text" placeholder="Nome da quadra ou endereço completo..."
               value={searchQuery} onFocus={() => setShowSuggestions(true)}
               onChange={(e) => { setSearchQuery(e.target.value); setShowSuggestions(true); }}
               onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
               style={{ flex: 1, border: 'none', outline: 'none', padding: '14px 15px', fontSize: '16px' }}
             />
-            <button 
+            <button
               onClick={handleSearch}
               disabled={isLoadingSearch}
-              style={{ 
-                backgroundColor: theme.colors.primary, color: 'white', border: 'none', padding: '12px 25px', 
+              style={{
+                backgroundColor: theme.colors.primary, color: 'white', border: 'none', padding: '12px 25px',
                 borderRadius: '14px', fontWeight: '900', cursor: 'pointer'
               }}
             >
@@ -204,7 +262,7 @@ export default function PlayerMapWeb() {
 
           {showSuggestions && (
             <div style={{
-              position: 'absolute', top: '100%', left: 0, right: 0, 
+              position: 'absolute', top: '100%', left: 0, right: 0,
               backgroundColor: 'white', borderRadius: '20px', marginTop: '12px',
               boxShadow: '0 15px 50px rgba(0,0,0,0.2)', zIndex: 2000,
               maxHeight: '350px', overflowY: 'auto'
@@ -215,12 +273,12 @@ export default function PlayerMapWeb() {
               {quadras
                 .filter(q => q.nome_local.toLowerCase().includes(searchQuery.toLowerCase()) || q.endereco_completo?.toLowerCase().includes(searchQuery.toLowerCase()))
                 .map((q) => (
-                  <div 
+                  <div
                     key={q.id_quadra}
                     onClick={() => {
                       setSearchQuery(q.nome_local);
                       setShowSuggestions(false);
-                      if (q.latitude && isValidCoord(q.latitude, q.longitude)) {
+                      if (q.latitude !== undefined && q.longitude !== undefined && isValidCoord(q.latitude, q.longitude)) {
                         setMapCenter([q.latitude, q.longitude]);
                       }
                     }}
@@ -237,8 +295,8 @@ export default function PlayerMapWeb() {
         </div>
       </View>
 
-      <MapContainer 
-        center={mapCenter} zoom={17} 
+      <MapContainer
+        center={mapCenter} zoom={17}
         style={{ width: '100%', height: 'calc(100vh - 80px)' }}
       >
         <MapUpdater center={mapCenter} openPopupRef={selectedResult ? searchMarkerRef : { current: courtRefs.current[quadras.find(q => q.nome_local === searchQuery)?.id_quadra || ''] }} />
@@ -247,18 +305,18 @@ export default function PlayerMapWeb() {
           subdomains={['mt0', 'mt1', 'mt2', 'mt3']}
           attribution="&copy; Google Maps"
         />
-        
+
         {selectedResult && (
           <Marker position={[selectedResult.lat, selectedResult.lng]} icon={redMarkerIcon || undefined} ref={searchMarkerRef}>
             <Popup>
               <div style={{ fontFamily: 'Outfit, sans-serif', padding: '12px', minWidth: '200px' }}>
                 <h4 style={{ margin: '0 0 8px', fontSize: '18px', fontWeight: '900', color: '#d32f2f' }}>📍 {selectedResult.name}</h4>
-                <button 
-                  onClick={() => openInGoogleMaps(selectedResult.lat, selectedResult.lng, selectedResult.name)} 
-                  style={{ 
-                    width: '100%', backgroundColor: '#4285F4', color: 'white', border: 'none', 
-                    padding: '14px', borderRadius: '12px', fontWeight: '800', cursor: 'pointer', 
-                    display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px' 
+                <button
+                  onClick={() => openInGoogleMaps(selectedResult.lat, selectedResult.lng, selectedResult.name)}
+                  style={{
+                    width: '100%', backgroundColor: '#4285F4', color: 'white', border: 'none',
+                    padding: '14px', borderRadius: '12px', fontWeight: '800', cursor: 'pointer',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px'
                   }}
                 >
                   <Navigation size={18} /> VER NO GOOGLE MAPS
@@ -269,11 +327,21 @@ export default function PlayerMapWeb() {
         )}
 
         {quadras.map((q) => (
-          (q.latitude && isValidCoord(q.latitude, q.longitude)) && (
-            <Marker key={q.id_quadra} position={[q.latitude, q.longitude]} icon={redMarkerIcon || undefined} ref={el => courtRefs.current[q.id_quadra] = el}>
+          (q.latitude !== undefined && q.longitude !== undefined && isValidCoord(q.latitude, q.longitude)) && (
+            <Marker key={q.id_quadra} position={[q.latitude, q.longitude]} icon={redMarkerIcon || undefined} ref={(el) => { courtRefs.current[q.id_quadra] = el; }}>
               <Popup>
                 <div style={{ fontFamily: 'Outfit, sans-serif', padding: '12px', minWidth: '240px' }}>
-                  <div style={{ backgroundColor: '#EBF8FF', color: '#3182CE', padding: '4px 10px', borderRadius: '6px', fontSize: '10px', fontWeight: '800', display: 'inline-block', marginBottom: '8px' }}>QUADRA SPORTCONNECT</div>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+                    <div style={{ backgroundColor: '#EBF8FF', color: '#3182CE', padding: '4px 10px', borderRadius: '6px', fontSize: '10px', fontWeight: '800', display: 'inline-block' }}>QUADRA SPORTCONNECT</div>
+                    {usuario && (
+                      <button
+                        onClick={(e) => toggleFavorite(q, e)}
+                        style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '4px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                      >
+                        <Heart size={22} color={favoritosMap[q.id_quadra] ? "#E24B4A" : "#9CA3AF"} fill={favoritosMap[q.id_quadra] ? "#E24B4A" : "transparent"} strokeWidth={2} />
+                      </button>
+                    )}
+                  </div>
                   <h3 style={{ margin: '0 0 5px', fontSize: '19px', fontWeight: '900', color: '#1A202C' }}>{q.nome_local}</h3>
                   <p style={{ margin: '0 0 20px', fontSize: '13px', color: '#718096' }}>📍 {q.endereco_completo}</p>
                   <button onClick={() => openInGoogleMaps(q.latitude!, q.longitude!, q.endereco_completo)} style={{ width: '100%', backgroundColor: '#4285F4', color: 'white', border: 'none', padding: '12px', borderRadius: '12px', fontWeight: '800', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>

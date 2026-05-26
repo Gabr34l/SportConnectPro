@@ -255,6 +255,47 @@ export const db = {
     }
   },
 
+  // --- FAVORITES (FAVORITOS) ---
+  favorites: {
+    add: async (userId: string, courtId: string) => {
+      return await databases.createDocument(
+        config.databaseId,
+        config.collections.favoritos,
+        ID.unique(),
+        {
+          id_usuario: userId,
+          id_quadra: courtId,
+        }
+      );
+    },
+    remove: async (favoriteId: string) => {
+      return await databases.deleteDocument(
+        config.databaseId,
+        config.collections.favoritos,
+        favoriteId
+      );
+    },
+    listByUser: async (userId: string) => {
+      const response = await databases.listDocuments(
+        config.databaseId,
+        config.collections.favoritos,
+        [Query.equal('id_usuario', userId)]
+      );
+      return response.documents;
+    },
+    check: async (userId: string, courtId: string) => {
+      const response = await databases.listDocuments(
+        config.databaseId,
+        config.collections.favoritos,
+        [
+          Query.equal('id_usuario', userId),
+          Query.equal('id_quadra', courtId)
+        ]
+      );
+      return response.documents.length > 0 ? response.documents[0] : null;
+    }
+  },
+
   // --- MESSAGES (MENSAGENS) ---
   messages: {
     create: async (data: { id_evento: string, id_remetente: string, texto_mensagem: string }) => {

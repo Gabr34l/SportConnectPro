@@ -1,13 +1,17 @@
 import React from 'react';
-import { Tabs, Redirect } from 'expo-router';
+import { Tabs, Redirect, usePathname } from 'expo-router';
 import { View, Text } from 'react-native';
 import { useAuthContext } from '@/contexts/AuthContext';
 import { Home, Map, Heart, User } from 'lucide-react-native';
 
 export default function JogadorLayout() {
   const { usuario, loading } = useAuthContext();
+  const pathname = usePathname();
   
   if (!loading && (!usuario || usuario.tipo_perfil !== 'JOGADOR')) {
+    if (!usuario) {
+      return <Redirect href={`/(auth)/login?redirect=${encodeURIComponent(pathname)}`} />;
+    }
     return <Redirect href="/" />;
   }
 

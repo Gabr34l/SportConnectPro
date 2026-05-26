@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TextInput, TouchableOpacity, ScrollView, ActivityIndicator, Platform } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, ScrollView, ActivityIndicator, Platform, Alert } from 'react-native';
 import { useRouter } from 'expo-router';
 import { config } from '@/lib/appwrite';
 import { db } from '@/lib/database';
-import { SPORTS, FORMATOS, AMBIENTES, NIVEIS } from '@/constants/sports';
+import { SPORTS, AMBIENTES, NIVEIS } from '@/constants/sports';
 import { useAuthContext } from '@/contexts/AuthContext';
 import { useQuadras } from '@/hooks/useQuadras';
 import { useToast } from '@/components/Toast';
@@ -57,9 +57,18 @@ export default function CriarEvento() {
   const [idQuadra, setIdQuadra] = useState('');
   const [titulo, setTitulo] = useState('');
   const [esporte, setEsporte] = useState(SPORTS[0].id);
-  const [formato, setFormato] = useState(FORMATOS[0]);
+  const [formato, setFormato] = useState(SPORTS[0].formatos[0]);
   const [ambiente, setAmbiente] = useState(AMBIENTES[0]);
   const [nivel, setNivel] = useState(NIVEIS[0]);
+
+  useEffect(() => {
+    const currentSport = SPORTS.find(s => s.id === esporte);
+    if (currentSport && currentSport.formatos.length > 0) {
+      if (!currentSport.formatos.includes(formato)) {
+        setFormato(currentSport.formatos[0]);
+      }
+    }
+  }, [esporte]);
   
   const [dataEvento, setDataEvento] = useState(''); // YYYY-MM-DD
   const [horaInicio, setHoraInicio] = useState(''); // HH:MM
@@ -273,7 +282,7 @@ export default function CriarEvento() {
               
               <Text className="text-xs font-bold text-gray-300 mb-2">FORMATO</Text>
               <View className="flex-row flex-wrap gap-2 mb-4">
-                {FORMATOS.map(f => (
+                {SPORTS.find(s => s.id === esporte)?.formatos.map(f => (
                   <TouchableOpacity 
                     key={f} 
                     className={`px-4 py-2.5 rounded-2xl border ${
@@ -285,6 +294,12 @@ export default function CriarEvento() {
                       const numPorTime = parseInt(f.split('v')[0]);
                       if (!isNaN(numPorTime)) {
                         setVagas((numPorTime * 2).toString());
+                      } else if (f.includes('3x3')) {
+                        setVagas('6');
+                      } else if (f.includes('Simples')) {
+                        setVagas('2');
+                      } else if (f.includes('Duplas')) {
+                        setVagas('4');
                       }
                     }}
                   >

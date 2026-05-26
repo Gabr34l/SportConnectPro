@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { View, Text, TextInput, TouchableOpacity, ActivityIndicator, Modal, Platform, ImageBackground, ScrollView } from 'react-native';
-import { useRouter, Link } from 'expo-router';
+import React from 'react';
+import { useRouter, Link, useLocalSearchParams } from 'expo-router';
 import { account, config } from '@/lib/appwrite';
 import { useToast } from '@/components/Toast';
 import { useAuthContext } from '@/contexts/AuthContext';
@@ -10,6 +11,7 @@ import { Button, Input } from '@/components/ui';
 
 export default function Login() {
   const router = useRouter();
+  const { redirect } = useLocalSearchParams<{ redirect?: string }>();
   const toast = useToast();
   const { session, usuario, refreshUsuario } = useAuthContext();
   const [email, setEmail] = useState('');
@@ -22,9 +24,13 @@ export default function Login() {
   // Watch auth context — navigate only when both session AND usuario are loaded
   useEffect(() => {
     if ((loginSuccess || session) && usuario) {
-      router.replace('/');
+      if (redirect) {
+        router.replace(redirect as string);
+      } else {
+        router.replace('/');
+      }
     }
-  }, [loginSuccess, session, usuario]);
+  }, [loginSuccess, session, usuario, redirect]);
 
   const showFeedback = (type: 'success' | 'error' | 'info', title: string, message: string) => {
     toast.show({ type, title, message });
@@ -118,26 +124,50 @@ export default function Login() {
             </View>
 
             <View className="gap-4">
-              <Input
-                icon={Mail}
-                placeholder="Seu e-mail"
-                value={email}
-                onChangeText={setEmail}
-                autoCapitalize="none"
-                keyboardType="email-address"
-                containerClassName="mb-0"
-                inputClassName="text-white font-medium"
-              />
+              <View className="flex-row items-center border border-white/20 rounded-2xl px-4 py-3.5 bg-white/10">
+                <Mail size={20} color="#9CA3AF" />
+                {Platform.OS === 'web' ? (
+                  React.createElement('input', {
+                    type: 'email',
+                    placeholder: 'Seu e-mail',
+                    value: email,
+                    onChange: (e: any) => setEmail(e.target.value),
+                    style: { flex: 1, marginLeft: 12, border: 'none', background: 'transparent', outline: 'none', fontSize: 16, color: 'white', fontFamily: 'inherit' }
+                  })
+                ) : (
+                  <TextInput
+                    className="flex-1 ml-3 text-base text-white font-medium"
+                    placeholder="Seu e-mail"
+                    placeholderTextColor="#9CA3AF"
+                    value={email}
+                    onChangeText={setEmail}
+                    autoCapitalize="none"
+                    keyboardType="email-address"
+                  />
+                )}
+              </View>
 
-              <Input
-                icon={Lock}
-                placeholder="Sua senha"
-                value={password}
-                onChangeText={setPassword}
-                secureTextEntry
-                containerClassName="mb-0"
-                inputClassName="text-white font-medium"
-              />
+              <View className="flex-row items-center border border-white/20 rounded-2xl px-4 py-3.5 bg-white/10">
+                <Lock size={20} color="#9CA3AF" />
+                {Platform.OS === 'web' ? (
+                  React.createElement('input', {
+                    type: 'password',
+                    placeholder: 'Sua senha',
+                    value: password,
+                    onChange: (e: any) => setPassword(e.target.value),
+                    style: { flex: 1, marginLeft: 12, border: 'none', background: 'transparent', outline: 'none', fontSize: 16, color: 'white', fontFamily: 'inherit' }
+                  })
+                ) : (
+                  <TextInput
+                    className="flex-1 ml-3 text-base text-white font-medium"
+                    placeholder="Sua senha"
+                    placeholderTextColor="#9CA3AF"
+                    value={password}
+                    onChangeText={setPassword}
+                    secureTextEntry
+                  />
+                )}
+              </View>
 
               <TouchableOpacity onPress={() => setResetModalVisible(true)} className="items-end mt-1 px-2">
                 <Text className="text-gray-500 text-sm font-bold">Esqueceu a senha?</Text>

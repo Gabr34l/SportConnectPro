@@ -1,5 +1,5 @@
 import React from 'react';
-import { Tabs, Redirect } from 'expo-router';
+import { Tabs, Redirect, usePathname } from 'expo-router';
 import { theme } from '@/constants/theme';
 import { useAuthContext } from '@/contexts/AuthContext';
 import { LayoutDashboard, Map, PlusCircle, User } from 'lucide-react-native';
@@ -9,8 +9,12 @@ export default function OrganizadorLayout() {
   const { usuario, loading } = useAuthContext();
   const { colorScheme } = useColorScheme();
   const isDark = colorScheme === 'dark';
+  const pathname = usePathname();
   
   if (!loading && (!usuario || usuario.tipo_perfil !== 'ORGANIZADOR')) {
+    if (!usuario) {
+      return <Redirect href={`/(auth)/login?redirect=${encodeURIComponent(pathname)}`} />;
+    }
     return <Redirect href="/" />;
   }
 
