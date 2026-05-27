@@ -124,7 +124,10 @@ export default function Login() {
             </View>
 
             <View className="gap-4">
-              <View className="flex-row items-center border border-white/20 rounded-2xl px-4 py-3.5 bg-white/10">
+              <View 
+                className="flex-row items-center border rounded-2xl px-4 py-3.5"
+                style={{ backgroundColor: 'rgba(255, 255, 255, 0.1)', borderColor: 'rgba(255, 255, 255, 0.2)' }}
+              >
                 <Mail size={20} color="#9CA3AF" />
                 {Platform.OS === 'web' ? (
                   React.createElement('input', {
@@ -147,7 +150,10 @@ export default function Login() {
                 )}
               </View>
 
-              <View className="flex-row items-center border border-white/20 rounded-2xl px-4 py-3.5 bg-white/10">
+              <View 
+                className="flex-row items-center border rounded-2xl px-4 py-3.5"
+                style={{ backgroundColor: 'rgba(255, 255, 255, 0.1)', borderColor: 'rgba(255, 255, 255, 0.2)' }}
+              >
                 <Lock size={20} color="#9CA3AF" />
                 {Platform.OS === 'web' ? (
                   React.createElement('input', {
