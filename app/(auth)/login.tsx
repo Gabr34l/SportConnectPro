@@ -124,55 +124,29 @@ export default function Login() {
             </View>
 
             <View className="gap-4">
-              <View 
-                className="flex-row items-center border rounded-2xl px-4 py-3.5"
-                style={{ backgroundColor: 'rgba(255, 255, 255, 0.1)', borderColor: 'rgba(255, 255, 255, 0.2)' }}
-              >
+              <View className="flex-row items-center border border-white/10 bg-white/5 rounded-2xl px-4 py-3.5 backdrop-blur-md">
                 <Mail size={20} color="#9CA3AF" />
-                {Platform.OS === 'web' ? (
-                  React.createElement('input', {
-                    type: 'email',
-                    placeholder: 'Seu e-mail',
-                    value: email,
-                    onChange: (e: any) => setEmail(e.target.value),
-                    style: { flex: 1, marginLeft: 12, border: 'none', background: 'transparent', outline: 'none', fontSize: 16, color: 'white', fontFamily: 'inherit' }
-                  })
-                ) : (
-                  <TextInput
-                    className="flex-1 ml-3 text-base text-white font-medium"
-                    placeholder="Seu e-mail"
-                    placeholderTextColor="#9CA3AF"
-                    value={email}
-                    onChangeText={setEmail}
-                    autoCapitalize="none"
-                    keyboardType="email-address"
-                  />
-                )}
+                <TextInput
+                  className="flex-1 ml-3 text-base text-white font-medium"
+                  placeholder="Seu e-mail"
+                  placeholderTextColor="#9CA3AF"
+                  value={email}
+                  onChangeText={setEmail}
+                  autoCapitalize="none"
+                  keyboardType="email-address"
+                />
               </View>
 
-              <View 
-                className="flex-row items-center border rounded-2xl px-4 py-3.5"
-                style={{ backgroundColor: 'rgba(255, 255, 255, 0.1)', borderColor: 'rgba(255, 255, 255, 0.2)' }}
-              >
+              <View className="flex-row items-center border border-white/10 bg-white/5 rounded-2xl px-4 py-3.5 backdrop-blur-md">
                 <Lock size={20} color="#9CA3AF" />
-                {Platform.OS === 'web' ? (
-                  React.createElement('input', {
-                    type: 'password',
-                    placeholder: 'Sua senha',
-                    value: password,
-                    onChange: (e: any) => setPassword(e.target.value),
-                    style: { flex: 1, marginLeft: 12, border: 'none', background: 'transparent', outline: 'none', fontSize: 16, color: 'white', fontFamily: 'inherit' }
-                  })
-                ) : (
-                  <TextInput
-                    className="flex-1 ml-3 text-base text-white font-medium"
-                    placeholder="Sua senha"
-                    placeholderTextColor="#9CA3AF"
-                    value={password}
-                    onChangeText={setPassword}
-                    secureTextEntry
-                  />
-                )}
+                <TextInput
+                  className="flex-1 ml-3 text-base text-white font-medium"
+                  placeholder="Sua senha"
+                  placeholderTextColor="#9CA3AF"
+                  value={password}
+                  onChangeText={setPassword}
+                  secureTextEntry
+                />
               </View>
 
               <TouchableOpacity onPress={() => setResetModalVisible(true)} className="items-end mt-1 px-2">
