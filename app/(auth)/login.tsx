@@ -112,24 +112,25 @@ export default function Login() {
             className="flex-1 px-8 pt-20"
           >
             <TouchableOpacity 
-              onPress={() => router.back()}
-              className="w-12 h-12 bg-white/10 rounded-2xl justify-center items-center border border-white/10 mb-8"
+              onPress={() => router.back()} 
+              className="flex-row items-center mb-8 bg-white/10 self-start px-4 py-2 rounded-full border border-white/10"
             >
-              <ChevronLeft color="white" size={24} />
+              <ChevronLeft size={16} color="white" />
+              <Text className="text-white font-bold ml-1 uppercase text-[10px] tracking-widest">Voltar</Text>
             </TouchableOpacity>
 
             <View className="mb-10">
-              <Text className="text-4xl font-black text-white">Bem-vindo{"\n"}de volta.</Text>
-              <Text className="text-gray-400 text-base mt-2 font-medium">Sentimos sua falta no campo.</Text>
+              <Text className="text-4xl font-black text-white mb-2">Bem-vindo{"\n"}de volta.</Text>
+              <Text className="text-gray-400 text-base font-medium">Sentimos sua falta no campo.</Text>
             </View>
 
             <View className="gap-4">
-              <View className="flex-row items-center border border-white/10 bg-white/5 rounded-2xl px-4 py-3.5 backdrop-blur-md">
-                <Mail size={20} color="#9CA3AF" />
+              <View className="bg-white/5 border border-white/10 rounded-[24px] flex-row items-center px-5 py-4 backdrop-blur-md">
+                <Mail size={20} color="#6B7280" />
                 <TextInput
-                  className="flex-1 ml-3 text-base text-white font-medium"
+                  className="flex-1 ml-4 text-white text-base font-medium"
                   placeholder="Seu e-mail"
-                  placeholderTextColor="#9CA3AF"
+                  placeholderTextColor="#6B7280"
                   value={email}
                   onChangeText={setEmail}
                   autoCapitalize="none"
@@ -137,12 +138,12 @@ export default function Login() {
                 />
               </View>
 
-              <View className="flex-row items-center border border-white/10 bg-white/5 rounded-2xl px-4 py-3.5 backdrop-blur-md">
-                <Lock size={20} color="#9CA3AF" />
+              <View className="bg-white/5 border border-white/10 rounded-[24px] flex-row items-center px-5 py-4 backdrop-blur-md">
+                <Lock size={20} color="#6B7280" />
                 <TextInput
-                  className="flex-1 ml-3 text-base text-white font-medium"
+                  className="flex-1 ml-4 text-white text-base font-medium"
                   placeholder="Sua senha"
-                  placeholderTextColor="#9CA3AF"
+                  placeholderTextColor="#6B7280"
                   value={password}
                   onChangeText={setPassword}
                   secureTextEntry
@@ -153,15 +154,15 @@ export default function Login() {
                 <Text className="text-gray-500 text-sm font-bold">Esqueceu a senha?</Text>
               </TouchableOpacity>
 
-              <Button 
-                variant="primary" 
-                size="lg" 
-                className="mt-6 uppercase tracking-widest font-black"
-                onPress={handleLogin} 
-                loading={loading}
+              <TouchableOpacity
+                className={`rounded-[24px] py-5 items-center shadow-lg mt-6 ${loading ? 'bg-gray-800' : 'bg-[#00C853] shadow-lg shadow-green-500/40'}`}
+                onPress={handleLogin}
+                disabled={loading}
               >
-                Entrar
-              </Button>
+                {loading ? <ActivityIndicator color="#fff" /> : (
+                  <Text className="text-white font-black text-lg uppercase tracking-widest">Entrar</Text>
+                )}
+              </TouchableOpacity>
 
               <View className="flex-row justify-center mt-6 pb-10">
                 <Text className="text-gray-500 text-base">Novo por aqui? </Text>
