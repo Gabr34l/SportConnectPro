@@ -37,11 +37,7 @@ export function useEventoDetalhe(idEvento: string, idUsuario?: string) {
     id_participacao: doc.$id,
     id_evento: doc.id_evento?.$id || doc.id_evento,
     id_jogador: doc.id_jogador?.$id || doc.id_jogador,
-    usuarios: doc.id_jogador ? {
-      nome_completo: doc.id_jogador.nome_completo,
-      foto_perfil: doc.id_jogador.foto_perfil,
-      nivel_habilidade: doc.id_jogador.nivel_habilidade
-    } : undefined
+    usuarios: undefined
   });
 
   const fetchDetalhes = async () => {
@@ -61,6 +57,32 @@ export function useEventoDetalhe(idEvento: string, idUsuario?: string) {
           [Query.equal('id_evento', idEvento)]
         );
         const participantesMapeados = partDocs.documents.map(mapParticipante);
+
+        // Fetch user profiles for these participants since id_jogador is returned as a string
+        const jogadorIds = participantesMapeados.map(p => p.id_jogador).filter(Boolean);
+        if (jogadorIds.length > 0) {
+          try {
+            const userDocs = await databases.listDocuments(
+              config.databaseId,
+              config.collections.usuarios,
+              [Query.equal('$id', jogadorIds)]
+            );
+            const userMap = new Map(userDocs.documents.map(u => [u.$id, u]));
+            participantesMapeados.forEach(p => {
+              const u = userMap.get(p.id_jogador);
+              if (u) {
+                p.usuarios = {
+                  nome_completo: u.nome_completo,
+                  foto_perfil: u.foto_perfil,
+                  nivel_habilidade: u.nivel_habilidade
+                };
+              }
+            });
+          } catch (errUsers) {
+            console.error('Erro ao buscar perfis dos participantes:', errUsers);
+          }
+        }
+
         setParticipantes(participantesMapeados);
 
         if (idUsuario) {

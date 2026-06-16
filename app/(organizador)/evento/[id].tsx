@@ -41,12 +41,32 @@ export default function GestaoEvento() {
       const participantesMapeados = partDocs.documents.map(p => ({
         ...p,
         id_participacao: p.$id,
-        usuarios: p.id_jogador ? {
-          nome_completo: p.id_jogador.nome_completo,
-          foto_perfil: p.id_jogador.foto_perfil
-        } : null,
+        usuarios: null,
         pagamentos: p.pagamentos && p.pagamentos.length > 0 ? p.pagamentos[0] : null
       }));
+
+      const jogadorIds = participantesMapeados.map(p => p.id_jogador).filter(Boolean);
+      if (jogadorIds.length > 0) {
+        try {
+          const userDocs = await databases.listDocuments(
+            config.databaseId,
+            config.collections.usuarios,
+            [Query.equal('$id', jogadorIds)]
+          );
+          const userMap = new Map(userDocs.documents.map(u => [u.$id, u]));
+          participantesMapeados.forEach(p => {
+            const u = userMap.get(p.id_jogador);
+            if (u) {
+              p.usuarios = {
+                nome_completo: u.nome_completo,
+                foto_perfil: u.foto_perfil
+              };
+            }
+          });
+        } catch (errUsers) {
+          console.error('Erro ao buscar perfis dos participantes (gestão):', errUsers);
+        }
+      }
       
       setParticipantes(participantesMapeados);
     } catch (e) {
@@ -271,7 +291,15 @@ export default function GestaoEvento() {
         ) : (
           confirmados.map(p => (
             <View key={p.id_participacao} className="flex-row items-center bg-white dark:bg-gray-900 p-4 rounded-2xl mb-3 border border-gray-100 dark:border-gray-800 shadow-sm shadow-black/5">
-              <Image source={{ uri: p.usuarios?.foto_perfil || 'https://placehold.co/100x100?text=' + p.usuarios?.nome_completo?.charAt(0) }} className="w-12 h-12 rounded-full bg-gray-100" />
+              {p.usuarios?.foto_perfil ? (
+                <Image source={{ uri: p.usuarios.foto_perfil }} className="w-12 h-12 rounded-full" />
+              ) : (
+                <View className="w-12 h-12 rounded-full bg-green-500 justify-center items-center">
+                  <Text className="text-white font-bold text-base">
+                    {p.usuarios?.nome_completo ? p.usuarios.nome_completo.charAt(0).toUpperCase() : '?'}
+                  </Text>
+                </View>
+              )}
               <View className="flex-1 ml-3">
                 <Text className="text-base font-bold text-gray-800 dark:text-white font-bold">{p.usuarios?.nome_completo}</Text>
                 <Text className="text-xs text-green-600 font-bold">Pago: R$ {(p.pagamentos?.valor_pago || 0).toFixed(2)}</Text>
@@ -291,7 +319,15 @@ export default function GestaoEvento() {
             <Text className="text-lg font-bold text-gray-800 dark:text-white mt-8 mb-4">Aguardando Pagamento</Text>
             {aguardando.map(p => (
               <View key={p.id_participacao} className="flex-row items-center bg-white dark:bg-gray-900 p-4 rounded-2xl mb-3 border border-gray-100 dark:border-gray-800 opacity-60">
-                <Image source={{ uri: p.usuarios?.foto_perfil || 'https://placehold.co/100x100?text=' + p.usuarios?.nome_completo?.charAt(0) }} className="w-12 h-12 rounded-full bg-gray-100" />
+                {p.usuarios?.foto_perfil ? (
+                  <Image source={{ uri: p.usuarios.foto_perfil }} className="w-12 h-12 rounded-full" />
+                ) : (
+                  <View className="w-12 h-12 rounded-full bg-green-500 justify-center items-center">
+                    <Text className="text-white font-bold text-base">
+                      {p.usuarios?.nome_completo ? p.usuarios.nome_completo.charAt(0).toUpperCase() : '?'}
+                    </Text>
+                  </View>
+                )}
                 <View className="flex-1 ml-3">
                   <Text className="text-base font-bold text-gray-800 dark:text-white">{p.usuarios?.nome_completo}</Text>
                   <View className="flex-row items-center mt-0.5">

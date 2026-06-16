@@ -357,9 +357,17 @@ export default function EventoDetalhe() {
               <ScrollView horizontal showsHorizontalScrollIndicator={false} className="flex-row mt-6">
                 {confirmados.map((p, i) => (
                   <View key={i} className="items-center mr-4 w-16">
-                    <Image source={{ uri: p.usuarios?.foto_perfil || 'https://placehold.co/100x100?text=' + p.usuarios?.nome_completo?.charAt(0) }} className="w-12 h-12 rounded-full bg-gray-100 border-2 border-white shadow-sm shadow-black/5" />
+                    {p.usuarios?.foto_perfil ? (
+                      <Image source={{ uri: p.usuarios.foto_perfil }} className="w-12 h-12 rounded-full border-2 border-white shadow-sm shadow-black/5" />
+                    ) : (
+                      <View className="w-12 h-12 rounded-full bg-green-500 justify-center items-center border-2 border-white shadow-sm shadow-black/5">
+                        <Text className="text-white font-bold text-base">
+                          {p.usuarios?.nome_completo ? p.usuarios.nome_completo.charAt(0).toUpperCase() : '?'}
+                        </Text>
+                      </View>
+                    )}
                     <Text className="text-[10px] text-gray-500 font-bold mt-1 text-center" numberOfLines={1}>
-                      {p.usuarios?.nome_completo?.split(' ')[0]}
+                      {p.usuarios?.nome_completo ? p.usuarios.nome_completo.split(' ')[0] : 'Jogador'}
                     </Text>
                   </View>
                 ))}
