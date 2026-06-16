@@ -5,6 +5,7 @@ import { useAuthContext } from '@/contexts/AuthContext';
 import { useEventoDetalhe } from '@/hooks/useEventoDetalhe';
 import { useParticipacao } from '@/hooks/useParticipacao';
 import { db } from '@/lib/database';
+import { databases, config } from '@/lib/appwrite';
 import { SportBadge } from '@/components/SportBadge';
 import { AmbienteBadge } from '@/components/AmbienteBadge';
 import { PlayerSlots } from '@/components/PlayerSlots';
@@ -29,6 +30,63 @@ import {
   Smartphone
 } from 'lucide-react-native';
 
+function calculateCRC16(str: string): string {
+  let crc = 0xFFFF;
+  for (let i = 0; i < str.length; i++) {
+    const charCode = str.charCodeAt(i);
+    crc ^= (charCode << 8);
+    for (let j = 0; j < 8; j++) {
+      if ((crc & 0x8000) !== 0) {
+        crc = (crc << 1) ^ 0x1021;
+      } else {
+        crc = crc << 1;
+      }
+    }
+  }
+  crc = crc & 0xFFFF;
+  let crcHex = crc.toString(16).toUpperCase();
+  return crcHex.padStart(4, '0');
+}
+
+function generatePixPayload(key: string, amount: number, name = "SportConnectPro", city = "SAO PAULO"): string {
+  let cleanedKey = key.trim();
+  if (!cleanedKey.includes('@') && cleanedKey.length !== 36) {
+    if (cleanedKey.startsWith('+')) {
+      cleanedKey = '+' + cleanedKey.replace(/\D/g, '');
+    } else {
+      cleanedKey = cleanedKey.replace(/\D/g, '');
+    }
+  }
+
+  const formatField = (id: string, value: string) => {
+    const len = value.length.toString().padStart(2, '0');
+    return `${id}${len}${value}`;
+  };
+
+  const part00 = formatField('00', '01');
+  const gui = formatField('00', 'br.gov.bcb.pix');
+  const keyField = formatField('01', cleanedKey);
+  const part26 = formatField('26', gui + keyField);
+  const part52 = formatField('52', '0000');
+  const part53 = formatField('53', '986');
+
+  let part54 = '';
+  if (amount && amount > 0) {
+    part54 = formatField('54', amount.toFixed(2));
+  }
+
+  const part58 = formatField('58', 'BR');
+  const part59 = formatField('59', name.substring(0, 25));
+  const part60 = formatField('60', city.substring(0, 15));
+  const txid = formatField('05', '***');
+  const part62 = formatField('62', txid);
+
+  const rawPix = part00 + part26 + part52 + part53 + part54 + part58 + part59 + part60 + part62 + '6304';
+  const crc = calculateCRC16(rawPix);
+  
+  return rawPix + crc;
+}
+
 export default function EventoDetalhe() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const { usuario } = useAuthContext();
@@ -36,7 +94,7 @@ export default function EventoDetalhe() {
   const toast = useToast();
 
   const { evento, participantes, minhaParticipacao, mediaAvaliacoes, loading, refetch } = useEventoDetalhe(id, usuario?.id_usuario);
-  const { iniciarCheckout, avaliarEvento, loading: partLoading } = useParticipacao();
+  const { iniciarCheckout, avaliarEvento, participarGratis, loading: partLoading } = useParticipacao();
 
   const [modalVisible, setModalVisible] = useState(false);
   const [pixModalVisible, setPixModalVisible] = useState(false);
@@ -45,6 +103,7 @@ export default function EventoDetalhe() {
 
   const confirmados = participantes.filter(p => p.status_presenca === 'CONFIRMADO');
   const precoVaga = evento?.preco_por_vaga || 0;
+  const pixPayload = (evento?.cnpj && precoVaga > 0) ? generatePixPayload(evento.cnpj, precoVaga) : '';
 
   const showFeedback = (type: 'success' | 'error' | 'info', title: string, message: string) => {
     if (Platform.OS === 'web') {
@@ -62,8 +121,44 @@ export default function EventoDetalhe() {
 
   const handleCopyPix = () => {
     if (!evento?.cnpj) return;
-    Clipboard.setString(evento.cnpj);
-    showFeedback('success', 'Copiado!', 'Chave Pix (CNPJ) copiada para a área de transferência.');
+    Clipboard.setString(pixPayload);
+    showFeedback('success', 'Copiado!', 'Código Pix Copia e Cola copiado para a área de transferência.');
+  };
+
+  const handleParticiparGratis = async () => {
+    if (!usuario || !evento) return;
+    try {
+      const sucesso = await participarGratis(evento.id_evento, usuario.id_usuario);
+      if (sucesso) {
+        // Se houver atingido o limite, atualiza o status do evento para LOTADO
+        const novosConfirmados = confirmados.length + 1;
+        if (novosConfirmados >= evento.limite_participantes) {
+          await databases.updateDocument(
+            config.databaseId,
+            config.collections.eventos,
+            evento.id_evento,
+            { status: 'LOTADO' }
+          );
+        }
+
+        // Criar Notificação para o Organizador
+        await db.notifications.create(
+          evento.id_organizador,
+          'Novo Participante',
+          `${usuario.nome_completo} entrou no seu evento gratuito: ${evento.titulo}`,
+          'INSCRICAO_EVENTO',
+          evento.id_evento
+        );
+
+        showFeedback('success', 'Sucesso!', 'Você entrou no evento gratuito com sucesso!');
+        refetch();
+      } else {
+        showFeedback('error', 'Erro', 'Não foi possível confirmar sua participação.');
+      }
+    } catch (e) {
+      console.error('Erro ao participar de evento gratuito:', e);
+      showFeedback('error', 'Erro', 'Não foi possível confirmar sua participação.');
+    }
   };
 
   const handleConfirmarPagamento = async () => {
@@ -149,18 +244,25 @@ export default function EventoDetalhe() {
     }
   } else {
     if (evento.status === 'ABERTO') {
+      const isGratis = precoVaga === 0;
       BottomButton = (
         <TouchableOpacity
           className="bg-[#00C853] py-4 rounded-3xl flex-row justify-center items-center shadow-lg shadow-green-500/30"
-          onPress={handlePagar}
+          onPress={isGratis ? handleParticiparGratis : handlePagar}
           disabled={partLoading}
         >
           {partLoading ? (
             <ActivityIndicator color="#fff" />
           ) : (
             <>
-              <Smartphone color="white" size={20} />
-              <Text className="text-white font-black text-lg ml-2">FAZER PAGAMENTO — R$ {precoVaga.toFixed(2)}</Text>
+              {isGratis ? (
+                <CheckCircle2 color="white" size={20} strokeWidth={2.5} />
+              ) : (
+                <Smartphone color="white" size={20} />
+              )}
+              <Text className="text-white font-black text-lg ml-2">
+                {isGratis ? 'QUERO PARTICIPAR — Grátis' : `FAZER PAGAMENTO — R$ ${precoVaga.toFixed(2)}`}
+              </Text>
             </>
           )}
         </TouchableOpacity>
@@ -353,17 +455,22 @@ export default function EventoDetalhe() {
             
             <View className="bg-gray-50 dark:bg-gray-800 p-6 rounded-3xl items-center w-full mb-6 border border-gray-100 dark:border-gray-700">
               <Image 
-                source={{ uri: `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(evento.cnpj || '')}` }} 
+                source={{ uri: `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(pixPayload)}` }} 
                 className="w-[180px] h-[180px] rounded-xl mb-4"
               />
-              <Text className="text-[10px] text-gray-400 font-bold uppercase tracking-widest mb-1">Chave CNPJ (Copia e Cola)</Text>
+              <Text className="text-[10px] text-gray-400 font-bold uppercase tracking-widest mb-1">Pix Copia e Cola</Text>
               <TouchableOpacity 
                 onPress={handleCopyPix}
-                className="flex-row items-center bg-white dark:bg-gray-900 px-4 py-2 rounded-full border border-gray-100 dark:border-gray-700"
+                className="flex-row items-center bg-white dark:bg-gray-900 px-4 py-2 rounded-full border border-gray-100 dark:border-gray-700 mb-3 w-full justify-center"
               >
-                <Text className="text-gray-800 dark:text-white font-bold mr-2">{evento.cnpj || 'CNPJ não cadastrado'}</Text>
+                <Text className="text-gray-800 dark:text-white font-bold mr-2 text-xs" numberOfLines={1}>
+                  {pixPayload ? `${pixPayload.substring(0, 25)}...` : 'Gerando código...'}
+                </Text>
                 <Copy size={14} color="#9CA3AF" />
               </TouchableOpacity>
+              
+              <Text className="text-[10px] text-gray-400 font-bold uppercase tracking-widest mb-1">Chave CNPJ Recebedora</Text>
+              <Text className="text-gray-700 dark:text-gray-300 font-bold text-xs">{evento.cnpj || 'Não informada'}</Text>
             </View>
 
             <View className="w-full bg-blue-50 dark:bg-blue-950/30 p-4 rounded-2xl flex-row items-center mb-8">

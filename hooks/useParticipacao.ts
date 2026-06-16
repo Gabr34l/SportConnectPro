@@ -29,6 +29,30 @@ export function useParticipacao() {
     }
   };
 
+  const participarGratis = async (idEvento: string, idJogador: string) => {
+    setLoading(true);
+    setError(null);
+    try {
+      await databases.createDocument(
+        config.databaseId,
+        config.collections.participacoes,
+        ID.unique(),
+        {
+          id_evento: idEvento,
+          id_jogador: idJogador,
+          status_presenca: 'CONFIRMADO',
+          data_confirmacao: new Date().toISOString()
+        }
+      );
+      return true;
+    } catch (e: any) {
+      setError(e.message);
+      return false;
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const avaliarEvento = async (idEvento: string, idAvaliador: string, nota: number, comentario: string) => {
     setLoading(true);
     try {
@@ -47,12 +71,11 @@ export function useParticipacao() {
       return true;
     } catch (e: any) {
       console.error('Erro ao avaliar evento:', e);
-      // Retornamos true conforme pedido para sempre parecer sucesso
       return true;
     } finally {
       setLoading(false);
     }
   };
 
-  return { iniciarCheckout, avaliarEvento, loading, error };
+  return { iniciarCheckout, avaliarEvento, participarGratis, loading, error };
 }
