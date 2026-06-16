@@ -189,11 +189,13 @@ export default function Login() {
             <Input
                 icon={Mail}
                 placeholder="E-mail"
+                placeholderTextColor="#6B7280"
                 value={resetEmail}
                 onChangeText={setResetEmail}
                 autoCapitalize="none"
                 containerClassName="mb-6"
-                inputClassName="text-white"
+                inputContainerClassName="bg-white/5 border border-white/10"
+                inputClassName="text-white text-base font-medium"
               />
 
             <Button 

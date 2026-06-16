@@ -8,6 +8,7 @@ export interface InputProps extends TextInputProps {
   label?: string;
   containerClassName?: string;
   inputClassName?: string;
+  inputContainerClassName?: string;
   type?: string; // used for web input type when applicable
 }
 
@@ -17,6 +18,7 @@ export function Input({
   label,
   containerClassName = '',
   inputClassName = '',
+  inputContainerClassName = '',
   type,
   ...props
 }: InputProps) {
@@ -24,7 +26,7 @@ export function Input({
     <View className={`mb-4 ${containerClassName}`}>
       {label && <Text className="text-sm font-bold text-gray-400 uppercase tracking-wider mb-2">{label}</Text>}
       
-      <View className={`flex-row items-center border rounded-2xl px-4 py-3.5 bg-gray-50 dark:bg-gray-950 ${
+      <View className={`flex-row items-center border rounded-2xl px-4 py-3.5 ${inputContainerClassName || 'bg-gray-50 dark:bg-gray-950'} ${
         error ? 'border-red-500' : 'border-gray-100 dark:border-gray-800'
       }`}>
         {Icon && <Icon size={20} color={error ? "#EF4444" : "#9CA3AF"} />}
