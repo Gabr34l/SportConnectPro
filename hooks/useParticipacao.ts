@@ -33,19 +33,17 @@ export function useParticipacao() {
     setLoading(true);
     setError(null);
     try {
-      await databases.createDocument(
-        config.databaseId,
-        config.collections.participacoes,
-        ID.unique(),
-        {
-          id_evento: idEvento,
-          id_jogador: idJogador,
-          status_presenca: 'CONFIRMADO',
-          data_confirmacao: new Date().toISOString()
-        }
+      const execution = await functions.createExecution(
+        'criar-checkout',
+        JSON.stringify({ id_evento: idEvento, id_jogador: idJogador })
       );
-      return true;
+      
+      const response = JSON.parse(execution.responseBody);
+      if (response.error) throw new Error(response.error);
+      
+      return response.free || response.success || false;
     } catch (e: any) {
+      console.error('Erro em participarGratis:', e);
       setError(e.message);
       return false;
     } finally {

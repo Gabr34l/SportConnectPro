@@ -25,6 +25,7 @@ module.exports = async function (context) {
         eventos: process.env.EVENTOS_COLLECTION_ID,
         pagamentos: process.env.PAGAMENTOS_COLLECTION_ID,
         participacoes: process.env.PARTICIPACOES_COLLECTION_ID,
+        notificacoes: process.env.NOTIFICACOES_COLLECTION_ID,
     };
 
     if (req.method !== 'POST') {
@@ -49,6 +50,56 @@ module.exports = async function (context) {
 
         if (parts.total >= evento.limite_participantes) {
             return res.json({ error: 'Evento lotado' }, 400);
+        }
+
+        // Se o evento for gratuito (preço igual a 0 ou não informado)
+        if (!evento.preco_por_vaga || evento.preco_por_vaga === 0) {
+            // 3. Criar Pagamento (APROVADO)
+            const pagamento = await databases.createDocument(databaseId, collections.pagamentos, sdk.ID.unique(), {
+                id_evento,
+                id_jogador,
+                valor_pago: 0,
+                status: 'APROVADO',
+                metodo_pagamento: 'gratis'
+            });
+
+            // 4. Criar Participação (CONFIRMADO)
+            await databases.createDocument(databaseId, collections.participacoes, sdk.ID.unique(), {
+                id_evento,
+                id_jogador,
+                id_pagamento: pagamento.$id,
+                status_presenca: 'CONFIRMADO',
+                data_confirmacao: new Date().toISOString()
+            });
+
+            // 5. Verificar se o evento lotou agora
+            if (parts.total + 1 >= evento.limite_participantes) {
+                await databases.updateDocument(databaseId, collections.eventos, id_evento, {
+                    status: 'LOTADO'
+                });
+            }
+
+            // 6. Criar Notificação para o Jogador
+            await databases.createDocument(databaseId, collections.notificacoes, sdk.ID.unique(), {
+                id_usuario: id_jogador,
+                titulo: '✅ Vaga Confirmada!',
+                corpo: `Sua vaga para o evento gratuito "${evento.titulo}" foi confirmada. Bom jogo!`,
+                tipo: 'PAGAMENTO',
+                id_referencia: id_evento,
+                lida: false
+            });
+
+            // 7. Criar Notificação para o Organizador
+            await databases.createDocument(databaseId, collections.notificacoes, sdk.ID.unique(), {
+                id_usuario: evento.id_organizador,
+                titulo: 'Novo Participante',
+                corpo: `Um novo jogador entrou no seu evento gratuito: ${evento.titulo}`,
+                tipo: 'INSCRICAO_EVENTO',
+                id_referencia: id_evento,
+                lida: false
+            });
+
+            return res.json({ success: true, checkout_url: null, free: true });
         }
 
         // 3. Criar Pagamento (PENDENTE)

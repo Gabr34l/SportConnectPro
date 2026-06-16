@@ -94,7 +94,7 @@ export default function EventoDetalhe() {
   const toast = useToast();
 
   const { evento, participantes, minhaParticipacao, mediaAvaliacoes, loading, refetch } = useEventoDetalhe(id, usuario?.id_usuario);
-  const { iniciarCheckout, avaliarEvento, participarGratis, loading: partLoading } = useParticipacao();
+  const { iniciarCheckout, avaliarEvento, participarGratis, loading: partLoading, error: partError } = useParticipacao();
 
   const [modalVisible, setModalVisible] = useState(false);
   const [pixModalVisible, setPixModalVisible] = useState(false);
@@ -130,34 +130,14 @@ export default function EventoDetalhe() {
     try {
       const sucesso = await participarGratis(evento.id_evento, usuario.id_usuario);
       if (sucesso) {
-        // Se houver atingido o limite, atualiza o status do evento para LOTADO
-        const novosConfirmados = confirmados.length + 1;
-        if (novosConfirmados >= evento.limite_participantes) {
-          await databases.updateDocument(
-            config.databaseId,
-            config.collections.eventos,
-            evento.id_evento,
-            { status: 'LOTADO' }
-          );
-        }
-
-        // Criar Notificação para o Organizador
-        await db.notifications.create(
-          evento.id_organizador,
-          'Novo Participante',
-          `${usuario.nome_completo} entrou no seu evento gratuito: ${evento.titulo}`,
-          'INSCRICAO_EVENTO',
-          evento.id_evento
-        );
-
         showFeedback('success', 'Sucesso!', 'Você entrou no evento gratuito com sucesso!');
         refetch();
       } else {
-        showFeedback('error', 'Erro', 'Não foi possível confirmar sua participação.');
+        showFeedback('error', 'Erro', partError || 'Não foi possível confirmar sua participação.');
       }
-    } catch (e) {
+    } catch (e: any) {
       console.error('Erro ao participar de evento gratuito:', e);
-      showFeedback('error', 'Erro', 'Não foi possível confirmar sua participação.');
+      showFeedback('error', 'Erro', e.message || 'Não foi possível confirmar sua participação.');
     }
   };
 
