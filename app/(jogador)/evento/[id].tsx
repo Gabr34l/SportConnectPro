@@ -208,18 +208,28 @@ export default function EventoDetalhe() {
           </TouchableOpacity>
         );
       } else {
-        BottomButton = (
-          <View className="flex-row gap-4">
-            <View className="flex-1 bg-white dark:bg-gray-900 border-2 border-[#00C853] py-4 rounded-3xl flex-row justify-center items-center">
+        const isGratis = precoVaga === 0;
+        if (isGratis) {
+          BottomButton = (
+            <View className="bg-white dark:bg-gray-900 border-2 border-[#00C853] py-4 rounded-3xl flex-row justify-center items-center">
               <CheckCircle2 color="#00C853" size={20} strokeWidth={2.5} />
               <Text className="text-[#00C853] font-bold text-lg ml-2">Confirmado</Text>
             </View>
-            <TouchableOpacity className="flex-1 bg-[#111827] py-4 rounded-3xl flex-row justify-center items-center shadow-lg shadow-black/20" onPress={() => router.push(`/(jogador)/chat/${evento.id_evento}` as any)}>
-              <MessageCircle color="white" size={20} />
-              <Text className="text-white font-bold text-lg ml-2">Chat</Text>
-            </TouchableOpacity>
-          </View>
-        );
+          );
+        } else {
+          BottomButton = (
+            <View className="flex-row gap-4">
+              <View className="flex-1 bg-white dark:bg-gray-900 border-2 border-[#00C853] py-4 rounded-3xl flex-row justify-center items-center">
+                <CheckCircle2 color="#00C853" size={20} strokeWidth={2.5} />
+                <Text className="text-[#00C853] font-bold text-lg ml-2">Confirmado</Text>
+              </View>
+              <TouchableOpacity className="flex-1 bg-[#111827] py-4 rounded-3xl flex-row justify-center items-center shadow-lg shadow-black/20" onPress={() => router.push(`/(jogador)/chat/${evento.id_evento}` as any)}>
+                <MessageCircle color="white" size={20} />
+                <Text className="text-white font-bold text-lg ml-2">Chat</Text>
+              </TouchableOpacity>
+            </View>
+          );
+        }
       }
     }
   } else {
